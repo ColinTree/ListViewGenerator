@@ -1,0 +1,3 @@
+# offline documents
+local_lib/**/*.html
+local_lib/**/*_files

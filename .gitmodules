@@ -1,0 +1,9 @@
+[submodule "lib/clipboard.js"]
+	path = lib/clipboard.js
+	url = https://github.com/zenorocha/clipboard.js.git
+[submodule "lib/jszip"]
+	path = lib/jszip
+	url = https://github.com/Stuk/jszip.git
+[submodule "lib/bootstrap"]
+	path = lib/bootstrap
+	url = https://github.com/twbs/bootstrap.git
