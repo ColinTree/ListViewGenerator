@@ -1,0 +1,110 @@
+<html>
+
+<head>
+    <!--
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <link href="https://cdn.bootcss.com/bootstrap/4.1.1/css/bootstrap.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.js"></script>
+    <script src="https://cdn.bootcss.com/jszip/3.1.5/jszip.js"></script>
+    <script src="https://cdn.bootcss.com/FileSaver.js/2014-11-29/FileSaver.js"></script>
+    <script src="https://cdn.bootcss.com/clipboard.js/2.0.1/clipboard.js"></script>
+    -->
+    
+    <!--.min available-->
+    <script src="lib/jquery/3.3.1/jquery.js"></script>
+    <link href="lib/bootstrap/4.1.1/css/bootstrap.css" rel="stylesheet">
+    <script src="lib/bootstrap/4.1.1/js/bootstrap.js"></script>
+    <script src="lib/jszip/3.1.5/jszip.js"></script>
+    <script src="lib/FileSaver.js/2014-11-29/FileSaver.js"></script>
+    <script src="lib/clipboard.js/2.0.1/clipboard.js"></script>
+
+    <script src="assets/js/generator.js"></script>
+    <link href="assets/css/index.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="container">
+        <div id="header">
+            <h2>ListView Generator <label>by ColinTree (v1)</label></h2>
+            <hr>
+        </div>
+        <div id="content">
+            <div id="upload">
+                <form id="upload_form">
+                    <label for="upload_file"><b>Import an existing project (.lvg file)</b></label>
+                    <div class="input-group mb-2">
+                        <div class="custom-file">
+                            <input id="upload_file" type="file" class="custom-file-input" accept=".lvg">
+                            <label for="upload_file" id="upload_file_label" class="custom-file-label">Choose file</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <hr>
+            
+            <div id="fields">
+                <form id="field_form">
+                    <label for="field_package"><b>Or start setting it up below</b></label>
+                    <div class="form-group row">
+                        <label for="field_package" class="col-sm-2 col-form-label">Package</label>
+                        <div class="col-sm-10">
+                            <input id="field_package" type="text" class="form-control" value="cn.colintree.aix">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input id="field_package_addCompName" class="form-check-input" type="checkbox" checked>
+                                <label for="field_package_addCompName" class="form-check-label">
+                                    Join component name into package
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="field_componentName" class="col-sm-2 col-form-label">Component Name</label>
+                        <div class="col-sm-10">
+                            <input id="field_componentName" type="text" class="form-control" value="TemplateListView">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="field_description" class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-10">
+                            <textarea id="field_description" type="text" class="form-control">This is a template of ListView.</textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="field_version" class="col-sm-2 col-form-label">Version (integer)</label>
+                        <div class="col-sm-10">
+                            <input id="field_version" type="number" class="form-control" value="1" step="1">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button id="field_generateCodeZip" class="btn btn-primary">Generate</button>
+                            <button id="field_generateCode" class="btn btn-default">Generate code</button>
+                            <button id="field_downloadProject" class="btn btn-default">Download Project</button>
+                        </div>
+                    </div>
+                    <div id="field_java_code" class="form-group row">
+                        <div class="col-sm-10">
+                            <pre class="form-control row" id="field_java_code_preview"></pre>
+                        </div>
+                        <div class="col-sm-2">
+                            <button id="field_java_code_copy" class="btn btn-default" data-clipboard-target="#field_java_code_preview">Copy</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="footer">
+            By <a href="https://github.com/ColinTree">ColinTree</a>, source at
+            <a href="https://github.com/ColinTree/ListViewGenerator">Github</a>.
+            <label>Got <a href="https://github.com/ColinTree/ListViewGenerator/issues">issue</a>?</label>
+        </div>
+    </div>
+</body>
+
+</html>

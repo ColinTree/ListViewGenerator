@@ -1,0 +1,55 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+#container {
+    margin-top: 30px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+#header {
+    margin-bottom: 20px;
+}
+#header label {
+    /*float: right;*/
+    font-size: small;
+    font-weight: initial;
+    color: gray;
+}
+#content {
+    padding: 5px;
+}
+#footer {
+    margin-top: 10px;
+}
+#footer>label {
+    float: right;
+}
+@media (min-width: 751px) {
+    #container {
+        width: 730px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #header > hr {
+        display: none;
+    }
+    #content {
+        background-color: rgb(243, 243, 243);
+        border: solid darkgray 1px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    #header, #content, #footer {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+#field_java_code_preview {
+    font-size: 85%;
+    margin-left: 0px;
+}
+#field_java_code {
+    display: none;
+}
