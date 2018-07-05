@@ -53,3 +53,6 @@ html, body {
 #field_java_code {
     display: none;
 }
+#field_template_file_download {
+    display: none;
+}

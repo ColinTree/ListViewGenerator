@@ -1,6 +1,9 @@
+<!doctype html>
 <html>
 
 <head>
+    <meta charset="UTF-8">
+
     <!--
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
     <link href="https://cdn.bootcss.com/bootstrap/4.1.1/css/bootstrap.css" rel="stylesheet">
@@ -41,7 +44,7 @@
                 </form>
             </div>
 
-            <hr>
+            <hr><br>
             
             <div id="fields">
                 <form id="field_form">
@@ -79,6 +82,38 @@
                         <label for="field_version" class="col-sm-2 col-form-label">Version (integer)</label>
                         <div class="col-sm-10">
                             <input id="field_version" type="number" class="form-control" value="1" step="1">
+                        </div>
+                    </div>
+                    
+                    <hr><br>
+
+                    <div class="form-group row">
+                        <label for="field_template" class="col-sm-2 col-form-label">Generating Template</label>
+                        <!--<div class="col-sm-10">
+                            <select id="field_template" class="form-control">
+                                <option selected>Default</option>
+                                <option>Import</option>
+                            </select>
+                        </div>-->
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input type="radio" id="field_template_radio1" name="field_template" class="custom-control-input" checked>
+                            <label class="custom-control-label" for="field_template_radio1">Default</label>
+                        </div>
+                        <div class="custom-control custom-radio">
+                            <input type="radio" id="field_template_radio2" name="field_template" class="custom-control-input">
+                            <label class="custom-control-label" for="field_template_radio2">Import</label>
+                        </div>
+                    </div>
+                    <div class="form-group row" style="display: none;">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-10 input-group mb-3">
+                            <div class="custom-file">
+                                <input id="field_template_file" type="file" class="custom-file-input" accept=".template">
+                                <label for="field_template_file" id="field_template_file_label" class="custom-file-label">Choose file</label>
+                            </div>
+                            <div id="field_template_file_download" class="input-group-append">
+                                <button id="field_template_file_download_button" class="btn btn-default">Download</button>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group row">
