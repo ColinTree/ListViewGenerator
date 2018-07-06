@@ -25,6 +25,9 @@ html, body {
 #footer>label {
     float: right;
 }
+#field_generateCodeZip, #field_generateCode, #field_downloadProject {
+    margin-top: 4px;
+}
 @media (min-width: 751px) {
     #container {
         width: 730px;
@@ -52,4 +55,8 @@ html, body {
 }
 #field_java_code {
     display: none;
+}
+
+.custom-radio {
+    margin-left: 16px;
 }
