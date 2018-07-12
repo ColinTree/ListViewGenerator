@@ -1,11 +1,11 @@
 'use strict';
 
-const LVG_VERSION = "er: alpha";
+const LVG_VERSION = "er: alpha"; //will be joined as "ver: alpha"
 var TEMPLATE_DEFAULT;
 var TEMPLATE_IMPORT;
 
 /**
- * depends: jquery, jszip, FileSaver.js, clipboard.js
+ * depends: jquery, jszip, FileSaver.js, clipboard.js, alertify.js
  */
 
 $(document).ready(function(){
@@ -41,7 +41,7 @@ $(document).ready(function(){
     });
 
     // field handlers
-    var field_template_radio_change = function(){
+    function field_template_radio_change(){
         $("#field_template_file").parent().parent().parent()
             .css("display", $("#field_template_radio2").prop("checked") ? "flex" : "none");
     };
@@ -55,7 +55,7 @@ $(document).ready(function(){
             $("#field_template_file_label").text(files[0].name);
             $("#field_template_file_download").css("display", "flex");
             if (!FileReader) {
-                return alert("Need a newer browser to support this (FileReader)");
+                return alertify.error("Need a newer browser to support this (FileReader)");
             }
             var reader = new FileReader();
             reader.onload = function(oFREvent) {
@@ -188,7 +188,7 @@ function generateCode(projectInfo, callback) {
     const event = {};
     const elementCreate = {};
     const elementProperty = {};
-    
+
     // We use split & join as replace all
     getTemplate(function(content){
         // __xxx__
