@@ -1,4 +1,4 @@
-'use_strict';
+'use strict';
 
 const LVG_VERSION = "er: alpha";
 var TEMPLATE_DEFAULT;
