@@ -43,6 +43,7 @@
         <div id="content">
             <div id="upload">
                 <form id="upload_form">
+                    <!-- UPLOAD .LVG -->
                     <label for="upload_file"><b>Import an existing project (.lvg file)</b></label>
                     <div class="input-group mb-2">
                         <div class="custom-file">
@@ -58,12 +59,14 @@
             <div id="fields">
                 <form id="field_form">
                     <label for="field_package"><b>Or start setting it up below</b></label>
+                    <!-- PACKAGE -->
                     <div class="form-group row">
                         <label for="field_package" class="col-sm-2 col-form-label">Package</label>
                         <div class="col-sm-10">
                             <input id="field_package" type="text" class="form-control" value="cn.colintree.aix">
                         </div>
                     </div>
+                    <!-- EXTENDED PACKAGE -->
                     <div class="form-group row">
                         <div class="col-sm-2"></div>
                         <div class="col-sm-10">
@@ -75,18 +78,21 @@
                             </div>
                         </div>
                     </div>
+                    <!-- COMPONENT NAME -->
                     <div class="form-group row">
                         <label for="field_componentName" class="col-sm-2 col-form-label">Component Name</label>
                         <div class="col-sm-10">
                             <input id="field_componentName" type="text" class="form-control" value="TemplateListView">
                         </div>
                     </div>
+                    <!-- DESCRIPTION -->
                     <div class="form-group row">
                         <label for="field_description" class="col-sm-2 col-form-label">Description</label>
                         <div class="col-sm-10">
                             <textarea id="field_description" type="text" class="form-control">This is a template of ListView.</textarea>
                         </div>
                     </div>
+                    <!-- VERSION -->
                     <div class="form-group row">
                         <label for="field_version" class="col-sm-2 col-form-label">Version (integer)</label>
                         <div class="col-sm-10">
@@ -96,6 +102,7 @@
                     
                     <hr><br>
 
+                    <!-- TEMPLATE -->
                     <div class="form-group row">
                         <label for="field_template" class="col-sm-2 col-form-label">Generating Template</label>
                         <div class="custom-control custom-radio custom-control-inline">
@@ -107,6 +114,7 @@
                             <label class="custom-control-label" for="field_template_radio2">Import</label>
                         </div>
                     </div>
+                    <!-- TEMPLATE IMPORT -->
                     <div class="form-group row" style="display: none;">
                         <div class="col-sm-2"></div>
                         <div class="col-sm-10 input-group mb-3">
@@ -119,6 +127,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- BUTTONS -->
                     <div class="form-group row">
                         <div class="col-sm-10">
                             <button id="field_generateCodeZip" class="btn btn-primary">Generate</button>
@@ -126,6 +135,7 @@
                             <button id="field_downloadProject" class="btn btn-default">Download Project</button>
                         </div>
                     </div>
+                    <!-- PREVIEW -->
                     <div id="field_java_code" class="form-group row">
                         <div class="col-sm-10">
                             <pre class="form-control row" id="field_java_code_preview"></pre>
