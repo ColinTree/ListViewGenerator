@@ -29,6 +29,10 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     public static final String LOG_TAG = "__componentName__";
     public static final int VERSION = __version__;
 
+    /*_propertyDefaultValueStart_*/
+    private static final _type_ DEFAULT__name_ = _defaultValue_;
+    /*_propertyDefaultValueEnd_*/
+
     private final Context context;
     private final Form form;
 
@@ -37,7 +41,7 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     private int currentListSize = 0;
 
     /*_propertyFieldStart_*/
-    private _type_ _name_ = _defaultValue_;
+    private _type_ _name_ = DEFAULT__name_;
     /*_propertyFieldEnd_*/
 
     public __componentName__(ComponentContainer container) {
@@ -180,7 +184,7 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     
     /*_propertyStart_*/
     @SimpleProperty(description = "_description_", category = PropertyCategory._category_, userVisible = _setterUserVisible_)
-    @DesignerProperty(editorType = _editorType_, defaultValue = "" + _defaultValue_, editorArgs = _args_)
+    _if_designerVisible_@DesignerProperty(editorType = "_editorType_", defaultValue = "" + DEFAULT__name_, editorArgs = _args_)
     public void _name_(_type_ _name_) {
         this._name_ = _name_;
         refreshElementProperties();

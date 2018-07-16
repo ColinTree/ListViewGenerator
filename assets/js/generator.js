@@ -4,14 +4,18 @@ const LVG_VERSION = "er: alpha"; //will be joined as "ver: alpha"
 var TEMPLATE_DEFAULT;
 var TEMPLATE_IMPORT;
 var properties = {};
-const events = {};
-const elementCreate = {};
-const elementProperties = {};
 
 // Check promise availability
 if (typeof(Promise)!='function') {
     alert("Please change or upgrade your browser to a newer version! e.g. Chrome 32+");
 }
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
 
 /**
  * depends: (Promise, FileReader), jquery, jszip, FileSaver.js, clipboard.js, alertify.js
@@ -53,6 +57,40 @@ $(document).ready(function(){
     });
 
     // field handlers
+    refreshPropertyDropdown();
+    $('#properties_remove_modal').on('show.bs.modal', function(){
+        const name = $("#field_properties_select").val();
+        $(this).find('.modal-body b').text(name);
+    });
+    $("#properties_remove_modal .btn-danger").click(function(){
+        const name = $("#field_properties_select").val();
+        delete properties[name];
+        refreshPropertyDropdown();
+        $('#properties_remove_modal').modal('hide');
+    });
+
+    $('#properties_edit_modal').on('show.bs.modal', function(event){
+        var action = $(event.relatedTarget).data('action')
+        if (action=="add") {
+            $(this).find('.modal-title').text("Adding property");
+            setProprtyToModal({});
+        } else if (action=="edit") {
+            const name = $("#field_properties_select").val();
+            setProprtyToModal(getFixedProperty(name));
+        }
+    });
+    $("#properties_edit_modal").find(".btn-primary").click(function(){
+        const property = getPropertyFromModal();
+        properties[property.name] = property;
+        refreshPropertyDropdown();
+        $("#properties_edit_modal").modal("hide");
+    });
+
+    $("#property_designerVisible").change(function(){
+        $("#property_editorType").prop("disabled", !$(this).prop("checked"))
+    });
+    autocomplete("property_type");
+
     function field_template_radio_change(){
         $("#field_template_file").parent().parent().parent()
             .css("display", $("#field_template_radio2").prop("checked") ? "flex" : "none");
@@ -212,6 +250,67 @@ function generateCode(projectInfo) {
         content = replace_all(content, "__description__", projectInfo.description);
 
         // /*_xxx_*/
+        function handleBlock(content, blockName, handler) {
+            var split = content.split("/*_"+blockName+"Start_*/");
+            switch (split.length) {
+                case 2:  break;
+                case 1:  reject("Template error:<br>\""+blockName+"\" start block not found");
+                default: reject("Template error:<br>more than one \""+blockName+"\" start block is found");
+            }
+            const beforeBlock = split[0] + "// GENERATED BLOCK START: " + blockName;
+            split = split[1].split("/*_"+blockName+"End_*/");
+            switch (split.length) {
+                case 2:  break;
+                case 1:  reject("Template error:<br>\""+blockName+"\" end block not found");
+                default: reject("Template error:<br>more than one \""+blockName+"\" end block is found");
+            }
+            var blockFormat = split[0];
+            // remove a extra line
+            var arr = blockFormat.split('\n');
+            const space = arr.pop();
+            blockFormat = arr.join('\n');
+            // ---
+            const afterBlock = "\n" + space + "// GENERATED BLOCK END:   " + blockName + split[1];
+            handler(beforeBlock, blockFormat, afterBlock);
+        }
+        handleBlock(content, "propertyDefaultValue", function(beforeBlock, blockFormat, afterBlock){
+            for (name in properties) {
+                const property = getFixedProperty(name);
+                beforeBlock += replace_all2(blockFormat, {
+                    "_type_": property.type,
+                    "_name_": name,
+                    "_defaultValue_": property.defaultValue
+                });
+            }
+            content = beforeBlock + afterBlock;
+        });
+        handleBlock(content, "propertyField", function(beforeBlock, blockFormat, afterBlock){
+            for (name in properties) {
+                const property = getFixedProperty(name);
+                beforeBlock += replace_all2(blockFormat, {
+                    "_type_": property.type,
+                    "_name_": name
+                });
+            }
+            content = beforeBlock + afterBlock;
+        });
+        handleBlock(content, "property", function(beforeBlock, blockFormat, afterBlock){
+            for (name in properties) {
+                const property = getFixedProperty(name);
+                beforeBlock += replace_all2(blockFormat, {
+                    "_description_": property.description,
+                    "_category_": property.category,
+                    "_if_designerVisible": property.designerVisible ? "" : "//",
+                    "_setterUserVisible_": property.setterUserVisible,
+                    "_editorType_": property.editorType,
+                    "_args_": property.args,
+                    "_type_": property.type,
+                    "_name_": name,
+                    "_getterUserVisible_": property.getterUserVisible
+                });
+            }
+            content = beforeBlock + afterBlock;
+        });
 
         executor(javaHead + content);
     });
@@ -237,6 +336,75 @@ function getTemplate() {
         }
         return TEMPLATE_IMPORT;
     }
+}
+
+/**
+ * get a certain property and fix all the values. If any of the value does not exist, fill it with default value.
+ * @param {string} name 
+ */
+function getFixedProperty(name) {
+    return {
+        name: name,
+        args: properties[name].args ? properties[name].args : "{}",
+        type: properties[name].type ? properties[name].type : "String",
+        category: properties[name].category ? properties[name].category : "UNSET",
+        editorType: properties[name].editorType ? properties[name].editorType : "text",
+        description: properties[name].description ? properties[name].description : "",
+        defaultValue: properties[name].defaultValue ? properties[name].defaultValue : "\"\"",
+        designerVisible: typeof(properties[name].designerVisible)=="boolean"
+            ? properties[name].designerVisible : true,
+        getterUserVisible: typeof(properties[name].getterUserVisible)=="boolean"
+            ? properties[name].getterUserVisible : true,
+        setterUserVisible: typeof(properties[name].setterUserVisible)=="boolean"
+            ? properties[name].setterUserVisible : true,
+    };
+}
+function setProprtyToModal(property) {
+    $("#property_name").val(property.name);
+    $("#property_designerVisible").prop("checked", property.designerVisible);
+    $("#property_designerVisible").change();
+    $("#property_editorType").val(property.editorType);
+    $("#property_setterUserVisible").prop("checked", property.setterUserVisible);
+    $("#property_getterUserVisible").prop("checked", property.getterUserVisible);
+    $("#property_category").val(property.category);
+    $("#property_description").val(property.description);
+    $("#property_type").val(property.type);
+    $("#property_default").val(property.defaultValue);
+}
+function getPropertyFromModal() {
+    return {
+        name: $("#property_name").val(),
+        type: $("#property_type").val(),
+        category: $("#property_category").val(),
+        editorType: $("#property_editorType").val(),
+        description: $("#property_description").val(),
+        defaultValue: $("#property_default").val(),
+        designerVisible: $("#property_designerVisible").prop("checked"),
+        getterUserVisible: $("#property_getterUserVisible").prop("checked"),
+        setterUserVisible: $("#property_setterUserVisible").prop("checked"),
+    };
+}
+function refreshPropertyDropdown() {
+    const select = $("#field_properties_select");
+    const val = select.val();
+    select.empty();
+    if (Object.size(properties)==0) {
+        select.append("<option>None</option>");
+        select.val("None");
+        $("#field_properties_edit").prop("disabled", true);
+        $("#field_properties_remove").prop("disabled", true);
+        return;
+    }
+    for (name in properties) {
+        var option = $("<option></option>");
+        option.text(name);
+        select.append(option);
+    }
+    if (val in properties) {
+        select.val(val);
+    }
+    $("#field_properties_edit").prop("disabled", false);
+    $("#field_properties_remove").prop("disabled", false);
 }
 
 /**
@@ -270,4 +438,124 @@ function getFile(url) {
  */
 function replace_all(text, oldText, newText){
     return text.split(oldText).join(newText);
+}
+/**
+ * 
+ * @param {string} text 
+ * @param {object} obj require a object like {"oldText": "newText"}
+ */
+function replace_all2(text, obj) {
+    for (var oldText in obj) {
+        text = replace_all(text, oldText, obj[oldText]);
+    }
+    return text;
+}
+
+/**
+ * modified from https://www.w3schools.com/howto/howto_js_autocomplete.asp
+ * 
+ * @param {string} inputBox id of inputBox, jquery node also allowed
+ * @param {string[]} choices array of string of choices
+ */
+function autocomplete(inputBox, choices) {
+    if (typeof(inputBox)=="string") {
+        inputBox = $("#"+inputBox);
+    }
+    if (!choices) {
+        choices = inputBox.attr("autocompleteItems").split(",");
+    }
+    if (!choices) {
+        return;
+    }
+    var currentFocus;
+    inputBox.on("input focusin", function(){
+        const val = $(this).val();
+        closeAllLists();
+        currentFocus = -1;
+        var list = $("<div></div>");
+        list.attr("id", $(this).attr("id")+"autocomplete-list");
+        list.addClass("autocomplete-items");
+        list.appendTo($(this).parent());
+        var unhighlighted = [];
+        for (var i in choices) {
+            if (choices[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                var item = $("<div></div>");
+                item.append("<strong>"+choices[i].substr(0,val.length)+"</strong>", choices[i].substr(val.length));
+                item.attr("value", choices[i]);
+                list.append(item);
+            } else {
+                unhighlighted.push(choices[i]);
+            }
+        }
+        for (var j in unhighlighted) {
+            var item = $("<div></div>");
+            item.append(unhighlighted[j]);
+            item.attr("value", unhighlighted[j]);
+            list.append(item);
+        }
+        list.children().each(function(){
+            $(this).click(function() {
+                inputBox.val($(this).attr("value"));
+                closeAllLists();
+            });
+        });
+    });
+    inputBox.on("keydown", function(e) {
+        var x = $("#" + $(this).attr("id") + "autocomplete-list").find("div");
+        if (e.keyCode == 40) { // arrow DOWN
+            currentFocus++;
+            addActive(x);
+        } else if (e.keyCode == 38) { // arrow UP
+            currentFocus--;
+            addActive(x);
+        } else if (e.keyCode == 13) { // ENTER
+            e.preventDefault();
+            if (currentFocus > -1) {
+                if (x) {
+                    x[currentFocus].click();
+                }
+            }
+        }
+    });
+    function addActive(x) {
+        if (!x) {
+            return false;
+        }
+        removeActive(x);
+        if (currentFocus >= x.length) {
+            currentFocus = 0;
+        }
+        if (currentFocus < 0) {
+            currentFocus = (x.length - 1);
+        }
+        const current = $(x[currentFocus]);
+        current.addClass("autocomplete-active");
+        
+        const unitHeight = current.outerHeight();
+        const parent = current.parent();
+        if ((currentFocus+1)*unitHeight - parent.scrollTop() > parent.height()) {
+            parent.scrollTop((currentFocus+1)*unitHeight - parent.height());
+        }
+        if (currentFocus*unitHeight < parent.scrollTop()) {
+            parent.scrollTop(currentFocus*unitHeight);
+        }
+    }
+    function removeActive(x) {
+        x.each(function(){
+            $(this).removeClass("autocomplete-active");
+        });
+    }
+    function closeAllLists(elmnt) {
+        $(".autocomplete-items").each(function(){
+            if (elmnt != $(this)[0] && elmnt != inputBox[0]) {
+                $(this).remove();
+            }
+        });
+    }
+    $(document).on("click", function (e) {
+        closeAllLists(e.target);
+    });
+    inputBox.on("focusout", function(){
+        closeAllLists();
+    })
 }
