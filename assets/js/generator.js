@@ -17,6 +17,22 @@ Object.size = function(obj) {
     return size;
 };
 
+$.extend({
+    replace_all: function(text, oldText, newText){
+        return text.split(oldText).join(newText);
+    },
+    /**
+     * @param {string} text 
+     * @param {object} obj require a object like {"oldText": "newText"}
+     */
+    replace_all2: function (text, obj) {
+        for (let oldText in obj) {
+            text = $.replace_all(text, oldText, obj[oldText]);
+        }
+        return text;
+    }
+});
+
 $.fn.extend({
     validity: function(validity, msg) {
         if (validity) {
@@ -435,10 +451,10 @@ function generateCode(projectInfo) {
             reject(err);
         }
         // __xxx__
-        content = replace_all(content, "__componentName__", projectInfo.componentName);
-        content = replace_all(content, "__version__", projectInfo.version);
-        content = replace_all(content, "__full_package__", getFullPackage(projectInfo));
-        content = replace_all(content, "__description__", projectInfo.description);
+        content = $.replace_all(content, "__componentName__", projectInfo.componentName);
+        content = $.replace_all(content, "__version__", projectInfo.version);
+        content = $.replace_all(content, "__full_package__", getFullPackage(projectInfo));
+        content = $.replace_all(content, "__description__", projectInfo.description);
 
         // /*_xxx_*/
         function handleBlock(content, blockName, handler) {
@@ -467,7 +483,7 @@ function generateCode(projectInfo) {
         handleBlock(content, "propertyDefaultValue", function(beforeBlock, blockFormat, afterBlock){
             for (name in properties) {
                 const property = getFixedProperty(name);
-                beforeBlock += replace_all2(blockFormat, {
+                beforeBlock += $.replace_all2(blockFormat, {
                     "_type_": property.type,
                     "_name_": name,
                     "_defaultValue_": property.defaultValue
@@ -478,7 +494,7 @@ function generateCode(projectInfo) {
         handleBlock(content, "propertyField", function(beforeBlock, blockFormat, afterBlock){
             for (name in properties) {
                 const property = getFixedProperty(name);
-                beforeBlock += replace_all2(blockFormat, {
+                beforeBlock += $.replace_all2(blockFormat, {
                     "_type_": property.type,
                     "_name_": name
                 });
@@ -488,7 +504,7 @@ function generateCode(projectInfo) {
         handleBlock(content, "property", function(beforeBlock, blockFormat, afterBlock){
             for (name in properties) {
                 const property = getFixedProperty(name);
-                beforeBlock += replace_all2(blockFormat, {
+                beforeBlock += $.replace_all2(blockFormat, {
                     "_description_": property.description,
                     "_category_": property.category,
                     "_if_designerVisible_": property.designerVisible ? "" : "//",
@@ -615,24 +631,4 @@ function getFile(url) {
             }
         });
     })
-}
-
-/**
- * @param {string} text 
- * @param {string} oldText 
- * @param {string} newText 
- */
-function replace_all(text, oldText, newText){
-    return text.split(oldText).join(newText);
-}
-/**
- * 
- * @param {string} text 
- * @param {object} obj require a object like {"oldText": "newText"}
- */
-function replace_all2(text, obj) {
-    for (let oldText in obj) {
-        text = replace_all(text, oldText, obj[oldText]);
-    }
-    return text;
 }
