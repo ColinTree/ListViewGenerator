@@ -31,6 +31,124 @@ $.fn.extend({
     },
     removeValidity: function() {
         return $(this).removeClass("is-invalid");
+    },
+    /**
+     * modified from https://www.w3schools.com/howto/howto_js_autocomplete.asp
+     * 
+     * @param {string[]} choices array of string of choices
+     */
+    autocomplete: function (choices) {
+        let inputBox = $(this);
+        if (inputBox.attr("type")!="text") {
+            return inputBox;
+        }
+        if (!choices) {
+            choices = inputBox.attr("autocompleteItems").split(",");
+        }
+        if (!choices || choices==[]) {
+            return inputBox;
+        }
+        let currentFocus;
+        inputBox.on("input focusin", function(){
+            const val = $(this).val();
+            closeAllLists();
+            currentFocus = -1;
+            let list = $("<div id=\""+$(this).attr("id")+"autocomplete-list\" class=\"autocomplete-items\"></div>");
+            $(this).parent().append(list);
+            let unhighlighted = [];
+            for (let i in choices) {
+                if (choices[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    list.append($("<div value=\""+choices[i]+"\"><strong>"+choices[i].substr(0,val.length)+"</strong>"+choices[i].substr(val.length)+"</div>"));
+                } else {
+                    unhighlighted.push(choices[i]);
+                }
+            }
+            for (let j in unhighlighted) {
+                list.append($("<div value=\""+unhighlighted[j]+"\">"+unhighlighted[j]+"</div>"));
+            }
+            list.children().each(function(){
+                $(this).click(function() {
+                    inputBox.val($(this).attr("value")).change();
+                    closeAllLists();
+                });
+            });
+        });
+        inputBox.on("keydown", function(e) {
+            let x = $("#" + $(this).attr("id") + "autocomplete-list div");
+            if (e.keyCode == 40) { // arrow DOWN
+                if ($("#" + $(this).attr("id") + "autocomplete-list").length == 0) {
+                    $(this).focus();
+                    return false;
+                }
+                currentFocus++;
+                addActive(x);
+            } else if (e.keyCode == 38) { // arrow UP
+                currentFocus--;
+                addActive(x);
+            } else if (e.keyCode == 13) { // ENTER
+                if (currentFocus > -1) {
+                    if (x) {
+                        x[currentFocus].click();
+                        currentFocus = -1;
+                        return false;
+                    }
+                } else {
+                    let node = $(this);
+                    while (!node.is("form") && !node.is(".modal-content") && !node.is("body") && !node.is("html")) {
+                        console.log(node);
+                        node = node.parent();
+                    }
+                    node.find(".btn-primary").click();
+                }
+            } else if (e.keyCode == 27) { // ESC
+                if ($("#" + $(this).attr("id") + "autocomplete-list").length > 0) {
+                    closeAllLists();
+                    return false;
+                }
+            }
+        });
+        function addActive(x) {
+            if (!x) {
+                return false;
+            }
+            removeActive(x);
+            if (currentFocus >= x.length) {
+                currentFocus = 0;
+            }
+            if (currentFocus < 0) {
+                currentFocus = (x.length - 1);
+            }
+            const current = $(x[currentFocus]);
+            current.addClass("autocomplete-active");
+            
+            const unitHeight = current.outerHeight();
+            const parent = current.parent();
+            if ((currentFocus+1)*unitHeight - parent.scrollTop() > parent.height()) {
+                parent.scrollTop((currentFocus+1)*unitHeight - parent.height());
+            }
+            if (currentFocus*unitHeight < parent.scrollTop()) {
+                parent.scrollTop(currentFocus*unitHeight);
+            }
+        }
+        function removeActive(x) {
+            x.each(function(){
+                $(this).removeClass("autocomplete-active");
+            });
+        }
+        function closeAllLists(elmnt) {
+            $(".autocomplete-items").each(function(){
+                if (elmnt != $(this)[0] && elmnt != inputBox[0]) {
+                    $(this).remove();
+                }
+            });
+        }
+        $(document).on("click", function (e) {
+            closeAllLists(e.target);
+        });
+        inputBox.on("focusout", function(){
+            closeAllLists();
+        });
+        return inputBox;
     }
 });
 
@@ -46,8 +164,8 @@ $(document).ready(function(){
     });
 
     // upload handlers
-    $("#upload_file").change(function(evt){
-        const files = evt.target.files;
+    $("#upload_file").change(function(e){
+        const files = e.target.files;
         if (files.length == 1) {
             $("#upload_file_label").text(files[0].name);
             let zip_;
@@ -113,7 +231,7 @@ $(document).ready(function(){
         $(this).validity(true);
     })
     .on("keydown", function(e){
-        if (e.keyCode==13) { // ENTER
+        if (e.keyCode==13 && !$(this).attr("autocompleteitems")) { // ENTER
             $("#properties_edit_modal .btn-primary").click();
         }
     });
@@ -157,7 +275,12 @@ $(document).ready(function(){
     $("#property_designerVisible").change(function(){
         $("#property_editorType").prop("disabled", !$(this).prop("checked"))
     });
-    autocomplete("property_type");
+    $("#property_type").autocomplete()
+    .on("keydown", function(e){
+        if (e.keyCode==13) {
+            return false;
+        }
+    });
 
     function field_template_radio_change(){
         $("#field_template_file").parent().parent().parent()
@@ -401,6 +524,7 @@ function getTemplate() {
     }
 }
 
+
 /**
  * get a certain property and fix all the values. If any of the value does not exist, fill it with default value.
  * @param {string} name 
@@ -511,113 +635,4 @@ function replace_all2(text, obj) {
         text = replace_all(text, oldText, obj[oldText]);
     }
     return text;
-}
-
-/**
- * modified from https://www.w3schools.com/howto/howto_js_autocomplete.asp
- * 
- * @param {string} inputBox id of inputBox, jquery node also allowed
- * @param {string[]} choices array of string of choices
- */
-function autocomplete(inputBox, choices) {
-    if (typeof(inputBox)=="string") {
-        inputBox = $("#"+inputBox);
-    }
-    if (!choices) {
-        choices = inputBox.attr("autocompleteItems").split(",");
-    }
-    if (!choices) {
-        return;
-    }
-    let currentFocus;
-    inputBox.on("input focusin", function(){
-        const val = $(this).val();
-        closeAllLists();
-        currentFocus = -1;
-        let list = $("<div></div>");
-        list.attr("id", $(this).attr("id")+"autocomplete-list");
-        list.addClass("autocomplete-items");
-        list.appendTo($(this).parent());
-        let unhighlighted = [];
-        for (let i in choices) {
-            if (choices[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-                let item = $("<div></div>");
-                item.append("<strong>"+choices[i].substr(0,val.length)+"</strong>", choices[i].substr(val.length));
-                item.attr("value", choices[i]);
-                list.append(item);
-            } else {
-                unhighlighted.push(choices[i]);
-            }
-        }
-        for (let j in unhighlighted) {
-            let item = $("<div></div>");
-            item.append(unhighlighted[j]);
-            item.attr("value", unhighlighted[j]);
-            list.append(item);
-        }
-        list.children().each(function(){
-            $(this).click(function() {
-                inputBox.val($(this).attr("value")).change();
-                closeAllLists();
-            });
-        });
-    });
-    inputBox.on("keydown", function(e) {
-        let x = $("#" + $(this).attr("id") + "autocomplete-list div");
-        if (e.keyCode == 40) { // arrow DOWN
-            currentFocus++;
-            addActive(x);
-        } else if (e.keyCode == 38) { // arrow UP
-            currentFocus--;
-            addActive(x);
-        } else if (e.keyCode == 13) { // ENTER
-            e.preventDefault();
-            if (currentFocus > -1) {
-                if (x) {
-                    x[currentFocus].click();
-                }
-            }
-        }
-    });
-    function addActive(x) {
-        if (!x) {
-            return false;
-        }
-        removeActive(x);
-        if (currentFocus >= x.length) {
-            currentFocus = 0;
-        }
-        if (currentFocus < 0) {
-            currentFocus = (x.length - 1);
-        }
-        const current = $(x[currentFocus]);
-        current.addClass("autocomplete-active");
-        
-        const unitHeight = current.outerHeight();
-        const parent = current.parent();
-        if ((currentFocus+1)*unitHeight - parent.scrollTop() > parent.height()) {
-            parent.scrollTop((currentFocus+1)*unitHeight - parent.height());
-        }
-        if (currentFocus*unitHeight < parent.scrollTop()) {
-            parent.scrollTop(currentFocus*unitHeight);
-        }
-    }
-    function removeActive(x) {
-        x.each(function(){
-            $(this).removeClass("autocomplete-active");
-        });
-    }
-    function closeAllLists(elmnt) {
-        $(".autocomplete-items").each(function(){
-            if (elmnt != $(this)[0] && elmnt != inputBox[0]) {
-                $(this).remove();
-            }
-        });
-    }
-    $(document).on("click", function (e) {
-        closeAllLists(e.target);
-    });
-    inputBox.on("focusout", function(){
-        closeAllLists();
-    })
 }
