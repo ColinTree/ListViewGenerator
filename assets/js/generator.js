@@ -17,6 +17,23 @@ Object.size = function(obj) {
     return size;
 };
 
+$.fn.extend({
+    validity: function(validity, msg) {
+        if (validity) {
+            $(this).removeClass("is-invalid");
+        } else {
+            $(this).addClass("is-invalid");
+        }
+        if (typeof(msg)=="string" && $(this).next().hasClass("invalid-tooltip")) {
+            $(this).next().text(msg);
+        }
+        return $(this);
+    },
+    removeValidity: function() {
+        return $(this).removeClass("is-invalid");
+    }
+});
+
 /**
  * depends: (Promise, FileReader), jquery, jszip, FileSaver.js, clipboard.js, alertify.js
  */
@@ -61,6 +78,9 @@ $(document).ready(function(){
     $('#properties_remove_modal').on('show.bs.modal', function(){
         const name = $("#field_properties_select").val();
         $(this).find('.modal-body b').text(name);
+    })
+    .on('shown.bs.modal', function(){
+        $(this).find(".btn-secondary").focus();
     });
     $("#properties_remove_modal .btn-danger").click(function(){
         const name = $("#field_properties_select").val();
@@ -70,17 +90,65 @@ $(document).ready(function(){
     });
 
     $('#properties_edit_modal').on('show.bs.modal', function(event){
-        let action = $(event.relatedTarget).data('action')
+        let action = $(event.relatedTarget).data('action');
+        $(this).data("mode", action);
         if (action=="add") {
             $(this).find('.modal-title').text("Adding property");
-            setProprtyToModal({});
+            setProprtyToModal({
+                category: "UNSET",
+                editorType: "text",
+                type: "String",
+                defaultValue: "\"\""
+            }); 
         } else if (action=="edit") {
+            $(this).find('.modal-title').text("Editing property");
             const name = $("#field_properties_select").val();
             setProprtyToModal(getFixedProperty(name));
         }
+    })
+    .on('shown.bs.modal', function(){
+        $("#property_name").focus();
     });
-    $("#properties_edit_modal").find(".btn-primary").click(function(){
+    $("#properties_edit_modal input[type=text]").on("input change", function(){
+        $(this).validity(true);
+    })
+    .on("keydown", function(e){
+        if (e.keyCode==13) { // ENTER
+            $("#properties_edit_modal .btn-primary").click();
+        }
+    });
+    $("#properties_edit_modal .btn-primary").click(function(){
         const property = getPropertyFromModal();
+        let valid = true;
+        // check fields
+        if (!property.name) {
+            $("#property_name").validity(false, "Should not be empty");
+            valid = false;
+        } else if (property.name.includes(" ")) {
+            $("#property_name").validity(false, "Should not contain spaces");
+            valid = false;
+        } else if ($('#properties_edit_modal').data("mode")=="add" && properties.hasOwnProperty(property.name)) {
+            $("#property_name").validity(false, "Property existed");
+            valid = false;
+        } else if (!("ABCDEFGHIJKLMNOPQRSTUVWXYZ_$".includes(property.name.charAt(0).toUpperCase()))) {
+            $("#property_name").validity(false, "Should starts with (_$a-zA-Z)");
+            valid = false;
+        }
+        if (!property.type) {
+            $("#property_type").validity(false, "Should not be empty");
+            valid = false;
+        }
+        if (!property.defaultValue) {
+            $("#property_default").validity(false, "Should not be empty");
+            valid = false;
+        } else if (property.type=="String" && !property.defaultValue.includes('"')) {
+            $("#property_default").validity(false, "For Java type String, default value should contains quote (\")");
+            valid = false;
+        }
+
+        if (!valid) {
+            return false;
+        }
         properties[property.name] = property;
         refreshPropertyDropdown();
         $("#properties_edit_modal").modal("hide");
@@ -300,7 +368,7 @@ function generateCode(projectInfo) {
                 beforeBlock += replace_all2(blockFormat, {
                     "_description_": property.description,
                     "_category_": property.category,
-                    "_if_designerVisible": property.designerVisible ? "" : "//",
+                    "_if_designerVisible_": property.designerVisible ? "" : "//",
                     "_setterUserVisible_": property.setterUserVisible,
                     "_editorType_": property.editorType,
                     "_args_": property.args,
@@ -316,11 +384,6 @@ function generateCode(projectInfo) {
     });
 }
 
-/**
- * 
- * @param {function} callback like: function(data){}
- * @return nothing, data would be return by callback
- */
 function getTemplate() {
     // case "Default"
     if ($("#field_template_radio1").prop("checked")) {
@@ -344,7 +407,7 @@ function getTemplate() {
  */
 function getFixedProperty(name) {
     return {
-        name: name,
+        name: name ? name : "",
         args: properties[name].args ? properties[name].args : "{}",
         type: properties[name].type ? properties[name].type : "String",
         category: properties[name].category ? properties[name].category : "UNSET",
@@ -360,16 +423,15 @@ function getFixedProperty(name) {
     };
 }
 function setProprtyToModal(property) {
-    $("#property_name").val(property.name);
-    $("#property_designerVisible").prop("checked", property.designerVisible);
-    $("#property_designerVisible").change();
-    $("#property_editorType").val(property.editorType);
-    $("#property_setterUserVisible").prop("checked", property.setterUserVisible);
-    $("#property_getterUserVisible").prop("checked", property.getterUserVisible);
-    $("#property_category").val(property.category);
-    $("#property_description").val(property.description);
-    $("#property_type").val(property.type);
-    $("#property_default").val(property.defaultValue);
+    $("#property_name").val(property.name).removeValidity("property_name");
+    $("#property_designerVisible").prop("checked", property.designerVisible).removeValidity("property_designerVisible").change();
+    $("#property_editorType").val(property.editorType).removeValidity("property_editorType");
+    $("#property_setterUserVisible").prop("checked", property.setterUserVisible).removeValidity("property_setterUserVisible");
+    $("#property_getterUserVisible").prop("checked", property.getterUserVisible).removeValidity("property_getterUserVisible");
+    $("#property_category").val(property.category).removeValidity("property_category");
+    $("#property_description").val(property.description).removeValidity("property_description");
+    $("#property_type").val(property.type).removeValidity("property_type");
+    $("#property_default").val(property.defaultValue).removeValidity("property_default");
 }
 function getPropertyFromModal() {
     return {
@@ -495,13 +557,13 @@ function autocomplete(inputBox, choices) {
         }
         list.children().each(function(){
             $(this).click(function() {
-                inputBox.val($(this).attr("value"));
+                inputBox.val($(this).attr("value")).change();
                 closeAllLists();
             });
         });
     });
     inputBox.on("keydown", function(e) {
-        let x = $("#" + $(this).attr("id") + "autocomplete-list").find("div");
+        let x = $("#" + $(this).attr("id") + "autocomplete-list div");
         if (e.keyCode == 40) { // arrow DOWN
             currentFocus++;
             addActive(x);
