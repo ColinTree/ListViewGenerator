@@ -651,4 +651,15 @@ $(document).ready(function(){
     });
 
     new ClipboardJS('.btn');
+
+    // bind ctrl + s to download project
+    $(window).bind('keydown', function(e){
+        if (e.ctrlKey || e.metaKey) {
+            switch (String.fromCharCode(e.which).toLowerCase()) {
+                case 's':
+                    $("#field_downloadProject").click();
+                    return false;
+            }
+        }
+    });
 });
