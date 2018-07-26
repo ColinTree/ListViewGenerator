@@ -1,14 +1,23 @@
+/**
+ * depends: (Promise, FileReader), jquery, jszip, FileSaver.js, clipboard.js, alertify.js
+ */
 'use strict';
 
 const LVG_VERSION = "er: alpha"; //will be joined as "ver: alpha"
-let TEMPLATE_DEFAULT;
-let TEMPLATE_IMPORT;
-let properties = {};
+
+let Project = {};
+Project.Property = {};
+Project.TEMPLATE_DEFAULT;
+Project.TEMPLATE_IMPORT;
+
+let Property = Project.Property;
+Property.properties = {};
 
 // Check promise availability
 if (typeof(Promise)!='function') {
     alert("Please change or upgrade your browser to a newer version! e.g. Chrome 32+");
 }
+
 Object.size = function(obj) {
     let size = 0, key;
     for (key in obj) {
@@ -17,21 +26,19 @@ Object.size = function(obj) {
     return size;
 };
 
-$.extend({
-    replace_all: function(text, oldText, newText){
-        return text.split(oldText).join(newText);
-    },
-    /**
-     * @param {string} text 
-     * @param {object} obj require a object like {"oldText": "newText"}
-     */
-    replace_all2: function (text, obj) {
-        for (let oldText in obj) {
-            text = $.replace_all(text, oldText, obj[oldText]);
-        }
-        return text;
+String.replaceAll = function(text, oldText, newText){
+    return text.split(oldText).join(newText);
+};
+/**
+ * @param {string} text 
+ * @param {object} obj require a object like {"oldText": "newText"}
+ */
+String.replaceAll2 = function(text, obj) {
+    for (let oldText in obj) {
+        text = String.replaceAll(text, oldText, obj[oldText]);
     }
-});
+    return text;
+};
 
 $.fn.extend({
     validity: function(validity, msg) {
@@ -111,7 +118,6 @@ $.fn.extend({
                 } else {
                     let node = $(this);
                     while (!node.is("form") && !node.is(".modal-content") && !node.is("body") && !node.is("html")) {
-                        console.log(node);
                         node = node.parent();
                     }
                     node.find(".btn-primary").click();
@@ -169,240 +175,36 @@ $.fn.extend({
 });
 
 /**
- * depends: (Promise, FileReader), jquery, jszip, FileSaver.js, clipboard.js, alertify.js
- */
-
-$(document).ready(function(){
-    // load templates
-    getFile("./assets/templates/default.template")
-    .then(function(content){
-        TEMPLATE_DEFAULT = content;
-    });
-
-    // upload handlers
-    $("#upload_file").change(function(e){
-        const files = e.target.files;
-        if (files.length == 1) {
-            $("#upload_file_label").text(files[0].name);
-            let zip_;
-            JSZip.loadAsync(files[0])
-            .then(function(zip){
-                zip_ = zip;
-                return zip.file("project-info.json").async("text");
-            })
-            .then(function(txt){
-                const projectInfo = JSON.parse(txt);
-                setProjectInfo(projectInfo);
-                // load imported template
-                if (projectInfo.template=="Import") {
-                    zip_.file(projectInfo.templateFileName).async("text")
-                    .then(function(template){
-                        TEMPLATE_IMPORT = template;
-                        $("#field_template_file_download").css("display", "flex");
-                    });
-                }
-            });
-        } else {
-            $("#upload_file_label").text("Choose file");
-        }
-    });
-
-    // field handlers
-    refreshPropertyDropdown();
-    $('#properties_remove_modal').on('show.bs.modal', function(){
-        const name = $("#field_properties_select").val();
-        $(this).find('.modal-body b').text(name);
-    })
-    .on('shown.bs.modal', function(){
-        $(this).find(".btn-secondary").focus();
-    });
-    $("#properties_remove_modal .btn-danger").click(function(){
-        const name = $("#field_properties_select").val();
-        delete properties[name];
-        refreshPropertyDropdown();
-        $('#properties_remove_modal').modal('hide');
-    });
-
-    $('#properties_edit_modal').on('show.bs.modal', function(event){
-        let action = $(event.relatedTarget).data('action');
-        $(this).data("mode", action);
-        if (action=="add") {
-            $(this).find('.modal-title').text("Adding property");
-            setProprtyToModal({
-                category: "UNSET",
-                editorType: "text",
-                type: "String",
-                defaultValue: "\"\""
-            }); 
-        } else if (action=="edit") {
-            $(this).find('.modal-title').text("Editing property");
-            const name = $("#field_properties_select").val();
-            setProprtyToModal(getFixedProperty(name));
-        }
-    })
-    .on('shown.bs.modal', function(){
-        $("#property_name").focus();
-    });
-    $("#properties_edit_modal input[type=text]").on("input change", function(){
-        $(this).validity(true);
-    })
-    .on("keydown", function(e){
-        if (e.keyCode==13 && !$(this).attr("autocompleteitems")) { // ENTER
-            $("#properties_edit_modal .btn-primary").click();
-        }
-    });
-    $("#properties_edit_modal .btn-primary").click(function(){
-        const property = getPropertyFromModal();
-        let valid = true;
-        // check fields
-        if (!property.name) {
-            $("#property_name").validity(false, "Should not be empty");
-            valid = false;
-        } else if (property.name.includes(" ")) {
-            $("#property_name").validity(false, "Should not contain spaces");
-            valid = false;
-        } else if ($('#properties_edit_modal').data("mode")=="add" && properties.hasOwnProperty(property.name)) {
-            $("#property_name").validity(false, "Property existed");
-            valid = false;
-        } else if (!("ABCDEFGHIJKLMNOPQRSTUVWXYZ_$".includes(property.name.charAt(0).toUpperCase()))) {
-            $("#property_name").validity(false, "Should starts with (_$a-zA-Z)");
-            valid = false;
-        }
-        if (!property.type) {
-            $("#property_type").validity(false, "Should not be empty");
-            valid = false;
-        }
-        if (!property.defaultValue) {
-            $("#property_default").validity(false, "Should not be empty");
-            valid = false;
-        } else if (property.type=="String" && !property.defaultValue.includes('"')) {
-            $("#property_default").validity(false, "For Java type String, default value should contains quote (\")");
-            valid = false;
-        }
-
-        if (!valid) {
-            return false;
-        }
-        properties[property.name] = property;
-        refreshPropertyDropdown();
-        $("#properties_edit_modal").modal("hide");
-    });
-
-    $("#property_designerVisible").change(function(){
-        $("#property_editorType").prop("disabled", !$(this).prop("checked"))
-    });
-    $("#property_type").autocomplete()
-    .on("keydown", function(e){
-        if (e.keyCode==13) {
-            return false;
-        }
-    });
-
-    function field_template_radio_change(){
-        $("#field_template_file").parent().parent().parent()
-            .css("display", $("#field_template_radio2").prop("checked") ? "flex" : "none");
-    };
-    $("#field_template_radio1").change(field_template_radio_change);
-    $("#field_template_radio2").change(field_template_radio_change);
-
-    $("#field_template_file").change(function(evt){
-        const files = evt.target.files;
-        if (files.length == 1) {
-            TEMPLATE_IMPORT = null;
-            $("#field_template_file_label").text(files[0].name);
-            $("#field_template_file_download").css("display", "flex");
-            if (!FileReader) {
-                return alertify.error("Need a newer browser to support this (FileReader)");
-            }
-            let reader = new FileReader();
-            reader.onload = function(oFREvent) {
-                TEMPLATE_IMPORT = oFREvent.target.result;
-            }
-            reader.readAsText(files[0]);
-        } else {
-            $("#field_template_file_label").text("Choose file");
-            $("#field_template_file_download").hide();
-        }
-    });
-    $("#field_template_file_download_button").click(function(){
-        let blob = new Blob([TEMPLATE_IMPORT], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, $("#field_template_file_label").text());
-    });
-    
-    $("#field_form").submit(function(){
-        return false;
-    });
-    $("#field_generateCodeZip").click(function(){
-        const projectInfo = getProjectInfo();
-        generateCode(projectInfo)
-        .then(function(javaCode){
-            const full_package = getFullPackage(projectInfo);
-            let zip = new JSZip();
-            let subfolder = zip;
-            let packageArr = full_package.split('.');
-            for (i in packageArr) {
-                subfolder = subfolder.folder(packageArr[i]);
-            }
-            subfolder.file(projectInfo.componentName + ".java", javaCode);
-            zip.generateAsync({type:"blob"})
-            .then(function(content) {
-                saveAs(content, projectInfo.componentName +"-sources.zip");
-            });
-        });
-    });
-    $("#field_generateCode").click(function(){
-        const projectInfo = getProjectInfo();
-        $("#field_java_code_preview").text("generating...");
-        generateCode(projectInfo,)
-        .then(function(javaCode){
-            $("#field_java_code_preview").text(javaCode);
-            $("#field_java_code").css("display", "flex");
-        });
-    });
-    $("#field_downloadProject").click(function(){
-        const projectInfo = getProjectInfo();
-        let zip = new JSZip();
-        zip.file("project-info.json", JSON.stringify(projectInfo));
-        if (projectInfo.template=="Import") {
-            let fileName = projectInfo.templateFileName;
-            if (!fileName) {
-                fileName = "custom.template";
-            }
-            zip.file(fileName, TEMPLATE_IMPORT);
-        }
-        zip.generateAsync({type:"blob"})
-        .then(function(content) {
-            saveAs(content, getFullPackage(projectInfo) + "." + projectInfo.componentName + ".lvg");
-        });
-    });
-
-    new ClipboardJS('.btn');
-});
-
-/**
  * @return build projectInfo with current data from fields(the form)
  */
-function getProjectInfo() {
+Project.getInfo = function() {
     let projectInfo = {
-        "package": $("#field_package").val(),
-        "componentName": $("#field_componentName").val(),
-        "joinCompNameToPackage": $("#field_package_addCompName").prop("checked"),
-        "description": $("#field_description").val().replace(new RegExp('\n',"gm"),"\\n"),
-        "version": Number.parseInt($("#field_version").val()),
-        "template": $("#field_template_radio1").prop("checked") ? "Default" : "Import",
-        "templateFileName": $("#field_template_radio1").prop("checked")
+        package: $("#field_package").val(),
+        componentName: $("#field_componentName").val(),
+        joinCompNameToPackage: $("#field_package_addCompName").prop("checked"),
+        description: $("#field_description").val().replace(new RegExp('\n',"gm"),"\\n"),
+        version: Number.parseInt($("#field_version").val()),
+        template: $("#field_template_radio1").prop("checked") ? "Default" : "Import",
+        templateFileName: $("#field_template_radio1").prop("checked")
             ? "" : $("#field_template_file_label").text(),
+        getFullPackage: function() {
+            return this.joinCompNameToPackage
+                ? this.package + '.' + this.componentName
+                : this.package;
+        }
+        
     };
-    if (projectInfo.template=="Import" && !TEMPLATE_IMPORT) {
+    if (projectInfo.template=="Import" && !Project.TEMPLATE_IMPORT) {
         projectInfo.template = "Default";
     }
     return projectInfo;
-}
+};
+
 /**
  * set projectInfo to current form
  * @param projectInfo 
  */
-function setProjectInfo(projectInfo) {
+Project.setInfo = function(projectInfo) {
     if (confirm('Applying a project would override what you current got on this page! Continue?')) {
         $("#field_package").val(projectInfo.package);
         $("#field_componentName").val(projectInfo.componentName);
@@ -417,25 +219,32 @@ function setProjectInfo(projectInfo) {
             $("#field_template_file_label").text(projectInfo.templateFileName);
         }
     }
-}
+};
 
-/**
- * @param  projectInfo
- * @return full package string
- */
-function getFullPackage(projectInfo) {
-    return projectInfo.joinCompNameToPackage
-        ? projectInfo.package + '.' + projectInfo.componentName
-        : projectInfo.package;
-}
+Project.getTemplate = function() {
+    // case "Default"
+    if ($("#field_template_radio1").prop("checked")) {
+        if (Project.TEMPLATE_DEFAULT==null) {
+            throw "default template not ready yet";
+        }
+        return Project.TEMPLATE_DEFAULT;
+    
+    // case "Import"
+    } else if ($("#field_template_radio2").prop("checked")) {
+        if (Project.TEMPLATE_IMPORT==null) {
+            throw "imported template not ready yet";
+        }
+        return Project.TEMPLATE_IMPORT;
+    }
+};
 
 /**
  * @param  projectInfo
  * @return java code of the listview
  */
-function generateCode(projectInfo) {
+Project.generateCode = function(projectInfo) {
     return new Promise(function(executor, reject){
-        let javaHead = ""
+        let generateInfo = ""
         + "/**\n"
         + " * This file is generated by ListView Generator(v"+LVG_VERSION+") by ColinTree\n"
         + " * Find more infomation on github: https://github.com/ColinTree/ListViewGenerator \n"
@@ -446,17 +255,17 @@ function generateCode(projectInfo) {
 
         let content;
         try {
-            content = getTemplate();
+            content = Project.getTemplate();
         } catch (err) {
             reject(err);
         }
-        // __xxx__
-        content = $.replace_all(content, "__componentName__", projectInfo.componentName);
-        content = $.replace_all(content, "__version__", projectInfo.version);
-        content = $.replace_all(content, "__full_package__", getFullPackage(projectInfo));
-        content = $.replace_all(content, "__description__", projectInfo.description);
+        // replace __xxx__
+        content = String.replaceAll(content, "__componentName__", projectInfo.componentName);
+        content = String.replaceAll(content, "__version__", projectInfo.version);
+        content = String.replaceAll(content, "__full_package__", projectInfo.getFullPackage());
+        content = String.replaceAll(content, "__description__", projectInfo.description);
 
-        // /*_xxx_*/
+        // replace /*_xxx_*/
         function handleBlock(content, blockName, handler) {
             let split = content.split("/*_"+blockName+"Start_*/");
             switch (split.length) {
@@ -481,9 +290,9 @@ function generateCode(projectInfo) {
             handler(beforeBlock, blockFormat, afterBlock);
         }
         handleBlock(content, "propertyDefaultValue", function(beforeBlock, blockFormat, afterBlock){
-            for (name in properties) {
-                const property = getFixedProperty(name);
-                beforeBlock += $.replace_all2(blockFormat, {
+            for (name in Property.properties) {
+                const property = Property.getFixedValue(name);
+                beforeBlock += String.replaceAll2(blockFormat, {
                     "_type_": property.type,
                     "_name_": name,
                     "_defaultValue_": property.defaultValue
@@ -492,9 +301,9 @@ function generateCode(projectInfo) {
             content = beforeBlock + afterBlock;
         });
         handleBlock(content, "propertyField", function(beforeBlock, blockFormat, afterBlock){
-            for (name in properties) {
-                const property = getFixedProperty(name);
-                beforeBlock += $.replace_all2(blockFormat, {
+            for (name in Property.properties) {
+                const property = Property.getFixedValue(name);
+                beforeBlock += String.replaceAll2(blockFormat, {
                     "_type_": property.type,
                     "_name_": name
                 });
@@ -502,9 +311,9 @@ function generateCode(projectInfo) {
             content = beforeBlock + afterBlock;
         });
         handleBlock(content, "property", function(beforeBlock, blockFormat, afterBlock){
-            for (name in properties) {
-                const property = getFixedProperty(name);
-                beforeBlock += $.replace_all2(blockFormat, {
+            for (name in Property.properties) {
+                const property = Property.getFixedValue(name);
+                beforeBlock += String.replaceAll2(blockFormat, {
                     "_description_": property.description,
                     "_category_": property.category,
                     "_if_designerVisible_": property.designerVisible ? "" : "//",
@@ -519,50 +328,34 @@ function generateCode(projectInfo) {
             content = beforeBlock + afterBlock;
         });
 
-        executor(javaHead + content);
+        executor(generateInfo + content);
     });
-}
+};
 
-function getTemplate() {
-    // case "Default"
-    if ($("#field_template_radio1").prop("checked")) {
-        if (TEMPLATE_DEFAULT==null) {
-            throw "default template not ready yet";
-        }
-        return TEMPLATE_DEFAULT;
-    
-    // case "Import"
-    } else if ($("#field_template_radio2").prop("checked")) {
-        if (TEMPLATE_IMPORT==null) {
-            throw "imported template not ready yet";
-        }
-        return TEMPLATE_IMPORT;
-    }
-}
 
 
 /**
  * get a certain property and fix all the values. If any of the value does not exist, fill it with default value.
  * @param {string} name 
  */
-function getFixedProperty(name) {
+Property.getFixedValue = function(name) {
     return {
         name: name ? name : "",
-        args: properties[name].args ? properties[name].args : "{}",
-        type: properties[name].type ? properties[name].type : "String",
-        category: properties[name].category ? properties[name].category : "UNSET",
-        editorType: properties[name].editorType ? properties[name].editorType : "text",
-        description: properties[name].description ? properties[name].description : "",
-        defaultValue: properties[name].defaultValue ? properties[name].defaultValue : "\"\"",
-        designerVisible: typeof(properties[name].designerVisible)=="boolean"
-            ? properties[name].designerVisible : true,
-        getterUserVisible: typeof(properties[name].getterUserVisible)=="boolean"
-            ? properties[name].getterUserVisible : true,
-        setterUserVisible: typeof(properties[name].setterUserVisible)=="boolean"
-            ? properties[name].setterUserVisible : true,
+        args: Property.properties[name].args ? Property.properties[name].args : "{}",
+        type: Property.properties[name].type ? Property.properties[name].type : "String",
+        category: Property.properties[name].category ? Property.properties[name].category : "UNSET",
+        editorType: Property.properties[name].editorType ? Property.properties[name].editorType : "text",
+        description: Property.properties[name].description ? Property.properties[name].description : "",
+        defaultValue: Property.properties[name].defaultValue ? Property.properties[name].defaultValue : "\"\"",
+        designerVisible: typeof(Property.properties[name].designerVisible)=="boolean"
+            ? Property.properties[name].designerVisible : true,
+        getterUserVisible: typeof(Property.properties[name].getterUserVisible)=="boolean"
+            ? Property.properties[name].getterUserVisible : true,
+        setterUserVisible: typeof(Property.properties[name].setterUserVisible)=="boolean"
+            ? Property.properties[name].setterUserVisible : true,
     };
-}
-function setProprtyToModal(property) {
+};
+Property.setToModal = function(property) {
     $("#property_name").val(property.name).removeValidity("property_name");
     $("#property_designerVisible").prop("checked", property.designerVisible).removeValidity("property_designerVisible").change();
     $("#property_editorType").val(property.editorType).removeValidity("property_editorType");
@@ -572,8 +365,8 @@ function setProprtyToModal(property) {
     $("#property_description").val(property.description).removeValidity("property_description");
     $("#property_type").val(property.type).removeValidity("property_type");
     $("#property_default").val(property.defaultValue).removeValidity("property_default");
-}
-function getPropertyFromModal() {
+};
+Property.getFromModal = function() {
     return {
         name: $("#property_name").val(),
         type: $("#property_type").val(),
@@ -585,29 +378,33 @@ function getPropertyFromModal() {
         getterUserVisible: $("#property_getterUserVisible").prop("checked"),
         setterUserVisible: $("#property_setterUserVisible").prop("checked"),
     };
-}
-function refreshPropertyDropdown() {
+};
+Property.refreshDropdown = function(selectName) {
     const select = $("#field_properties_select");
     const val = select.val();
     select.empty();
-    if (Object.size(properties)==0) {
+    if (Object.size(Property.properties)==0) {
         select.append("<option>None</option>");
         select.val("None");
         $("#field_properties_edit").prop("disabled", true);
         $("#field_properties_remove").prop("disabled", true);
         return;
     }
-    for (name in properties) {
+    for (name in Property.properties) {
         let option = $("<option></option>");
         option.text(name);
         select.append(option);
     }
-    if (val in properties) {
+    if (val in Property.properties) {
         select.val(val);
+    }
+    if (typeof(selectName)=="string" && selectName in Property.properties) {
+        select.val(selectName);
     }
     $("#field_properties_edit").prop("disabled", false);
     $("#field_properties_remove").prop("disabled", false);
-}
+};
+
 
 /**
  * get file async
@@ -632,3 +429,223 @@ function getFile(url) {
         });
     })
 }
+
+
+
+$(document).ready(function(){
+    // load templates
+    getFile("./assets/templates/default.template")
+    .then(function(content){
+        Project.TEMPLATE_DEFAULT = content;
+    });
+
+    // upload handlers
+    $("#upload_file").change(function(e){
+        const files = e.target.files;
+        if (files.length == 1) {
+            $("#upload_file_label").text(files[0].name);
+            let zip_;
+            JSZip.loadAsync(files[0])
+            .then(function(zip){
+                zip_ = zip;
+                return zip.file("project-info.json").async("text");
+            })
+            .then(function(txt){
+                const projectInfo = JSON.parse(txt);
+                Project.setInfo(projectInfo);
+                // load imported template
+                if (projectInfo.template=="Import") {
+                    zip_.file(projectInfo.templateFileName).async("text")
+                    .then(function(template){
+                        Project.TEMPLATE_IMPORT = template;
+                        $("#field_template_file_download").css("display", "flex");
+                    });
+                }
+            });
+        } else {
+            $("#upload_file_label").text("Choose file");
+        }
+    });
+
+    // field handlers
+    Property.refreshDropdown();
+    $('#properties_remove_modal').on('show.bs.modal', function(){
+        const name = $("#field_properties_select").val();
+        $(this).find('.modal-body b').text(name);
+    })
+    .on('shown.bs.modal', function(){
+        $(this).find(".btn-secondary").focus();
+    });
+    $("#properties_remove_modal .btn-danger").click(function(){
+        const name = $("#field_properties_select").val();
+        delete Property.properties[name];
+        Property.refreshDropdown();
+        $('#properties_remove_modal').modal('hide');
+    });
+
+    $('#properties_edit_modal').on('show.bs.modal', function(event){
+        let action = $(event.relatedTarget).data('action');
+        $(this).data("mode", action);
+        if (action=="add") {
+            $(this).find('.modal-title').text("Adding property");
+            Property.setToModal({
+                category: "UNSET",
+                editorType: "text",
+                type: "String",
+                defaultValue: "\"\""
+            }); 
+        } else if (action=="edit") {
+            $(this).find('.modal-title').text("Editing property");
+            const name = $("#field_properties_select").val();
+            Property.setToModal(Property.getFixedValue(name));
+        }
+    })
+    .on('shown.bs.modal', function(){
+        $("#property_name").focus();
+    });
+    $("#properties_edit_modal input[type=text]").on("input", function(e){
+        $(this).validity(true);
+    })
+    .on("keydown", function(e){
+        if (e.keyCode==13 && !$(this).attr("autocompleteitems")) { // ENTER
+            $("#properties_edit_modal .btn-primary").click();
+        }
+    });
+    $("#properties_edit_modal .btn-primary").click(function(){
+        const property = Property.getFromModal();
+        let valid = true;
+        // check fields
+        if (!property.name) {
+            $("#property_name").validity(false, "Should not be empty");
+            valid = false;
+        } else if (property.name.includes(" ")) {
+            $("#property_name").validity(false, "Should not contain spaces");
+            valid = false;
+        } else if ($('#properties_edit_modal').data("mode")=="add" && Property.properties.hasOwnProperty(property.name)) {
+            $("#property_name").validity(false, "Property existed");
+            valid = false;
+        } else if (!("ABCDEFGHIJKLMNOPQRSTUVWXYZ_$".includes(property.name.charAt(0).toUpperCase()))) {
+            $("#property_name").validity(false, "Should starts with (_$a-zA-Z)");
+            valid = false;
+        }
+        if (!valid) {
+            $("#property_name").focus();
+        }
+
+        if (!property.type) {
+            $("#property_type").validity(false, "Should not be empty");
+            if (valid) {
+                $("#property_type").focus();
+            }
+            valid = false;
+        }
+        if (!property.defaultValue) {
+            $("#property_default").validity(false, "Should not be empty");
+            if (valid) {
+                $("#property_default").focus();
+            }
+            valid = false;
+        } else if (property.type=="String" && !property.defaultValue.includes('"')) {
+            $("#property_default").validity(false, "For Java type String, default value should contains quote (\")");
+            if (valid) {
+                $("#property_default").focus();
+            }
+            valid = false;
+        }
+
+        if (!valid) {
+            return false;
+        }
+        Property.properties[property.name] = property;
+        Property.refreshDropdown(property.name);
+        $("#properties_edit_modal").modal("hide");
+    });
+
+    $("#property_designerVisible").change(function(){
+        $("#property_editorType").prop("disabled", !$(this).prop("checked"))
+    });
+    $("#property_type").autocomplete()
+    .on("keydown", function(e){
+        if (e.keyCode==13) {
+            return false;
+        }
+    });
+
+    $("#field_template_radio1, #field_template_radio2").change(function(){
+        $("#field_template_file").parent().parent().parent()
+            .css("display", $("#field_template_radio2").prop("checked") ? "flex" : "none");
+    });
+
+    $("#field_template_file").change(function(evt){
+        const files = evt.target.files;
+        if (files.length == 1) {
+            Project.TEMPLATE_IMPORT = null;
+            $("#field_template_file_label").text(files[0].name);
+            $("#field_template_file_download").css("display", "flex");
+            if (!FileReader) {
+                return alertify.error("Need a newer browser to support this (FileReader)");
+            }
+            let reader = new FileReader();
+            reader.onload = function(oFREvent) {
+                Project.TEMPLATE_IMPORT = oFREvent.target.result;
+            }
+            reader.readAsText(files[0]);
+        } else {
+            $("#field_template_file_label").text("Choose file");
+            $("#field_template_file_download").hide();
+        }
+    });
+    $("#field_template_file_download_button").click(function(){
+        let blob = new Blob([Project.TEMPLATE_IMPORT], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, $("#field_template_file_label").text());
+    });
+    
+    $("#field_form").submit(function(){
+        return false;
+    });
+    $("#field_generateCodeZip").click(function(){
+        const projectInfo = Project.getInfo();
+        generateCode(projectInfo)
+        .then(function(javaCode){
+            const full_package = projectInfo.getFullPackage();
+            let zip = new JSZip();
+            let subfolder = zip;
+            let packageArr = full_package.split('.');
+            for (i in packageArr) {
+                subfolder = subfolder.folder(packageArr[i]);
+            }
+            subfolder.file(projectInfo.componentName + ".java", javaCode);
+            zip.generateAsync({type:"blob"})
+            .then(function(content) {
+                saveAs(content, projectInfo.componentName +"-sources.zip");
+            });
+        });
+    });
+    $("#field_generateCode").click(function(){
+        const projectInfo = Project.getInfo();
+        $("#field_java_code_preview").text("generating...");
+        Project.generateCode(projectInfo)
+        .then(function(javaCode){
+            $("#field_java_code_preview").text(javaCode);
+            $("#field_java_code").css("display", "flex");
+        });
+    });
+    $("#field_downloadProject").click(function(){
+        const projectInfo = Project.getInfo();
+        let zip = new JSZip();
+        zip.file("project-info.json", JSON.stringify(projectInfo));
+        if (projectInfo.template=="Import") {
+            let fileName = projectInfo.templateFileName;
+            if (!fileName) {
+                fileName = "custom.template";
+            }
+            zip.file(fileName, Project.TEMPLATE_IMPORT);
+        }
+        zip.generateAsync({type:"blob"})
+        .then(function(content) {
+            saveAs(content, projectInfo.getFullPackage() + "." + projectInfo.componentName + ".lvg");
+        });
+    });
+
+    new ClipboardJS('.btn');
+});
