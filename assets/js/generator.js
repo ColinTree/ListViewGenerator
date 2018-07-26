@@ -191,7 +191,8 @@ Project.getInfo = function() {
             return this.joinCompNameToPackage
                 ? this.package + '.' + this.componentName
                 : this.package;
-        }
+        },
+        properties: Property.properties
         
     };
     if (projectInfo.template=="Import" && !Project.TEMPLATE_IMPORT) {
@@ -218,6 +219,8 @@ Project.setInfo = function(projectInfo) {
             $("#field_template_file").change();
             $("#field_template_file_label").text(projectInfo.templateFileName);
         }
+        Property.properties = projectInfo.properties;
+        Property.refreshDropdown();
     }
 };
 
