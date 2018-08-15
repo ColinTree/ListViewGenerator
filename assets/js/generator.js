@@ -258,7 +258,7 @@ $(document).ready(() => {
         $("#field_java_code_preview").text("generating...");
         project.generateCode()
         .then((javaCode) => {
-            $("#field_java_code_preview").text(javaCode);
+            $("#field_java_code_preview").textWithLineNum(javaCode);
             $("#field_java_code").css("display", "flex");
         }).catch((msg) => {
             $("#field_java_code_preview").text(msg);
