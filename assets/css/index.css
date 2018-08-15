@@ -97,3 +97,20 @@ html, body {
 .alertify {
     z-index: 100 !important;
 }
+
+pre{
+    counter-reset: line;
+}
+pre span {
+    counter-increment: line;
+}
+pre span:before{
+    content: counter(line);
+    -webkit-user-select: none;
+    display: inline-block;
+    padding-right: 6px;
+    width: 30px;
+    border-right: 1px lightgray solid;
+    margin-right: 6px;
+    text-align: right;
+}

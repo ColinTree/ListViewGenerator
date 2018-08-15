@@ -75,6 +75,16 @@ $.fn.extend({
             : $(this).prop("disabled");
     },
 
+    textWithLineNum: function(text) {
+        $(this).html("");
+        let lines = text.split("\n");
+        for (let index in lines) {
+            let span = $("<span></span>");
+            span.text(lines[index]);
+            $(this).append(span).append("\n");
+        }
+    },
+
     /**
      * modified from https://www.w3schools.com/howto/howto_js_autocomplete.asp
      * 
