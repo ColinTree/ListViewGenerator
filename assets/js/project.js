@@ -15,7 +15,7 @@ class LvgProperty {
         this.designerVisible = designerVisible;
         this.getterUserVisible = getterUserVisible;
         this.setterUserVisible = setterUserVisible;
-        this.args = {};
+        this.args = [];
     }
     static getDefault(fillin) {
         if (typeof(fillin)!="object") {
@@ -291,7 +291,15 @@ class LvgProject {
                         "_if_designerVisible_": property.designerVisible ? "" : "//",
                         "_setterUserVisible_": property.setterUserVisible,
                         "_editorType_": property.editorType,
-                        "_args_": property.args,
+                        "_args_": (() => {
+                            let rtn = "{";
+                            let first = true;
+                            for (let argIndex in property.args) {
+                                first ? first = false : rtn += ", ";
+                                rtn += "\"" + property.args[argIndex] + "\"";
+                            }
+                            return rtn + "}";
+                        })(),
                         "_type_": property.type,
                         "_name_": name,
                         "_getterUserVisible_": property.getterUserVisible
