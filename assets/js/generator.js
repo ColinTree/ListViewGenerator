@@ -236,21 +236,22 @@ $(document).ready(() => {
     $("#field_form").submit(() => false);
 
     $("#field_generateCodeZip").click(() => {
-        const projectInfo = Project.getInfo();
-        generateCode(projectInfo)
-        .then((javaCode) => { // TODO:
-            const full_package = projectInfo.getFullPackage();
+        project.generateCode()
+        .then((javaCode) => {
+            const fullPackage = project.fullPackage;
             let zip = new JSZip();
             let subfolder = zip;
-            let packageArr = full_package.split('.');
-            for (i in packageArr) {
+            let packageArr = fullPackage.split('.');
+            for (let i in packageArr) {
                 subfolder = subfolder.folder(packageArr[i]);
             }
-            subfolder.file(projectInfo.componentName + ".java", javaCode);
+            subfolder.file(project.componentName + ".java", javaCode);
             zip.generateAsync({type:"blob"})
             .then((content) => {
-                saveAs(content, projectInfo.componentName +"-sources.zip");
+                saveAs(content, project.componentName +"-sources.zip");
             });
+        }).catch((msg) => {
+            alertify.error(msg);
         });
     });
     $("#field_generateCode").click(() => {
