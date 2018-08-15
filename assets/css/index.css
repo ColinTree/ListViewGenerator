@@ -25,7 +25,7 @@ html, body {
 #footer>label {
     float: right;
 }
-#field_generateCodeZip, #field_generateCode, #field_downloadProject {
+#field_generateCodeZip, #field_generateCode, #field_downloadProject, #field_resetForm {
     margin-top: 4px;
 }
 @media (min-width: 751px) {
@@ -55,10 +55,6 @@ html, body {
 }
 #field_java_code {
     display: none;
-}
-
-.custom-radio {
-    margin-left: 16px;
 }
 
 .autocomplete {
@@ -91,4 +87,13 @@ html, body {
 .autocomplete-active {
   background-color: DodgerBlue !important;
   color: #ffffff; 
+}
+
+#field_template_custom_upload {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.alertify {
+    z-index: 100 !important;
 }
