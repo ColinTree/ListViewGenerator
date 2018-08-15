@@ -130,9 +130,7 @@ class LvgProject {
             typeof(fillin.description)=="string" ? fillin.description : "This is a template of ListView.",
             typeof(fillin.version)=="number" ? fillin.version : 1,
             typeof(fillin.template)=="object" && fillin.template!=undefined ? fillin.template : new LvgTemplate(),
-            typeof(fillin.properties)=="object" && fillin.properties!=undefined ? fillin.properties : {
-                "name": new LvgProperty("name")
-            }
+            typeof(fillin.properties)=="object" && fillin.properties!=undefined ? fillin.properties : {}
         );
     }
 
