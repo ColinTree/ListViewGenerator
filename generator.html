@@ -23,6 +23,8 @@
   <script src="lib/FileSaver.js/2014-11-29/FileSaver.js"></script>
   <script src="lib/clipboard.js/2.0.1/clipboard.js"></script>
 
+  <script src="assets/js/util.js"></script>
+  <script src="assets/js/project.js"></script>
   <script src="assets/js/generator.js"></script>
   <link href="assets/css/index.css" rel="stylesheet">
 </head>
@@ -30,7 +32,7 @@
 <body>
   <div id="container">
     <div id="header">
-      <h2>ListView Generator <label>by ColinTree (alpha)</label></h2>
+      <h2>ListView Generator <label>(alpha) by ColinTree</label></h2>
       <hr>
     </div>
     <div id="content">
@@ -38,10 +40,13 @@
         <form id="upload_form">
           <!-- UPLOAD .LVG -->
           <label for="upload_file"><b>Import an existing project (.lvg file)</b></label>
-          <div class="input-group mb-2">
+          <div class="input-group mb-3">
             <div class="custom-file">
               <input id="upload_file" type="file" class="custom-file-input" accept=".lvg">
               <label for="upload_file" id="upload_file_label" class="custom-file-label">Choose file</label>
+            </div>
+            <div class="input-group-append" style="display: none;">
+              <button id="upload_file_apply" class="btn btn-primary">Apply</button>
             </div>
           </div>
         </form>
@@ -56,7 +61,7 @@
           <div class="form-group row">
             <label for="field_package" class="col-sm-2 col-form-label">Package</label>
             <div class="col-sm-10">
-              <input id="field_package" type="text" class="form-control" value="cn.colintree.aix">
+              <input id="field_package" type="text" class="form-control">
             </div>
           </div>
           <!-- EXTENDED PACKAGE -->
@@ -64,7 +69,7 @@
             <div class="col-sm-2"></div>
             <div class="col-sm-10">
               <div class="form-check">
-                <input id="field_package_addCompName" class="form-check-input" type="checkbox" checked>
+                <input id="field_package_addCompName" class="form-check-input" type="checkbox">
                 <label for="field_package_addCompName" class="form-check-label">
                   Join component name into package
                 </label>
@@ -75,14 +80,14 @@
           <div class="form-group row">
             <label for="field_componentName" class="col-sm-2 col-form-label">Component Name</label>
             <div class="col-sm-10">
-              <input id="field_componentName" type="text" class="form-control" value="TemplateListView">
+              <input id="field_componentName" type="text" class="form-control">
             </div>
           </div>
           <!-- DESCRIPTION -->
           <div class="form-group row">
             <label for="field_description" class="col-sm-2 col-form-label">Description</label>
             <div class="col-sm-10">
-              <textarea id="field_description" type="text" class="form-control">This is a template of ListView.</textarea>
+              <textarea id="field_description" type="text" class="form-control"></textarea>
             </div>
           </div>
           <!-- VERSION -->
@@ -112,27 +117,21 @@
 
           <!-- TEMPLATE -->
           <div class="form-group row">
-            <label for="field_template" class="col-sm-2 col-form-label">Generating Template</label>
-            <div class="custom-control custom-radio custom-control-inline">
-              <input type="radio" id="field_template_radio1" name="field_template" class="custom-control-input" checked>
-              <label class="custom-control-label" for="field_template_radio1">Default</label>
+            <label for="field_template" class="col-sm-2 col-form-label">Template</label>
+            <div class="col-sm-3">
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input type="radio" id="field_template_default_radio" name="field_template" class="custom-control-input" checked>
+                  <label class="custom-control-label" for="field_template_default_radio">Default</label>
+                </div>
+                <div class="custom-control custom-radio">
+                  <input type="radio" id="field_template_custom_radio" name="field_template" class="custom-control-input">
+                  <label class="custom-control-label" for="field_template_custom_radio">Custom</label>
+                  &nbsp;
+                  <a id="field_template_custom_upload" data-toggle="modal" data-target="#template_upload_modal">Upload</a>
+                </div>
             </div>
-            <div class="custom-control custom-radio">
-              <input type="radio" id="field_template_radio2" name="field_template" class="custom-control-input">
-              <label class="custom-control-label" for="field_template_radio2">Import</label>
-            </div>
-          </div>
-          <!-- TEMPLATE IMPORT -->
-          <div class="form-group row" style="display: none;">
-            <div class="col-sm-2"></div>
-            <div class="col-sm-10 input-group mb-3">
-              <div class="custom-file">
-                <input id="field_template_file" type="file" class="custom-file-input" accept=".template">
-                <label for="field_template_file" id="field_template_file_label" class="custom-file-label">Choose file</label>
-              </div>
-              <div id="field_template_file_download" class="input-group-append" style="display: none;">
-                <button id="field_template_file_download_button" class="btn btn-default">Download</button>
-              </div>
+            <div class="col-sm-3">
+              <button id="field_template_custom_download" class="btn btn-outline-secondary">Download</button>
             </div>
           </div>
           <!-- BUTTONS -->
@@ -141,6 +140,7 @@
               <button id="field_generateCodeZip" class="btn btn-primary">Generate</button>
               <button id="field_generateCode" class="btn btn-default">Generate code</button>
               <button id="field_downloadProject" class="btn btn-default">Download Project</button>
+              <button id="field_resetForm" class="btn btn-danger">Reset Form</button>
             </div>
           </div>
           <!-- PREVIEW -->
@@ -161,7 +161,9 @@
       <label>Got <a href="https://github.com/ColinTree/ListViewGenerator/issues">issue</a>?</label>
     </div>
 
-    <!-- PROPERTY MODALs -->
+    
+
+    <!-- MODAL ADD/EDIT PROPERTY -->
     <div class="modal fade" id="properties_edit_modal" tabindex="-1" role="dialog" aria-labelledby="properties_edit_modal_label" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -252,7 +254,7 @@
                 <label for="property_type" class="col-sm-3 col-form-label">Java Type</label>
                 <div class="col-sm-9 autocomplete">
                   <input id="property_type" type="text" class="form-control" value="String"
-                    autocomplete="off" autocompleteItems="String,YailList,int,long,float,double,Component">
+                    autocomplete="off" autocompleteItems="String,YailList,int,long,float,double,Component,boolean">
                   <div class="invalid-tooltip"></div>
                 </div>
               </div>
@@ -273,7 +275,7 @@
         </div>
       </div>
     </div>
-    <!-- MODAL REMOVE -->
+    <!-- MODAL REMOVE PROPERTY -->
     <div class="modal fade" id="properties_remove_modal" tabindex="-1" role="dialog" aria-labelledby="properties_remove_modal_label" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -291,6 +293,33 @@
         </div>
       </div>
     </div>
+    <!-- MODAL CUSTOM TEMPLATE IMPORT -->
+    <div class="modal fade" id="template_upload_modal" tabindex="-1" role="dialog" aria-labelledby="template_upload_modal_label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <form id="template_upload_form">
+              <div class="modal-header">
+                <h5 class="modal-title" id="template_upload_modal_label">Import Custom Template</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              </div>
+              <div class="modal-body">
+                <div>
+                  <div class="custom-file">
+                    <input id="template_upload_file" type="file" class="custom-file-input" accept=".template" required>
+                    <label for="template_upload_file" id="template_upload_file_label" class="custom-file-label">Choose file</label>
+                    <div class="invalid-feedback">Please select a file</div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="template_upload_confirm" type="button" class="btn btn-primary">Confirm</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!--
