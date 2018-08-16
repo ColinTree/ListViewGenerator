@@ -49,14 +49,6 @@ html, body {
     }
 }
 
-#field_java_code_preview {
-    font-size: 85%;
-    margin-left: 0px;
-}
-#field_java_code {
-    display: none;
-}
-
 .autocomplete {
   /*the container must be positioned relative:*/
   position: relative;
@@ -96,6 +88,23 @@ html, body {
 
 .alertify {
     z-index: 100 !important;
+}
+
+#javacode_preview_modal .modal-content {
+    height: 80vh;
+}
+
+#javacode_preview_modal pre {
+    position: absolute;
+    height: auto;
+    bottom: 0;
+    top: 0;
+    width: auto;
+    left: 0;
+    right: 0;
+    margin: 1rem;
+    overflow: scroll;
+    font-size: 85%;
 }
 
 pre{

@@ -16,7 +16,7 @@ const LVG_VERSION = "er: alpha"; //will be joined as "ver: alpha"
 
 let project;
 
-// Check promise availability
+// Check Promise & FileReader availability
 if (typeof(Promise)!='function') {
     alert("Please change or upgrade your browser to a newer version (which supports ES2015)! e.g. Chrome 32+");
 }
@@ -255,14 +255,13 @@ $(document).ready(() => {
         });
     });
     $("#field_generateCode").click(() => {
-        $("#field_java_code_preview").text("generating...");
+        $("#javacode_preview_modal").modal("show");
+        $("#javacode_modal_preview").text("generating...");
         project.generateCode()
         .then((javaCode) => {
-            $("#field_java_code_preview").textWithLineNum(javaCode);
-            $("#field_java_code").css("display", "flex");
+            $("#javacode_modal_preview").textWithLineNum(javaCode);
         }).catch((msg) => {
-            $("#field_java_code_preview").text(msg);
-            $("#field_java_code").css("display", "flex");
+            $("#javacode_modal_preview").text(msg);
         });
     });
     $("#field_downloadProject").click(() => {

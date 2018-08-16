@@ -143,15 +143,6 @@
               <button id="field_resetForm" class="btn btn-danger">Reset Form</button>
             </div>
           </div>
-          <!-- PREVIEW -->
-          <div id="field_java_code" class="form-group row">
-            <div class="col-sm-10">
-              <pre class="form-control row" id="field_java_code_preview"></pre>
-            </div>
-            <div class="col-sm-2">
-              <button id="field_java_code_copy" class="btn btn-default" data-clipboard-target="#field_java_code_preview">Copy</button>
-            </div>
-          </div>
         </form>
       </div>
     </div>
@@ -298,24 +289,42 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <form id="template_upload_form">
-              <div class="modal-header">
-                <h5 class="modal-title" id="template_upload_modal_label">Import Custom Template</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              </div>
-              <div class="modal-body">
-                <div>
-                  <div class="custom-file">
-                    <input id="template_upload_file" type="file" class="custom-file-input" accept=".template" required>
-                    <label for="template_upload_file" id="template_upload_file_label" class="custom-file-label">Choose file</label>
-                    <div class="invalid-feedback">Please select a file</div>
-                  </div>
+            <div class="modal-header">
+              <h5 class="modal-title" id="template_upload_modal_label">Import Custom Template</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+              <div>
+                <div class="custom-file">
+                  <input id="template_upload_file" type="file" class="custom-file-input" accept=".template" required>
+                  <label for="template_upload_file" id="template_upload_file_label" class="custom-file-label">Choose file</label>
+                  <div class="invalid-feedback">Please select a file</div>
                 </div>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="template_upload_confirm" type="button" class="btn btn-primary">Confirm</button>
-              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button id="template_upload_confirm" type="button" class="btn btn-primary">Confirm</button>
+            </div>
           </form>
+        </div>
+      </div>
+    </div>
+    <!-- MODAL JAVACODE PREVIEW -->
+    <div class="modal fade" id="javacode_preview_modal" tabindex="-1" role="dialog" aria-labelledby="javacode_preview_modal_label" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="javacode_preview_modal_label">Preview generated Java code</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <pre class="form-control" id="javacode_modal_preview"></pre>
+          </div>
+          <div class="modal-footer">
+            <button id="javacode_modal_code_copy" class="btn btn-default" data-clipboard-target="#javacode_modal_preview">Copy</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Dismiss</button>
+          </div>
         </div>
       </div>
     </div>
