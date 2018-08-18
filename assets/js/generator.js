@@ -91,6 +91,18 @@ $(document).ready(() => {
             project[field_project_binding[id]] = val;
         }
     });
+    $("#field_form input").on("keydown", (e) => {
+        if (e.keyCode==13) { // ENTER
+            $("#field_generateCodeZip").click();
+            return false;
+        }
+    });
+    $("#field_form textarea").on("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.keyCode==10 || e.keyCode==13)) {
+            $("#field_generateCodeZip").click();
+            return false;
+        }
+    });
     // end field handlers
 
     // property remove modal handlers:
