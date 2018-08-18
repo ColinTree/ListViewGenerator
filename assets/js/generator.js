@@ -16,15 +16,16 @@ const LVG_VERSION = "er: alpha"; //will be joined as "ver: alpha"
 
 let project;
 
-// Check Promise & FileReader availability
-if (typeof(Promise)!='function') {
-    alert("Please change or upgrade your browser to a newer version (which supports ES2015)! e.g. Chrome 32+");
-}
-if (typeof(FileReader)!="function") {
-    alert("Need a newer browser to support FileReader");
-}
+$(document).ready(function() {
+    // Check if compact
+    try {
+        eval('"use strict"; new Promise((exe, rej)=>{ new FileReader(); }); class foo {}');
+    } catch (e) {
+        console.log(e);
+        alert("Please change or upgrade your browser to a newer version (which supports ES2015)! e.g. Chrome 32+");
+        return false;
+    }
 
-$(document).ready(() => {
     // load default template
     $.getFile("./assets/templates/default.template")
     .then((content) => {
