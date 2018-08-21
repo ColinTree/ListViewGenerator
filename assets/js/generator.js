@@ -12,6 +12,7 @@
  */
 'use strict';
 
+const GITHUB_LATEST_RELEASE = "https://api.github.com/repos/ColinTree/ListViewGenerator/releases/latest";
 const LVG_VERSION = "er: alpha"; //will be joined as "ver: alpha"
 
 let project;
@@ -25,6 +26,22 @@ $(document).ready(function() {
         alert("Please change or upgrade your browser to a newer version (which supports ES2015)! e.g. Chrome 32+");
         return false;
     }
+
+    // Check update
+    $.getJSON(GITHUB_LATEST_RELEASE, (data) => {
+        let link = $("<a></a>");
+        link.attr("target", "_blank")
+            .attr("href", data.html_url)
+            .css("color", "red")
+            .css("text-decoration", "underline")
+            .html("New version released: ")
+            .append(data.tag_name);
+        $("#header h2 label").append(" ").append(link);
+    })
+    .fail(() => {
+        // 404 will be returned if latest release is called when there is no release
+        // catch it here and just ignore it
+    });
 
     // load default template
     $.getFile("./assets/templates/default.template")
