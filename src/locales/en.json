@@ -1,0 +1,99 @@
+{
+    "onUnload": "Your work would not be saved by this webpage, please ensure you had save the .lvg file into you computer.",
+    "common": {
+        "confirm": "Please confirm",
+        "wantToContinue": "Do you really want to continue?",
+        "none": "None",
+        "author": "Author",
+        "contributors": "Contributors",
+        "repo": "Repository",
+        "copied": "Copied",
+        "copyFailed": "Copy Failed",
+        "generating": "Generating......",
+        "error": {
+            "loadTemplate": "Cannot load listview template, please try reload this page.",
+            "reading": "Fail reading project file"
+        }
+    },
+    "button": {
+        "custom-file-label::after": "translate this in style block in Content.vue",
+        "ok": "OK",
+        "cancel": "Cancel",
+        "applyAndClose": "Apply and Close",
+        "edit": "Edit",
+        "remove": "Remove",
+        "add": "Add",
+        "generate": "Generate",
+        "generateCode": "Generate Code",
+        "downloadProject": "Download Project",
+        "resetForm": "Reset Form",
+        "dismiss": "Dismiss",
+        "copy": "Copy"
+    },
+    "header": {
+        "primary-title": "ListView Generator",
+        "secondary-title": "(alpha) by ColinTree",
+        "update-info" : "New version released: "
+    },
+    "content": {
+        "upload": {
+            "title": "Import an existing project (.lvg file)",
+            "chooseFileHint": "Choose a file...",
+            "applyButtonText": "Apply",
+            "confirmText": "Applying a project would override what you currently got on this page!"
+        },
+        "field": {
+            "title": "Or start setting it up below",
+            "packageName": "Package",
+            "packageAddCompName": "Join component name into package",
+            "componentName": "Component Name",
+            "description": "Description",
+            "version": "Version (integer)",
+            "properties": "Properties",
+            "template": "Template",
+            "confirmResetText": "Reset the form would wipe all you currently get on this page!"
+        }
+    },
+    "modal": {
+        "removeProperty": {
+            "confirm": "Confirm removing property"
+        },
+        "editProperty": {
+            "titleAdd": "Adding property",
+            "titleEdit": "Editing property",
+            "name": "Name",
+            "nameEmpty": "should not be empty",
+            "nameFirstCharError": "should starts with one of (a-z, A-Z, \"_\")",
+            "nameConstitutionError": "should only includes (a-z, A-Z, 0-9, \"_\")",
+            "nameConflitAdd": "Property with same name already exist",
+            "nameConflitEdit": "No such property",
+            "switchMode": "Switch Edit Mode",
+            "designerVisible" : "Visible in Designer",
+            "editorType": "Editor Type",
+            "editorTypeRecommended": "Recommended",
+            "editorTypeNotRecommended": "Not Recommended",
+            "setterVisible": "Setter Visible in block Designer",
+            "getterVisible": "Getter Visible in block Designer",
+            "category": "Category",
+            "categoryUnset": "Unset",
+            "categoryAppearance": "Appearance",
+            "categoryBehavior": "Behavior",
+            "categoryDeprecated": "Deprecated",
+            "description": "Description",
+            "javaType": "Java Type",
+            "defaultValue": "Default Value",
+            "defaultValueNoHint": "",
+            "defaultValueEmpty": "should not be empty",
+            "defaultValueNotInt": "seems not a integer",
+            "defaultValueNotDecimal": "seems not a correct decimal",
+            "defaultValueNotBoolean": "seems not a boolean (true / false)"
+        }
+    },
+    "footer": {
+        "about": "About ListView Generator",
+        "gotIssue": "Got issue?",
+        "aboutModal": {
+            "title": "About this project"
+        }
+    }
+}

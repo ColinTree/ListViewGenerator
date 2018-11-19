@@ -1,28 +1,62 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header/>
+    <Content/>
+    <Footer/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from "./components/Header.vue"
+import Content from "./components/Content.vue"
+import Footer from "./components/Footer.vue"
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
-    HelloWorld
+    Header,
+    Content,
+    Footer
+  },
+  data() {
+    return {
+      locale: "en"
+    }
+  },
+  created() {
+      // the returning text may not be shown to user
+      // the behavior depends on the browser
+    window.onbeforeunload = () => this.$t("onUnload");
+  },
+  mounted() {
+    var userLang = navigator.language || navigator.userLanguage;
+    // eslint-disable-next-line
+    console.log("language=" + userLang);
+    this.locale = userLang.substring(0, 2);
+  },
+  watch: {
+    locale(val) {
+      this.$i18n.locale = val; 
+    }
   }
 }
 </script>
 
 <style>
+html, body {
+  margin: 0;
+  padding: 0;
+}
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 30px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+@media (min-width: 751px) {
+  #app {
+    width: 730px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 </style>

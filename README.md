@@ -1,29 +1,15 @@
 # ListViewGenerator-vue
 
-## Project setup
-```
-npm install
-```
+ListViewGenerator is a generator that can create listviews for App Inventor.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+This is a project that trying to help developers of App Inventor (or Thunkable, etc.) creating their own listview quickly. And it is actually a result of opening source of [ColinTreeListView](https://github.com/OpenSourceAIX/ColinTreeListView)
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Links about this project
 
-### Run your tests
-```
-npm run test
-```
+[Try ListView Generator](https://colintree.github.io/ListViewGenerator/index.html)
 
-### Lints and fixes files
-```
-npm run lint
-```
+[Sources on Github](https://github.com/ColinTree/ListViewGenerator)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+[Submit an issue](https://github.com/ColinTree/ListViewGenerator/issues)
+
+If you like this, just star it, or join in and making it better :P

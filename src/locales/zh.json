@@ -1,0 +1,99 @@
+{
+    "onUnload": "关闭窗口后您的项目将不会被保留，请确保您已经保存项目文件（.lvg）到本地",
+    "common": {
+        "confirm": "请确认",
+        "wantToContinue": "确认要继续吗？",
+        "none": "无",
+        "author": "作者",
+        "contributors": "贡献者",
+        "repo": "储存库",
+        "copied": "已复制",
+        "copyFailed": "复制失败",
+        "generating": "生成中……",
+        "error": {
+            "loadTemplate": "无法加载列表模板，请尝试刷新本页",
+            "reading": "读取项目过程中出现错误"
+        }
+    },
+    "button": {
+        "custom-file-label::after": "在Content.vue的style模块里翻译这个",
+        "ok": "确认",
+        "cancel": "取消",
+        "applyAndClose": "保存并关闭",
+        "edit": "编辑",
+        "remove": "移除",
+        "add": "添加",
+        "generate": "生成项目",
+        "generateCode": "生成代码",
+        "downloadProject": "下载项目",
+        "resetForm": "重置项目",
+        "dismiss": "关闭",
+        "copy": "复制"
+    },
+    "header": {
+        "primary-title": "ListView Generator",
+        "secondary-title": "列表生成器 (alpha) by ColinTree",
+        "update-info" : "已发布新版本："
+    },
+    "content": {
+        "upload": {
+            "title": "导入一个项目（.lvg文件）",
+            "chooseFileHint": "选择一个文件...",
+            "applyButtonText": "导入",
+            "confirmText": "导入项目将会覆盖当前页面上的所有项目信息！"
+        },
+        "field": {
+            "title": "或者直接在下方开始编辑",
+            "packageName": "包名",
+            "packageAddCompName": "在包名后追加组件名",
+            "componentName": "组件名",
+            "description": "描述",
+            "version": "版本 (整数)",
+            "properties": "组件属性",
+            "template": "模板",
+            "confirmResetText": "重置项目将会清除所有您在本页的编辑！"
+        }
+    },
+    "modal": {
+        "removeProperty": {
+            "confirm": "确认要移除属性"
+        },
+        "editProperty": {
+            "titleAdd": "添加属性",
+            "titleEdit": "编辑属性",
+            "name": "属性名",
+            "nameEmpty": "不应为空",
+            "nameFirstCharError": "首字母只能是英文字母 (a-z, A-Z) 或者下划线 (\"_\")",
+            "nameConstitutionError": "只允许包含英文字母 (a-z, A-Z)，数字 (0-9) 或下划线 (\"_\")",
+            "nameConflitAdd": "同名属性已存在",
+            "nameConflitEdit": "无此属性",
+            "switchMode": "切换编辑模式",
+            "designerVisible" : "在设计视图中可见",
+            "editorType": "编辑器类型",
+            "editorTypeRecommended": "推荐使用",
+            "editorTypeNotRecommended": "不推荐使用",
+            "setterVisible": "setter在块编辑器中可见",
+            "getterVisible": "getter在块编辑器中可见",
+            "category": "分类",
+            "categoryUnset": "未分类",
+            "categoryAppearance": "外观",
+            "categoryBehavior": "行为",
+            "categoryDeprecated": "弃用",
+            "description": "描述",
+            "javaType": "Java类型",
+            "defaultValue": "默认值",
+            "defaultValueNoHint": "",
+            "defaultValueEmpty": "不应为空",
+            "defaultValueNotInt": "似乎不是整数",
+            "defaultValueNotDecimal": "似乎不是正确的小数",
+            "defaultValueNotBoolean": "似乎不是布尔值(true / false)"
+        }
+    },
+    "footer": {
+        "about": "关于ListView Generator",
+        "gotIssue": "遇到问题？",
+        "aboutModal": {
+            "title": "关于这个项目"
+        }
+    }
+}
