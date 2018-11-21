@@ -89,6 +89,9 @@
             "defaultValueNotInt": "似乎不是整数",
             "defaultValueNotDecimal": "似乎不是正确的小数",
             "defaultValueNotBoolean": "似乎不是布尔值(true / false)"
+        },
+        "previewJava": {
+            "title": "预览Java文件生成结果"
         }
     },
     "footer": {

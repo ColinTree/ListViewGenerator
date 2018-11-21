@@ -89,6 +89,9 @@
             "defaultValueNotInt": "seems not a integer",
             "defaultValueNotDecimal": "seems not a correct decimal",
             "defaultValueNotBoolean": "seems not a boolean (true / false)"
+        },
+        "previewJava": {
+            "title": "Preview generated Java code"
         }
     },
     "footer": {

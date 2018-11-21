@@ -1,6 +1,6 @@
 <template>
   <b-modal
-      :title="'Preview generated Java code'"
+      :title="$t('modal.previewJava.title')"
       centered
       size="lg"
       :ok-title="$t('button.dismiss')"
