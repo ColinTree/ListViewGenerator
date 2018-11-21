@@ -3,7 +3,7 @@ import FileSaver from "file-saver"
 
 export default {
   readZip(zipFile) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       JSZip.loadAsync(zipFile)
       .then((zip) => {
         resolve(zip);
@@ -41,7 +41,7 @@ export default {
       }
       return zip;
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       zipADir(new JSZip(), zipObject)
       .generateAsync({type:"blob"})
       .then(content => resolve(content))

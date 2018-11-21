@@ -7,6 +7,8 @@
         "author": "作者",
         "contributors": "贡献者",
         "repo": "储存库",
+        "ColinTree": "ColinTree (树树)",
+        "showOnGithub": "在Github上查看",
         "copied": "已复制",
         "copyFailed": "复制失败",
         "generating": "生成中……",

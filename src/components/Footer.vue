@@ -8,7 +8,7 @@
         :title="$t('footer.aboutModal.title')"
         :ok-title="$t('button.ok')" ok-only>
       <span v-for="(info, ind) in infos" :key="ind">
-        <label>{{ $t(info.title) }}</label>: <b-link :href="info.link" target="_blank">{{ info.linkText }}</b-link><br/>
+        <label>{{ $t(info.title) }}</label>: <b-link :href="info.link" target="_blank">{{ $t(info.linkText) }}</b-link><br/>
       </span>
     </b-modal>
   </div>
@@ -19,7 +19,7 @@ export default {
   name: "Footer",
   data() {
     return {
-      repoUrl: "https://github.com/ColinTree/ListViewGenerator-vue",
+      repoUrl: "https://github.com/ColinTree/ListViewGenerator",
       infos: []
     }
   },
@@ -28,17 +28,17 @@ export default {
       {
         title: "common.author",
         link: "https://github.com/ColinTree",
-        linkText: "ColinTree"
+        linkText: "common.ColinTree"
       },
       {
         title: "common.contributors",
         link: this.repoUrl + "/graphs/contributors",
-        linkText: "Github"
+        linkText: "common.showOnGithub"
       },
       {
         title: "common.repo",
         link: this.repoUrl,
-        linkText: "Github"
+        linkText: "common.showOnGithub"
       }
     ]
   }

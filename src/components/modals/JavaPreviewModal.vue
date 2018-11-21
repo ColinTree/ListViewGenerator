@@ -90,7 +90,7 @@ export default {
           handler(beforeBlock, blockFormat, afterBlock);
         }
         handleBlock(content, "propertyDefaultValue", reject, (beforeBlock, blockFormat, afterBlock) => {
-          for (name in projectInfo.properties) {
+          for (let name in projectInfo.properties) {
             let property = projectInfo.properties[name];
             beforeBlock += stringUtils.replaceAllInObj(blockFormat, {
               "_type_": property.javaType,
@@ -101,7 +101,7 @@ export default {
           content = beforeBlock + afterBlock;
         });
         handleBlock(content, "propertyField", reject, (beforeBlock, blockFormat, afterBlock) => {
-          for (name in projectInfo.properties) {
+          for (let name in projectInfo.properties) {
             let property = projectInfo.properties[name];
             beforeBlock += stringUtils.replaceAllInObj(blockFormat, {
               "_type_": property.javaType,
@@ -111,7 +111,7 @@ export default {
           content = beforeBlock + afterBlock;
         });
         handleBlock(content, "property", reject, (beforeBlock, blockFormat, afterBlock) => {
-          for (name in projectInfo.properties) {
+          for (let name in projectInfo.properties) {
             let property = projectInfo.properties[name];
             beforeBlock += stringUtils.replaceAllInObj(blockFormat, {
               "_description_": property.description,
