@@ -3,12 +3,7 @@ import FileSaver from "file-saver"
 
 export default {
   readZip(zipFile) {
-    return new Promise((resolve) => {
-      JSZip.loadAsync(zipFile)
-      .then((zip) => {
-        resolve(zip);
-      });
-    });
+    return JSZip.loadAsync(zipFile);
   },
   sampleZipObject() {
     var debug = {hello: "world"};
@@ -41,11 +36,7 @@ export default {
       }
       return zip;
     }
-    return new Promise((resolve) => {
-      zipADir(new JSZip(), zipObject)
-      .generateAsync({type:"blob"})
-      .then(content => resolve(content))
-    });
+    return zipADir(new JSZip(), zipObject).generateAsync({type:"blob"});
   },
   downloadFile(content, name) {
     FileSaver.saveAs(content, name);

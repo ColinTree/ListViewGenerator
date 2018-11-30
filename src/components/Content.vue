@@ -232,20 +232,20 @@ export default {
   created() {
     this.resetForm();
     ajaxUtils.getPlainText("./default.template")
-    .then((val) => {
+    .then(val => {
       this.defaultTemplate = val;
     })
-    .catch((e) => {
+    .catch(e => {
       this.$alertify.error("common.error.loadTemplate");
       console.error("error fetching default template:", e);
     });
   },
   methods: {
     onConfirmUpload() {
-      fileUtils.readZip(this.uploadFile).then((zip) => {
+      fileUtils.readZip(this.uploadFile).then(zip => {
         zip.file("project-info.json")
-        .async("text", (metadata) => console.log("progression: " + metadata.percent.toFixed(2) + " %"))
-        .then((val) => {
+        .async("text", metadata => console.log("progression: " + metadata.percent.toFixed(2) + " %"))
+        .then(val => {
           let projectInfo = JSON.parse(val);
           this.packageName = projectInfo.packageName;
           this.componentName = projectInfo.componentName;
@@ -253,7 +253,7 @@ export default {
           this.description = projectInfo.description;
           this.version = projectInfo.version;
           this.properties = projectInfo.properties;
-        }, (err) => {
+        }, err => {
           this.$alertify.error(this.$t("common.error.reading"));
           console.error("error reading project-info.json", err);
         });
@@ -297,7 +297,7 @@ export default {
       let componentName = this.componentName;
       let fullPackage = this.fullPackage;
       this.$refs.javaPreviewModal.generateCode(this.defaultTemplate, _object)
-      .then((val) => {
+      .then(val => {
         let codeZipObject = fileUtils.emptyDirZipObject();
         codeZipObject[componentName + ".java"] = val;
         let tmp;
@@ -308,7 +308,7 @@ export default {
           codeZipObject = tmp;
         }
         fileUtils.toZip(codeZipObject)
-        .then((content) => fileUtils.downloadFile(content, componentName +"-sources.zip"));
+        .then(content => fileUtils.downloadFile(content, componentName +"-sources.zip"));
       });
     },
     generateCode() {

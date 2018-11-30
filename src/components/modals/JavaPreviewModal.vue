@@ -43,7 +43,7 @@ export default {
       this.zipObject = zipObject;
       this.javaCode = this.$t("common.generating");
       this.generateCode(template, zipObject)
-      .then((val) => {
+      .then(val => {
         this.javaCode = val;
       });
       this.$children[0].show()
