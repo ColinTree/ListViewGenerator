@@ -8,7 +8,9 @@
         :title="$t('footer.aboutModal.title')"
         :ok-title="$t('button.ok')" ok-only>
       <span v-for="(info, ind) in infos" :key="ind">
-        <label>{{ $t(info.title) }}</label>: <b-link :href="info.link" target="_blank">{{ $t(info.linkText) }}</b-link><br/>
+        <label>{{ $t(info.title) }}</label>
+        <label v-if="info.linkText && info.link">: <b-link :href="info.link" target="_blank">{{ $t(info.linkText) }}</b-link></label>
+        <br/>
       </span>
     </b-modal>
   </div>
@@ -39,6 +41,11 @@ export default {
         title: "common.repo",
         link: this.repoUrl,
         linkText: "common.showOnGithub"
+      },
+      {
+        title: "common.projectMadeWith",
+        link: "https://vuejs.org",
+        linkText: "Vue.js"
       }
     ]
   }

@@ -15,7 +15,8 @@
         "error": {
             "loadTemplate": "Cannot load listview template, please try reload this page.",
             "reading": "Fail reading project file"
-        }
+        },
+        "projectMadeWith": "This project is made with"
     },
     "button": {
         "custom-file-label::after": "translate this in style block in Content.vue",
