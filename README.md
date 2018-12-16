@@ -1,10 +1,10 @@
 # ListViewGenerator
 
-ListViewGenerator is a generator that can create listview extensions for App Inventor.
+ListViewGenerator is a tool that can generate listview extensions for App Inventor.
 
 列表生成器 (ListViewGenerator) 是一个用来生成适用于 App Inventor 的列表拓展的工具
 
-This is a project that trying to help developers of App Inventor (or Thunkable, etc.) creating their own listview quickly. And it is actually a result of opening source of [ColinTreeListView](https://github.com/OpenSourceAIX/ColinTreeListView)
+This is a project that tries to help developers of App Inventor (or Thunkable, etc.) creating their own listview quickly. And it is actually a result of opening source of [ColinTreeListView](https://github.com/OpenSourceAIX/ColinTreeListView)
 
 这个项目是基于[ColinTreeListView](https://github.com/OpenSourceAIX/ColinTreeListView)制作的，旨在于帮助开发者更快捷地定制他们需要的列表
 
