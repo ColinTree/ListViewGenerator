@@ -19,7 +19,7 @@
 <script>
 import pkg from "../../package.json"
 
-import ajaxUtils from "../utils/ajaxUtils.js"
+import ajaxUtils from "../utils/ajaxUtils"
 
 export default {
   name: "Header",

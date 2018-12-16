@@ -166,11 +166,11 @@
 </template>
 
 <script>
-import EditPropertyModal from "./modals/EditPropertyModal.vue";
-import JavaPreviewModal from "./modals/JavaPreviewModal.vue";
+import EditPropertyModal from "./modals/EditPropertyModal";
+import JavaPreviewModal from "./modals/JavaPreviewModal";
 
-import fileUtils from "../utils/fileUtils.js";
-import ajaxUtils from "../utils/ajaxUtils.js";
+import fileUtils from "../utils/fileUtils";
+import ajaxUtils from "../utils/ajaxUtils";
 
 export default {
   name: "Content",

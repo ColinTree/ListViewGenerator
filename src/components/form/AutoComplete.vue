@@ -31,9 +31,9 @@
 </template>
 
 <script>
-import bIdMixin from "bootstrap-vue/es/mixins/id.js";
-import bFormMixin from "bootstrap-vue/es/mixins/form.js";
-import bFormStateMixin from "bootstrap-vue/es/mixins/form-state.js";
+import bIdMixin from "bootstrap-vue/es/mixins/id";
+import bFormMixin from "bootstrap-vue/es/mixins/form";
+import bFormStateMixin from "bootstrap-vue/es/mixins/form-state";
 
 export default {
   name: "AutoComplete",

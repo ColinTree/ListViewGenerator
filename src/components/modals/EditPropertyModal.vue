@@ -133,9 +133,9 @@
 </template>
 
 <script>
-import AutoComplete from "../form/AutoComplete.vue"
+import AutoComplete from "../form/AutoComplete"
 
-import stringUtils from "../../utils/stringUtils.js"
+import stringUtils from "../../utils/stringUtils"
 
 export default {
   name: "EditPropertyModal",
