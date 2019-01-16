@@ -235,10 +235,11 @@ export default {
         joinCompNameToPackage: this.joinCompNameToPackage,
         description: this.description,
         version: this.version,
-        properties: this.properties
+        properties: this.properties,
+        itemLayoutFileName: this.itemLayoutFile == null ? null : this.itemLayoutFile.name
       });
       if (this.itemLayoutFile != null) {
-        zipObject["itemLayout.aia"] = this.itemLayoutFile;
+        zipObject[this.itemLayoutFile.name] = this.itemLayoutFile;
       }
       return zipObject;
     },
@@ -268,8 +269,7 @@ export default {
   methods: {
     onConfirmUpload() {
       fileUtils.readZip(this.uploadFile).then(zip => {
-        zip.file("project-info.json")
-        .async("text", metadata => console.log("progression: " + metadata.percent.toFixed(2) + " %"))
+        zip.file("project-info.json").async("text")
         .then(val => {
           let projectInfo = JSON.parse(val);
           this.packageName = projectInfo.packageName;
@@ -278,6 +278,21 @@ export default {
           this.description = projectInfo.description;
           this.version = projectInfo.version;
           this.properties = projectInfo.properties;
+          if (projectInfo.itemLayoutFileName == null) {
+            this.itemLayoutFile = null;
+          } else {
+            let itemLayoutFileInZip = zip.file(projectInfo.itemLayoutFileName);
+            if (itemLayoutFileInZip == null) {
+              this.$alertify.error(this.$t("common.error.reading"));
+              console.error("unable to read itemLayoutFile", err);
+            } else {
+              console.log("start reading itemLayoutFile");
+              itemLayoutFileInZip.async("blob").then(val => {
+                val.name = projectInfo.itemLayoutFileName;
+                this.itemLayoutFile = val;
+              });
+            }
+          }
         }, err => {
           this.$alertify.error(this.$t("common.error.reading"));
           console.error("error reading project-info.json", err);
@@ -358,6 +373,7 @@ export default {
       this.description = "This is a template of ListView.";
       this.version = 1;
       this.properties = [];
+      this.itemLayoutFile = null;
     }
   }
 }
