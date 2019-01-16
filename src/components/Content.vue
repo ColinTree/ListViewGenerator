@@ -133,6 +133,25 @@
 
         <hr>
 
+        <!-- ITEM LAYOUT -->
+        <b-form-group
+            horizontal :label-cols="2"
+            :label="$t('content.field.itemLayout')">
+          <label
+              style="color: gray"
+              v-text="itemLayoutFile == null ? '' : itemLayoutFile.name" />
+          <b-btn
+              variant="link"
+              @click="$refs.manageItemLayoutModal.showModal(itemLayoutFile)"
+              v-t="'button.manage'" />
+        </b-form-group>
+
+        <ManageItemLayoutModal
+            ref="manageItemLayoutModal"
+            @ok="onManageItemLayoutDone" />
+
+        <hr>
+
         <!-- BUTTONS -->
         <div class="form-group row">
           <div id="field_buttons" class="col-sm-10">
@@ -167,6 +186,7 @@
 
 <script>
 import EditPropertyModal from "./modals/EditPropertyModal";
+import ManageItemLayoutModal from "./modals/ManageItemLayoutModal";
 import JavaPreviewModal from "./modals/JavaPreviewModal";
 
 import fileUtils from "../utils/fileUtils";
@@ -174,7 +194,7 @@ import ajaxUtils from "../utils/ajaxUtils";
 
 export default {
   name: "Content",
-  components: { EditPropertyModal, JavaPreviewModal },
+  components: { EditPropertyModal, ManageItemLayoutModal, JavaPreviewModal },
   data() {
     return {
       packageName: "",
@@ -183,6 +203,7 @@ export default {
       description: "",
       version: 1,
       properties: {},
+      itemLayoutFile: null,
 
       uploadFile: null,
       defaultTemplate: null,
@@ -201,21 +222,25 @@ export default {
           componentName: this.componentName,
           description: this.description,
           version: this.version,
-          properties: this.properties
+          properties: this.properties,
+          itemLayoutFile: this.itemLayoutFile
         }
       }
     },
     toZipObject() {
-      return {
-        "project-info.json": JSON.stringify({
-          packageName: this.packageName,
-          componentName: this.componentName,
-          joinCompNameToPackage: this.joinCompNameToPackage,
-          description: this.description,
-          version: this.version,
-          properties: this.properties
-        })
+      let zipObject = fileUtils.emptyDirZipObject();
+      zipObject["project-info.json"] = JSON.stringify({
+        packageName: this.packageName,
+        componentName: this.componentName,
+        joinCompNameToPackage: this.joinCompNameToPackage,
+        description: this.description,
+        version: this.version,
+        properties: this.properties
+      });
+      if (this.itemLayoutFile != null) {
+        zipObject["itemLayout.aia"] = this.itemLayoutFile;
       }
+      return zipObject;
     },
     propertyOptions() {
       return Object.keys(this.properties).length == 0 ? [ "None" ] : Object.keys(this.properties);
@@ -291,6 +316,9 @@ export default {
       this.properties = newProp;
 
       this.selectedProperty = property.name;
+    },
+    onManageItemLayoutDone(itemLayoutFile) {
+      this.itemLayoutFile = itemLayoutFile;
     },
     generateCodeZip() {
       let _object = this.toObject;

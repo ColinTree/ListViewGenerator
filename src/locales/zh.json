@@ -28,7 +28,8 @@
         "downloadProject": "下载项目",
         "resetForm": "重置项目",
         "dismiss": "关闭",
-        "copy": "复制"
+        "copy": "复制",
+        "manage": "管理"
     },
     "header": {
         "primary-title": "ListView Generator",
@@ -50,7 +51,7 @@
             "description": "描述",
             "version": "版本 (整数)",
             "properties": "组件属性",
-            "template": "模板",
+            "itemLayout": "列表项布局",
             "confirmResetText": "重置项目将会清除所有您在本页的编辑！"
         }
     },
@@ -96,6 +97,11 @@
             "copyFailed": "复制失败",
             "generating": "生成中……",
             "failedGenerating": "生成失败："
+        },
+        "itemLayout": {
+            "title": "管理列表项布局",
+            "noPreview": "预览功能尚未完成",
+            "previewButtonText": "预览"
         }
     },
     "footer": {
