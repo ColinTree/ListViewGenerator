@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "start": "http-server -p 8080 -c-1 ./dist"
   },
   "dependencies": {
     "bootstrap": "^4.0.0-beta.2",
