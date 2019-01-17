@@ -101,8 +101,8 @@ export default {
             case 2:  break;
             default: throw "Template error: more than one \"" + plotName + "\" plot is found";
           }
-          let beforePlot = split[0] + "/* GENERATED PLOT START: " + plotName + " */";
           let linePrefix = split[0].substr(split[0].lastIndexOf("\n") + 1);
+          let beforePlot = split[0] + "/* GENERATED PLOT START: " + plotName + " */\n" + linePrefix;
           let afterPlot = "/* GENERATED PLOT END:   " + plotName + " */" + split[1];
           handler(beforePlot, linePrefix, afterPlot);
         }
