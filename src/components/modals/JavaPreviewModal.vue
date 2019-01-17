@@ -168,15 +168,10 @@ export default {
               for (let propName in child) {
                 if (propName.charAt(0) != "$" && propName != "Uuid" && child.hasOwnProperty(propName)) {
                   let propValue = child[propName];
-                  try {
-                    let parseResult = Number.parseInt(propValue);
-                    if (Number.isNaN(parseResult)) {
-                      throw "property value is not a number";
-                    }
-                    println(child["$Name"] + "." + propName + "(" + parseResult + ");");
-                  } catch (ok) {
-                    println(child["$Name"] + "." + propName + "(\"" + propValue + "\");");
+                  if (Number.isNaN(Number.parseInt(propValue))) {
+                    propValue = "\"" + propValue + "\"";
                   }
+                  println(child["$Name"] + "." + propName + "(" + propValue + ");");
                 }
               }
               println();
