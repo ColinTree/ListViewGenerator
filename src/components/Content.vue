@@ -204,6 +204,8 @@ export default {
       version: 1,
       properties: {},
       itemLayoutFile: null,
+      // used in toObject
+      itemLayout: null,
 
       uploadFile: null,
       defaultTemplate: null,
@@ -222,9 +224,9 @@ export default {
           componentName: this.componentName,
           description: this.description,
           version: this.version,
-          properties: this.properties,
-          itemLayoutFile: this.itemLayoutFile
-        }
+          properties: this.properties
+        },
+        itemLayout: this.itemLayout
       }
     },
     toZipObject() {
@@ -269,6 +271,7 @@ export default {
   methods: {
     onConfirmUpload() {
       fileUtils.readZip(this.uploadFile).then(zip => {
+        let itemLayoutFileName = null;
         zip.file("project-info.json").async("text")
         .then(val => {
           let projectInfo = JSON.parse(val);
@@ -278,24 +281,27 @@ export default {
           this.description = projectInfo.description;
           this.version = projectInfo.version;
           this.properties = projectInfo.properties;
-          if (projectInfo.itemLayoutFileName == null) {
+          itemLayoutFileName = projectInfo.itemLayoutFileName;
+          if (itemLayoutFileName == null) {
             this.itemLayoutFile = null;
           } else {
-            let itemLayoutFileInZip = zip.file(projectInfo.itemLayoutFileName);
+            let itemLayoutFileInZip = zip.file(itemLayoutFileName);
             if (itemLayoutFileInZip == null) {
-              this.$alertify.error(this.$t("common.error.reading"));
-              console.error("unable to read itemLayoutFile", err);
+              throw "unable to find itemLayout file in project";
             } else {
-              console.log("start reading itemLayoutFile");
-              itemLayoutFileInZip.async("blob").then(val => {
-                val.name = projectInfo.itemLayoutFileName;
-                this.itemLayoutFile = val;
-              });
+              // load itemLayout aia blob
+              return itemLayoutFileInZip.async("blob");
             }
           }
         }, err => {
           this.$alertify.error(this.$t("common.error.reading"));
           console.error("error reading project-info.json", err);
+        })
+        // itemLayout aia blob loaded
+        .then(itemLayoutFileBlob => {
+          itemLayoutFileBlob.name = itemLayoutFileName;
+          this.itemLayoutFile = itemLayoutFileBlob;
+          return this.loadItemLayout();
         });
       });
     },
@@ -334,6 +340,30 @@ export default {
     },
     onManageItemLayoutDone(itemLayoutFile) {
       this.itemLayoutFile = itemLayoutFile;
+      this.loadItemLayout();
+    },
+    loadItemLayout() {
+      return new Promise(resolve => {
+        if (this.itemLayoutFile == null) {
+          throw "unable to load itemLayout from null aia";
+        }
+        fileUtils.readZip(this.itemLayoutFile)
+        .then(zip => {
+          let FILE_NAME_TO_FIND = "Screen1.scm";
+          let res = zip.folder("src")
+              .filter((relativePath, file) =>
+                relativePath.lastIndexOf(FILE_NAME_TO_FIND) == relativePath.length - FILE_NAME_TO_FIND.length);
+          if (res.length == 0) {
+            throw "No Screen1.scm in itemLayout aia";
+          }
+          return res[0].async("text");
+        })
+        .then(fileContent => {
+          fileContent = fileContent.substring(fileContent.indexOf("{"), fileContent.lastIndexOf("}") + 1);
+          this.itemLayout = JSON.parse(fileContent);
+          resolve(this.itemLayout);
+        });
+      });
     },
     generateCodeZip() {
       let _object = this.toObject;
