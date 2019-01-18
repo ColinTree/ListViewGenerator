@@ -163,7 +163,7 @@ export default {
             let containerName = compProps["$Type"] == "Form" ? "container" : compProps["$Name"];
             for (let childIndex in compProps["$Components"]) {
               let child = compProps["$Components"][childIndex];
-              // Type name = new Type(Container);
+              // SIMULATE: Type name = new Type(Container);
               println(child["$Type"] + " " + child["$Name"] + " = new " + child["$Type"] + "(" + containerName + ");");
               for (let propName in child) {
                 if (propName.charAt(0) != "$" && propName != "Uuid" && child.hasOwnProperty(propName)) {
@@ -171,6 +171,9 @@ export default {
                   if (Number.isNaN(Number.parseInt(propValue))) {
                     propValue = "\"" + propValue + "\"";
                   }
+                  // FIXME: value like Text("123"), would considered as Text(123)
+                  //        possible solution is to adapt this in template.
+                  // SIMULATE: name.PropName(PropValue);
                   println(child["$Name"] + "." + propName + "(" + propValue + ");");
                 }
               }
