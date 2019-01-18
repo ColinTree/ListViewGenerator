@@ -48,6 +48,7 @@ export default {
         this.javaCode = val;
       }, err => {
         this.javaCode = this.$t("modal.javaPreview.failedGenerating") + err;
+        console.error(err);
       });
       this.$children[0].show()
     },
@@ -79,35 +80,27 @@ export default {
 
         // replace blocks: /*_blockStart_*/ ... /*_blockEnd_*/
         function handleBlock(content, blockName, handler) {
-          let split = content.split("/*_"+blockName+"Start_*/");
-          switch (split.length) {
-            case 1:  throw "Template error: \"" + blockName + "\" start block not found";
-            case 2:  break;
-            default: throw "Template error: more than one \"" + blockName + "\" start block is found";
+          try {
+            let split = stringUtils.strictSplit(content, [ "/*_"+blockName+"Start_*/", "/*_"+blockName+"End_*/" ]);
+            let beforeBlock = split[0] + "/* GENERATED BLOCK START: " + blockName + " */";
+            let blockFormat = split[1];
+            let afterBlock = "/* GENERATED BLOCK END:   " + blockName + " */" + split[2];
+            handler(beforeBlock, blockFormat, afterBlock);
+          } catch (e) {
+            throw "Template error: " + e;
           }
-          let beforeBlock = split[0] + "/* GENERATED BLOCK START: " + blockName + " */";
-          split = split[1].split("/*_"+blockName+"End_*/");
-          switch (split.length) {
-            case 1:  throw "Template error: \""+blockName+"\" end block not found";
-            case 2:  break;
-            default: throw "Template error: more than one \""+blockName+"\" end block is found";
-          }
-          let blockFormat = split[0];
-          let afterBlock = "/* GENERATED BLOCK END:   " + blockName + " */" + split[1];
-          handler(beforeBlock, blockFormat, afterBlock);
         }
         // replace plot: /*_plotName_*/
         function handlePlot(content, plotName, handler) {
-          let split = content.split("/*_"+plotName+"_*/");
-          switch (split.length) {
-            case 1:  throw "Template error: \"" + plotName + "\" plot not found";
-            case 2:  break;
-            default: throw "Template error: more than one \"" + plotName + "\" plot is found";
+          try {
+            let split = stringUtils.strictSplit(content, "/*_"+plotName+"_*/");
+            let linePrefix = split[0].substr(split[0].lastIndexOf("\n") + 1);
+            let beforePlot = split[0] + "/* GENERATED PLOT START: " + plotName + " */\n" + linePrefix;
+            let afterPlot = "/* GENERATED PLOT END:   " + plotName + " */" + split[1];
+            handler(beforePlot, linePrefix, afterPlot);
+          } catch (e) {
+            throw "Template error: " + e;
           }
-          let linePrefix = split[0].substr(split[0].lastIndexOf("\n") + 1);
-          let beforePlot = split[0] + "/* GENERATED PLOT START: " + plotName + " */\n" + linePrefix;
-          let afterPlot = "/* GENERATED PLOT END:   " + plotName + " */" + split[1];
-          handler(beforePlot, linePrefix, afterPlot);
         }
         handleBlock(content, "propertyDefaultValue", (beforeBlock, blockFormat, afterBlock) => {
           for (let name in projectInfo.properties) {
@@ -180,23 +173,17 @@ export default {
             let containerName = compProps["$Type"] == "Form" ? "container" : compProps["$Name"];
             for (let childIndex in compProps["$Components"]) {
               let child = compProps["$Components"][childIndex];
-              println(stringUtils.replaceAllInObj("_type_ _name_ = new _type_(_container_);", {
+              println(stringUtils.replaceAllInObj("_name_ = new _type_(_container_);", {
                 "_type_": child["$Type"],
                 "_name_": child["$Name"],
                 "_container_": containerName
               }));
               for (let propName in child) {
                 if (propName.charAt(0) != "$" && propName != "Uuid" && child.hasOwnProperty(propName)) {
-                  let propValue = child[propName];
-                  if (Number.isNaN(Number.parseInt(propValue))) {
-                    propValue = "\"" + propValue + "\"";
-                  }
-                  // FIXME: value like Text("123"), would considered as Text(123)
-                  //        possible solution is to adapt this in template.
-                  println(stringUtils.replaceAllInObj("_name_._propName_(_propValue_);", {
+                  println(stringUtils.replaceAllInObj("setProperty(_name_, \"_propName_\", \"_propValue_\");", {
                     "_name_": child["$Name"],
                     "_propName_": propName,
-                    "_propValue_": propValue
+                    "_propValue_": child[propName]
                   }));
                 }
               }
@@ -212,13 +199,23 @@ export default {
         handlePlot(content, "elementShow", (beforePlot, linePrefix, afterPlot) => {
             for (let childIndex in itemLayout["Properties"]["$Components"]) {
               let child = itemLayout["Properties"]["$Components"][childIndex];
-              beforePlot += stringUtils.replaceAllInObj("_name_.Visible(true);", {
+              beforePlot += stringUtils.replaceAllInObj("setProperty(_name_, \"Visible\", \"true\");", {
                 "_name_": child["$Name"]
               });
               beforePlot += "\n" + linePrefix;
             }
             content = beforePlot + afterPlot;
-        })
+        });
+        handlePlot(content, "elementHide", (beforePlot, linePrefix, afterPlot) => {
+            for (let childIndex in itemLayout["Properties"]["$Components"]) {
+              let child = itemLayout["Properties"]["$Components"][childIndex];
+              beforePlot += stringUtils.replaceAllInObj("setProperty(_name_, \"Visible\", \"false\");", {
+                "_name_": child["$Name"]
+              });
+              beforePlot += "\n" + linePrefix;
+            }
+            content = beforePlot + afterPlot;
+        });
 
         // TODO:
 

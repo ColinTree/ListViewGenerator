@@ -36,5 +36,25 @@ export default {
       str = this.replaceAll(str, oldText, obj[oldText]);
     }
     return str;
+  },
+  /**
+   * @param {string} str 
+   * @param {string|string[]} splitters 
+   */
+  strictSplit(str, splitters) {
+    if (typeof(splitters) == "string") {
+      splitters = [ splitters ];
+    }
+    let result = [];
+    console.log(str);
+    for (let index in splitters) {
+      let tmp = str.split(splitters[index]);
+      if (tmp.length < 2) throw "no such splitter: " + splitters[index];
+      if (tmp.length > 2) throw "more than one splitter is found: " + splitters[index];
+      result.push(tmp[0]);
+      str = tmp[1];
+    }
+    result.push(str);
+    return result;
   }
 }

@@ -1,16 +1,10 @@
 package __fullPackage__;
 
+import java.lang.reflect.*;
 import java.util.ArrayList;
 
-import com.google.appinventor.components.annotations.DesignerComponent;
-import com.google.appinventor.components.annotations.DesignerProperty;
-import com.google.appinventor.components.annotations.PropertyCategory;
-import com.google.appinventor.components.annotations.SimpleEvent;
-import com.google.appinventor.components.annotations.SimpleFunction;
-import com.google.appinventor.components.annotations.SimpleObject;
-import com.google.appinventor.components.annotations.SimpleProperty;
-import com.google.appinventor.components.common.ComponentCategory;
-import com.google.appinventor.components.common.ComponentConstants;
+import com.google.appinventor.components.annotations.*;
+import com.google.appinventor.components.common.*;
 import com.google.appinventor.components.runtime.*;
 import com.google.appinventor.components.runtime.util.YailList;
 
@@ -224,7 +218,7 @@ public class __componentName__ extends AndroidNonvisibleComponent {
         public void onClick(View view) {
             onElementClick();
         }
-        
+
         private void create() {
             /*_elementCreate_*/
             refreshProperties();
@@ -232,6 +226,45 @@ public class __componentName__ extends AndroidNonvisibleComponent {
         public void refreshProperties() {
             show();
             /*_elementRefreshProperties_*/
+        }
+
+        private void setProperty(AndroidViewComponent component, String propName, String propValue) {
+            Class<?> claz = component.getClass();
+            Method[] methods = claz.getMethods();
+            Method setter = null;
+            for (Method method : methods) {
+                if (method.getName().equals(propName) && method.getParameterCount() == 1) {
+                    setter = method;
+                    break;
+                }
+            }
+            // May be null
+            Parameter param = setter.getParameters()[0];
+            try {
+                if (param.getType() == String.class) {
+                    setter.invoke(component, propValue);
+                } else if (param.getType() == Boolean.TYPE) {
+                    setter.invoke(component, Boolean.getBoolean(propValue));
+                } else if (param.getType() == Integer.TYPE) {
+                    setter.invoke(component, Integer.parseInt(propValue));
+                } else if (param.getType() == Float.TYPE) {
+                    setter.invoke(component, Float.parseFloat(propValue));
+                } else if (param.getType() == Double.TYPE) {
+                    setter.invoke(component, Double.parseDouble(propValue));
+                } else {
+                /* TODO:
+                 * java.lang.Character#TYPE
+                 * java.lang.Byte#TYPE
+                 * java.lang.Short#TYPE
+                 * java.lang.Long#TYPE
+                 * java.lang.Void#TYPE
+                 */
+                    throw new IllegalArgumentException("Cannot cast property into target type of property \"" + propName + "\". "
+                                                    + "Require " + param.getType().getName() + ", get \"" + propValue + "\"");
+                }
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
 
         public void show() {
@@ -246,12 +279,13 @@ public class __componentName__ extends AndroidNonvisibleComponent {
         }
         public String getText() {
             /*_elementSetText_*/
+            return "";
         }
-        
+
         public void set(YailList list) {
             int size=list.toArray().length;
             /*_elementSet_*/
-        }   
+        }
     }
 
 }
