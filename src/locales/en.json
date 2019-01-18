@@ -9,9 +9,6 @@
         "repo": "Repository",
         "ColinTree": "ColinTree",
         "showOnGithub": "Show on Github",
-        "copied": "Copied",
-        "copyFailed": "Copy Failed",
-        "generating": "Generating......",
         "error": {
             "loadTemplate": "Cannot load listview template, please try reload this page.",
             "reading": "Fail reading project file"
@@ -93,6 +90,12 @@
         },
         "previewJava": {
             "title": "Preview generated Java code"
+        },
+        "javaPreview": {
+            "copied": "Copied",
+            "copyFailed": "Copy Failed",
+            "generating": "Generating......",
+            "failedGenerating": "Failed generating:"
         }
     },
     "footer": {

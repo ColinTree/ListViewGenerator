@@ -9,9 +9,6 @@
         "repo": "储存库",
         "ColinTree": "ColinTree (树树)",
         "showOnGithub": "在Github上查看",
-        "copied": "已复制",
-        "copyFailed": "复制失败",
-        "generating": "生成中……",
         "error": {
             "loadTemplate": "无法加载列表模板，请尝试刷新本页",
             "reading": "读取项目过程中出现错误"
@@ -93,6 +90,12 @@
         },
         "previewJava": {
             "title": "预览Java文件生成结果"
+        },
+        "javaPreview": {
+            "copied": "已复制",
+            "copyFailed": "复制失败",
+            "generating": "生成中……",
+            "failedGenerating": "生成失败："
         }
     },
     "footer": {

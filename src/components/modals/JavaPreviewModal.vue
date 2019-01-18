@@ -32,8 +32,8 @@ export default {
   methods: {
     onCopy() {
       this.$copyText(this.javaCode, this.$refs.codeContainer)
-      .then(() => this.$alertify.success(this.$t("common.copied")),
-            () => this.$alertify.success(this.$t("common.copyFailed")));
+      .then(() => this.$alertify.success(this.$t("modal.javaPreview.copied")),
+            () => this.$alertify.success(this.$t("modal.javaPreview.copyFailed")));
     },
     showModal(template, zipObject) {
       if (template == null || zipObject == null) {
@@ -41,10 +41,12 @@ export default {
       }
       this.template = template;
       this.zipObject = zipObject;
-      this.javaCode = this.$t("common.generating");
+      this.javaCode = this.$t("modal.javaPreview.generating");
       this.generateCode(template, zipObject)
       .then(val => {
         this.javaCode = val;
+      }, err => {
+        this.javaCode = this.$t("modal.javaPreview.failedGenerating") + err;
       });
       this.$children[0].show()
     },
