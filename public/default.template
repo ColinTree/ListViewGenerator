@@ -207,8 +207,7 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     private class Element implements OnClickListener {
         private ComponentContainer container;
         /*_elementComponentStart_*/
-        private _type_ _name_;
-        /*_elementComponentEnd_*/
+        private _type_ _name_;/*_elementComponentEnd_*/
 
         public Element(ComponentContainer container, YailList list) {
             this.container = container;
