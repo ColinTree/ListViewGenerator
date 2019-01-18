@@ -65,6 +65,9 @@ export default {
         let content = template;
         let projectInfo = projectObject.projectInfo;
         let itemLayout = projectObject.itemLayout;
+        if (itemLayout == null) {
+          throw "No itemlayout provided";
+        }
 
         // replace globally: __xxx__
         content = stringUtils.replaceAllInObj(content, {
@@ -152,19 +155,36 @@ export default {
           }
           content = beforeBlock + afterBlock;
         });
+        handleBlock(content, "elementComponent", (beforeBlock, blockFormat, afterBlock) => {
+          function traverseComponentContainer(compProps) {
+            for (let childIndex in compProps["$Components"]) {
+              let child = compProps["$Components"][childIndex];
+              beforeBlock += stringUtils.replaceAllInObj(blockFormat, {
+                "_type_": child["$Type"],
+                "_name_": child["$Name"]
+              });
+              if (child["$Components"] != null) {
+                traverseComponentContainer(child);
+              }
+            }
+          }
+          traverseComponentContainer(itemLayout["Properties"]);
+          content = beforeBlock + afterBlock;
+        });
         handlePlot(content, "elementCreate", (beforePlot, linePrefix, afterPlot) => {
-          let plot = "";
           function println(line = "") {
-            plot += line;
-            plot += "\n" + linePrefix;
+            beforePlot += line + "\n" + linePrefix;
           };
           // FIXME: Handle different default values in different platforms
           function traverseComponentContainer(compProps) {
             let containerName = compProps["$Type"] == "Form" ? "container" : compProps["$Name"];
             for (let childIndex in compProps["$Components"]) {
               let child = compProps["$Components"][childIndex];
-              // SIMULATE: Type name = new Type(Container);
-              println(child["$Type"] + " " + child["$Name"] + " = new " + child["$Type"] + "(" + containerName + ");");
+              println(stringUtils.replaceAllInObj("_type_ _name_ = new _type_(_container_);", {
+                "_type_": child["$Type"],
+                "_name_": child["$Name"],
+                "_container_": containerName
+              }));
               for (let propName in child) {
                 if (propName.charAt(0) != "$" && propName != "Uuid" && child.hasOwnProperty(propName)) {
                   let propValue = child[propName];
@@ -173,8 +193,11 @@ export default {
                   }
                   // FIXME: value like Text("123"), would considered as Text(123)
                   //        possible solution is to adapt this in template.
-                  // SIMULATE: name.PropName(PropValue);
-                  println(child["$Name"] + "." + propName + "(" + propValue + ");");
+                  println(stringUtils.replaceAllInObj("_name_._propName_(_propValue_);", {
+                    "_name_": child["$Name"],
+                    "_propName_": propName,
+                    "_propValue_": propValue
+                  }));
                 }
               }
               println();
@@ -184,7 +207,7 @@ export default {
             }
           }
           traverseComponentContainer(itemLayout["Properties"]);
-          content = beforePlot + plot + afterPlot;
+          content = beforePlot + afterPlot;
         });
 
         // TODO:
