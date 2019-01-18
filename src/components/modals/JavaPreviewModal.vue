@@ -209,6 +209,16 @@ export default {
           traverseComponentContainer(itemLayout["Properties"]);
           content = beforePlot + afterPlot;
         });
+        handlePlot(content, "elementShow", (beforePlot, linePrefix, afterPlot) => {
+            for (let childIndex in itemLayout["Properties"]["$Components"]) {
+              let child = itemLayout["Properties"]["$Components"][childIndex];
+              beforePlot += stringUtils.replaceAllInObj("_name_.Visible(true);", {
+                "_name_": child["$Name"]
+              });
+              beforePlot += "\n" + linePrefix;
+            }
+            content = beforePlot + afterPlot;
+        })
 
         // TODO:
 
