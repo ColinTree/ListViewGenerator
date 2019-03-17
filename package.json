@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "http-server -p 8080 -c-1 ./dist"
+    "start": "http-server -d false ./dist"
   },
   "dependencies": {
     "bootstrap": "^4.3.1",
