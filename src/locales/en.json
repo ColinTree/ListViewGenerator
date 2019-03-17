@@ -100,7 +100,7 @@
         },
         "itemLayout": {
             "title": "Manage Item Layout",
-            "noPreview": "Preview is not yet implemented",
+            "noPreview": "Item layout file need to be previewed before save & close",
             "previewButtonText": "Preview"
         }
     },
