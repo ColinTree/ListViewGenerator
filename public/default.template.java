@@ -23,9 +23,9 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     public static final String LOG_TAG = "__componentName__";
     public static final int VERSION = __version__;
 
-    /*_propertyDefaultValueStart_*/
+    /*_block_propertyDefaultValue_start_*/
     private static final _type_ DEFAULT__name_ = _defaultValue_;
-    /*_propertyDefaultValueEnd_*/
+    /*_block_propertyDefaultValue_end_*/
 
     private final Context context;
     private final Form form;
@@ -34,9 +34,9 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     private HVArrangement vaContainer;
     private int currentListSize = 0;
 
-    /*_propertyFieldStart_*/
+    /*_block_propertyField_start_*/
     private _type_ _name_ = DEFAULT__name_;
-    /*_propertyFieldEnd_*/
+    /*_block_propertyField_end_*/
 
     public __componentName__(ComponentContainer container) {
         super(container.$form());
@@ -103,12 +103,12 @@ public class __componentName__ extends AndroidNonvisibleComponent {
                 public void onElementClick() {
                     ElementClick(elementIndex);
                 }
-                /*_eventImplementStart_*/
+                /*_block_eventImplement_start_*/
                 @Override
                 public void on_name_() {
                     _name_(elementIndex);
                 }
-                /*_eventImplementEnd_*/
+                /*_block_eventImplement_end_*/
             });
         }
         currentListSize++;
@@ -168,17 +168,17 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     public void ElementClick(int elementIndex) {
         EventDispatcher.dispatchEvent(this, "ElementClick", 1+elementIndex);
     }
-    /*_eventStart_*/
+    /*_block_event_start_*/
     @SimpleEvent(description = "_description_")
     public void _name_(int elementIndex) {
         EventDispatcher.dispatchEvent(this, "_name_", 1+elementIndex);
     }
-    /*_eventEnd_*/
+    /*_block_event_end_*/
 
     
-    /*_propertyStart_*/
+    /*_block_property_start_*/
     @SimpleProperty(description = "_description_", category = PropertyCategory._category_, userVisible = _setterVisible_)
-    _if_designerVisible_@DesignerProperty(editorType = "_editorType_", defaultValue = "" + DEFAULT__name_, editorArgs = _args_)
+    /*_lineIf_designerVisible_*/@DesignerProperty(editorType = "_editorType_", defaultValue = "" + DEFAULT__name_, editorArgs = _args_)
     public void _name_(_type_ _name_) {
         this._name_ = _name_;
         refreshElementProperties();
@@ -187,7 +187,7 @@ public class __componentName__ extends AndroidNonvisibleComponent {
     public _type_ _name_() {
         return _name_;
     }
-    /*_propertyEnd_*/
+    /*_block_property_end_*/
 
     private void refreshElementProperties() {
         for (int i=0; i<currentListSize; i++) {
@@ -200,8 +200,8 @@ public class __componentName__ extends AndroidNonvisibleComponent {
 
     private class Element implements OnClickListener {
         private ComponentContainer container;
-        /*_elementComponentStart_*/
-        private _type_ _name_;/*_elementComponentEnd_*/
+        /*_block_elementComponent_start_*/
+        private _type_ _name_;/*_block_elementComponent_end_*/
 
         public Element(ComponentContainer container, YailList list) {
             this.container = container;
@@ -210,9 +210,9 @@ public class __componentName__ extends AndroidNonvisibleComponent {
         }
 
         public void onElementClick() {}
-        /*_elementEventStart_*/
+        /*_block_elementEvent_start_*/
         public void on_name_() {}
-        /*_elementEventEnd_*/
+        /*_block_elementEvent_end_*/
 
         @Override
         public void onClick(View view) {
@@ -220,12 +220,12 @@ public class __componentName__ extends AndroidNonvisibleComponent {
         }
 
         private void create() {
-            /*_elementCreate_*/
+            /*_plot_elementCreate_*/
             refreshProperties();
         }
         public void refreshProperties() {
             show();
-            /*_elementRefreshProperties_*/
+            /*_plot_elementRefreshProperties_*/
         }
 
         private void setProperty(AndroidViewComponent component, String propName, String propValue) {
@@ -252,13 +252,12 @@ public class __componentName__ extends AndroidNonvisibleComponent {
                 } else if (param.getType() == Double.TYPE) {
                     setter.invoke(component, Double.parseDouble(propValue));
                 } else {
-                /* TODO:
-                 * java.lang.Character#TYPE
-                 * java.lang.Byte#TYPE
-                 * java.lang.Short#TYPE
-                 * java.lang.Long#TYPE
-                 * java.lang.Void#TYPE
-                 */
+                // TODO:
+                // java.lang.Character#TYPE
+                // java.lang.Byte#TYPE
+                // java.lang.Short#TYPE
+                // java.lang.Long#TYPE
+                // java.lang.Void#TYPE
                     throw new IllegalArgumentException("Cannot cast property into target type of property \"" + propName + "\". "
                                                     + "Require " + param.getType().getName() + ", get \"" + propValue + "\"");
                 }
@@ -268,23 +267,23 @@ public class __componentName__ extends AndroidNonvisibleComponent {
         }
 
         public void show() {
-            /*_elementShow_*/
+            /*_plot_elementShow_*/
         }
         public void hide() {
-            /*_elementHide_*/
+            /*_plot_elementHide_*/
         }
 
         public void setText(String text) {
-            /*_elementSetText_*/
+            /*_plot_elementSetText_*/
         }
         public String getText() {
-            /*_elementSetText_*/
+            /*_plot_elementSetText_*/
             return "";
         }
 
         public void set(YailList list) {
             int size=list.toArray().length;
-            /*_elementSet_*/
+            /*_plot_elementSet_*/
         }
     }
 

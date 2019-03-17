@@ -78,10 +78,10 @@ export default {
           "__description__": projectInfo.description
         });
 
-        // replace blocks: /*_blockStart_*/ ... /*_blockEnd_*/
+        // replace blocks: /*_block_name_start_*/ ... /*_block_name_end_*/
         function handleBlock(content, blockName, handler) {
           try {
-            let split = stringUtils.strictSplit(content, [ "/*_"+blockName+"Start_*/", "/*_"+blockName+"End_*/" ]);
+            let split = stringUtils.strictSplit(content, [ "/*_block_"+blockName+"_start_*/", "/*_block_"+blockName+"_end_*/" ]);
             let beforeBlock = split[0] + "/* GENERATED BLOCK START: " + blockName + " */";
             let blockFormat = split[1];
             let afterBlock = "/* GENERATED BLOCK END:   " + blockName + " */" + split[2];
@@ -90,10 +90,10 @@ export default {
             throw "Template error: " + e;
           }
         }
-        // replace plot: /*_plotName_*/
+        // replace plot: /*_plot_name_*/
         function handlePlot(content, plotName, handler) {
           try {
-            let split = stringUtils.strictSplit(content, "/*_"+plotName+"_*/");
+            let split = stringUtils.strictSplit(content, "/*_plot_"+plotName+"_*/");
             let linePrefix = split[0].substr(split[0].lastIndexOf("\n") + 1);
             let beforePlot = split[0] + "/* GENERATED PLOT START: " + plotName + " */\n" + linePrefix;
             let afterPlot = "/* GENERATED PLOT END:   " + plotName + " */" + split[1];
@@ -129,7 +129,7 @@ export default {
             beforeBlock += stringUtils.replaceAllInObj(blockFormat, {
               "_description_": property.description,
               "_category_": property.category,
-              "_if_designerVisible_": property.designerVisible ? "" : "//",
+              "/*_lineIf_designerVisible_*/": property.designerVisible ? "" : "//",
               "_setterVisible_": property.setterVisible,
               "_editorType_": property.editorType,
               "_args_": (() => {
