@@ -1,5 +1,6 @@
 FROM node:8-alpine
 
+RUN npm config set unsafe-perm true
 RUN npm i -g http-server
 
 WORKDIR /usr/app
