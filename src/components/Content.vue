@@ -259,7 +259,7 @@ export default {
   },
   created() {
     this.resetForm();
-    ajaxUtils.getPlainText("./default.template")
+    ajaxUtils.getPlainText("./default.template.java")
     .then(val => {
       this.defaultTemplate = val;
     })
