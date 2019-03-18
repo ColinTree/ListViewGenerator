@@ -59,4 +59,8 @@ html, body {
     margin-right: auto;
   }
 }
+
+.btn-default {
+  background-color: buttonface;
+}
 </style>
