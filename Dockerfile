@@ -6,7 +6,7 @@ RUN npm i -g http-server
 WORKDIR /usr/app
 
 COPY package*.json ./
-RUN npm i --production
+RUN npm i
 
 COPY . .
 RUN npm run build
