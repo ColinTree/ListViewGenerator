@@ -6,10 +6,10 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "http-server -p 8080 -c-1 ./dist"
+    "start": "http-server -d false dist"
   },
   "dependencies": {
-    "bootstrap": "^4.0.0-beta.2",
+    "bootstrap": "^4.3.1",
     "bootstrap-vue": "^2.0.0-rc.11",
     "fetchival": "^0.3.3",
     "file-saver": "^2.0.0-rc.4",

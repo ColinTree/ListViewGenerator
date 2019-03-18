@@ -132,15 +132,7 @@ export default {
               "/*_lineIf_designerVisible_*/": property.designerVisible ? "" : "//",
               "_setterVisible_": property.setterVisible,
               "_editorType_": property.editorType,
-              "_args_": (() => {
-                let rtn = "{";
-                let first = true;
-                for (let argIndex in property.args) {
-                  first ? first = false : rtn += ", ";
-                  rtn += "\"" + property.args[argIndex] + "\"";
-                }
-                return rtn + "}";
-              })(),
+              "_args_": property.args.length == 0 ? "{}" : "{\"" + property.args.join("\", \"") + "\"}",
               "_type_": property.javaType,
               "_name_": name,
               "_getterVisible_": property.getterVisible
