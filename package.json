@@ -20,13 +20,13 @@
     "vue-clipboard2": "^0.2.1",
     "vue-highlight.js": "^2.2.0",
     "vue-i18n": "^8.0.0",
-    "vue-shortkey": "^3.1.6",
-    "@vue/cli-service": "^3.1.0"
+    "vue-shortkey": "^3.1.6"
   },
   "devDependencies": {
     "@kazupon/vue-i18n-loader": "^0.3.0",
     "@vue/cli-plugin-babel": "^3.1.0",
     "@vue/cli-plugin-eslint": "^3.1.0",
+    "@vue/cli-service": "^3.1.0",
     "babel-eslint": "^10.0.1",
     "css-loader": "^0.28.11",
     "eslint": "^5.15.2",
