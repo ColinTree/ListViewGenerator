@@ -121,7 +121,7 @@ export default {
               "_if_designerVisible_": property.designerVisible ? "" : "//",
               "_setterVisible_": property.setterVisible,
               "_editorType_": property.editorType,
-              "_args_": "{\"" + property.args.join("\", \"") + "\"}",
+              "_args_": property.args.length == 0 ? "{}" : "{\"" + property.args.join("\", \"") + "\"}",
               "_type_": property.javaType,
               "_name_": name,
               "_getterVisible_": property.getterVisible
