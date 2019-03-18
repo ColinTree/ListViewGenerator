@@ -36,8 +36,6 @@
 </template>
 
 <script>
-import fileUtils from '../../utils/fileUtils';
-
 export default {
   name: "ManageItemLayoutModal",
   data() {

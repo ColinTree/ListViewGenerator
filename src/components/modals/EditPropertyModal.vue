@@ -210,6 +210,7 @@ export default {
       return this.defaultValue == "";
     },
     defaultValueConstantLike() {
+      // eslint-disable-next-line no-useless-escape
       return this.defaultValue.search(/[a-z\.][\w\.]*$/gi) == 0;
     },
     defaultValueState() {
