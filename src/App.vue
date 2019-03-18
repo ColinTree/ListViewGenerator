@@ -30,7 +30,7 @@ export default {
   },
   mounted() {
     var userLang = navigator.language || navigator.userLanguage;
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-console
     console.log("language=" + userLang);
     this.locale = userLang.substring(0, 2);
   },

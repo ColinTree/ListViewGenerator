@@ -19,7 +19,6 @@
 import pkg from "../../../package.json"
 
 import stringUtils from '../../utils/stringUtils';
-import fileUtils from '../../utils/fileUtils';
 
 export default {
   name: "JavaPreviewModal",
@@ -31,26 +30,29 @@ export default {
     }
   },
   methods: {
-    onCopy() {
-      this.$copyText(this.javaCode, this.$refs.codeContainer)
-      .then(() => this.$alertify.success(this.$t("modal.javaPreview.copied")),
-            () => this.$alertify.success(this.$t("modal.javaPreview.copyFailed")));
+    async onCopy() {
+      try {
+        this.$copyText(this.javaCode, this.$refs.codeContainer);
+        this.$alertify.success(this.$t("modal.javaPreview.copied"))
+      } catch (e) {
+        this.$alertify.error(this.$t("modal.javaPreview.copyFailed"));
+      }
     },
-    showModal(template, zipObject) {
+    async showModal(template, zipObject) {
       if (template == null || zipObject == null) {
         return new Promise((r, reject) => reject("null reference"));
       }
       this.template = template;
       this.zipObject = zipObject;
       this.javaCode = this.$t("modal.javaPreview.generating");
-      this.generateCode(template, zipObject)
-      .then(val => {
-        this.javaCode = val;
-      }, err => {
+      try {
+        this.javaCode = await this.generateCode(template, zipObject);
+      } catch (err) {
         this.javaCode = this.$t("modal.javaPreview.failedGenerating") + err;
+        // eslint-disable-next-line no-console
         console.error(err);
-      });
-      this.$children[0].show()
+      }
+      this.$children[0].show();
     },
     generateCode(template, projectObject) {
       return new Promise(resolve => {
@@ -159,7 +161,7 @@ export default {
         handlePlot(content, "elementCreate", (beforePlot, linePrefix, afterPlot) => {
           function println(line = "") {
             beforePlot += line + "\n" + linePrefix;
-          };
+          }
           // FIXME: Handle different default values in different platforms
           function traverseComponentContainer(compProps) {
             let containerName = compProps["$Type"] == "Form" ? "container" : compProps["$Name"];

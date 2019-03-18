@@ -257,53 +257,51 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
     this.resetForm();
-    ajaxUtils.getPlainText("./default.template.java")
-    .then(val => {
-      this.defaultTemplate = val;
-    })
-    .catch(e => {
+    try {
+      this.defaultTemplate = await ajaxUtils.get("./default.template.java");
+    } catch (e) {
       this.$alertify.error("common.error.loadTemplate");
+      // eslint-disable-next-line no-console
       console.error("error fetching default template:", e);
-    });
+    }
   },
   methods: {
-    onConfirmUpload() {
-      fileUtils.readZip(this.uploadFile).then(zip => {
-        let itemLayoutFileName = null;
-        zip.file("project-info.json").async("text")
-        .then(val => {
-          let projectInfo = JSON.parse(val);
-          this.packageName = projectInfo.packageName;
-          this.componentName = projectInfo.componentName;
-          this.joinCompNameToPackage = projectInfo.joinCompNameToPackage;
-          this.description = projectInfo.description;
-          this.version = projectInfo.version;
-          this.properties = projectInfo.properties;
-          itemLayoutFileName = projectInfo.itemLayoutFileName;
-          if (itemLayoutFileName == null) {
-            this.itemLayoutFile = null;
-          } else {
-            let itemLayoutFileInZip = zip.file(itemLayoutFileName);
-            if (itemLayoutFileInZip == null) {
-              throw "unable to find itemLayout file in project";
-            } else {
-              // load itemLayout aia blob
-              return itemLayoutFileInZip.async("blob");
-            }
-          }
-        }, err => {
-          this.$alertify.error(this.$t("common.error.reading"));
-          console.error("error reading project-info.json", err);
-        })
-        // itemLayout aia blob loaded
-        .then(itemLayoutFileBlob => {
-          itemLayoutFileBlob.name = itemLayoutFileName;
-          this.itemLayoutFile = itemLayoutFileBlob;
-          return this.loadItemLayout();
-        });
-      });
+    async onConfirmUpload() {
+      let zip = await fileUtils.readZip(this.uploadFile);
+      try {
+        let val = await zip.file("project-info.json").async("text");
+
+        let projectInfo = JSON.parse(val);
+        this.packageName = projectInfo.packageName;
+        this.componentName = projectInfo.componentName;
+        this.joinCompNameToPackage = projectInfo.joinCompNameToPackage;
+        this.description = projectInfo.description;
+        this.version = projectInfo.version;
+        this.properties = projectInfo.properties;
+
+        let itemLayoutFileName = projectInfo.itemLayoutFileName;
+        if (itemLayoutFileName == null) {
+          this.itemLayoutFile = null;
+          return;
+        }
+        let itemLayoutFileInZip = zip.file(itemLayoutFileName);
+        if (itemLayoutFileInZip == null) {
+          throw "unable to find itemLayout file in project";
+        }
+
+        // load itemLayout aia blob
+        let itemLayoutFileBlob = await itemLayoutFileInZip.async("blob");
+        itemLayoutFileBlob.name = itemLayoutFileName;
+        this.itemLayoutFile = itemLayoutFileBlob;
+        this.loadItemLayout();
+
+      } catch (err) {
+        this.$alertify.error(this.$t("common.error.reading"));
+        // eslint-disable-next-line no-console
+        console.error("error reading project-info.json", err);
+      }
     },
     onOpenRemovePropertyModal() {
       this.selectedProperty2Remove = this.selectedProperty;
@@ -342,59 +340,44 @@ export default {
       this.itemLayoutFile = itemLayoutFile;
       this.loadItemLayout();
     },
-    loadItemLayout() {
-      return new Promise(resolve => {
-        if (this.itemLayoutFile == null) {
-          throw "unable to load itemLayout from null aia";
-        }
-        fileUtils.readZip(this.itemLayoutFile)
-        .then(zip => {
-          let FILE_NAME_TO_FIND = "Screen1.scm";
-          let res = zip.folder("src")
-              .filter((relativePath, file) =>
-                relativePath.lastIndexOf(FILE_NAME_TO_FIND) == relativePath.length - FILE_NAME_TO_FIND.length);
-          if (res.length == 0) {
-            throw "No Screen1.scm in itemLayout aia";
-          }
-          return res[0].async("text");
-        })
-        .then(fileContent => {
-          fileContent = fileContent.substring(fileContent.indexOf("{"), fileContent.lastIndexOf("}") + 1);
-          this.itemLayout = JSON.parse(fileContent);
-          resolve(this.itemLayout);
-        });
-      });
+    async loadItemLayout() {
+      if (this.itemLayoutFile == null) {
+        throw "unable to load itemLayout from null aia";
+      }
+      let zip = await fileUtils.readZip(this.itemLayoutFile);
+      let FILE_NAME_TO_FIND = "Screen1.scm";
+      let res = zip.folder("src").filter(relativePath => relativePath.endsWith(FILE_NAME_TO_FIND));
+      if (res.length == 0) {
+        throw "No Screen1.scm in itemLayout aia";
+      }
+
+      let fileContent = await res[0].async("text");
+      fileContent = fileContent.substring(fileContent.indexOf("{"), fileContent.lastIndexOf("}") + 1);
+      this.itemLayout = JSON.parse(fileContent);
     },
-    generateCodeZip() {
+    async generateCodeZip() {
       let _object = this.toObject;
       let componentName = this.componentName;
       let fullPackage = this.fullPackage;
-      this.$refs.javaPreviewModal.generateCode(this.defaultTemplate, _object)
-      .then(val => {
-        let codeZipObject = fileUtils.emptyDirZipObject();
-        codeZipObject[componentName + ".java"] = val;
-        let tmp;
-        let packageArr = fullPackage.split('.').reverse();
-        for (let i in packageArr) {
-          tmp = fileUtils.emptyDirZipObject();
-          tmp[packageArr[i]] = codeZipObject;
-          codeZipObject = tmp;
-        }
-        fileUtils.toZip(codeZipObject)
-        .then(content => fileUtils.downloadFile(content, componentName +"-sources.zip"));
-      });
+      let val = await this.$refs.javaPreviewModal.generateCode(this.defaultTemplate, _object);
+      let codeZipObject = fileUtils.emptyDirZipObject();
+      codeZipObject[componentName + ".java"] = val;
+      let tmp;
+      let packageArr = fullPackage.split('.').reverse();
+      for (let i in packageArr) {
+        tmp = fileUtils.emptyDirZipObject();
+        tmp[packageArr[i]] = codeZipObject;
+        codeZipObject = tmp;
+      }
+      fileUtils.downloadFile(await fileUtils.toZip(codeZipObject), componentName +"-sources.zip");
     },
     generateCode() {
       this.$refs.javaPreviewModal.showModal(this.defaultTemplate, this.toObject);
     },
-    onDownloadProject() {
-      fileUtils.toZip(this.toZipObject)
-      .then(
-        zip => fileUtils.downloadFile(
-          zip,
-          this.fullPackage + "." + this.componentName + "-v" + this.version + ".lvg"
-        )
-      );
+    async onDownloadProject() {
+      fileUtils.downloadFile(
+        await fileUtils.toZip(this.toZipObject),
+        this.fullPackage + "." + this.componentName + "-v" + this.version + ".lvg");
     },
     resetForm() {
       this.packageName = "cn.colintree.aix.template";

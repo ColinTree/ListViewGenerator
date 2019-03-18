@@ -1,13 +1,7 @@
-import fetchival from "fetchival"
+import axios from "axios"
 
 export default {
-  get(url) {
-    return fetchival(url).get();
-  },
-  getPlainText(url) {
-    return fetchival(url, { responseAs: "text" }).get();
-  },
-  post(url, data) {
-    return fetchival(url).post(data);
+  async get(url) {
+    return (await axios.get(url)).data;
   }
 };

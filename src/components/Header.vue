@@ -30,22 +30,22 @@ export default {
       versionCode: ""
     }
   },
-  created() {
-    ajaxUtils.get(this.apiUrl)
-    .then(data => {
+  async created() {
+    try {
+      let data = await ajaxUtils.get(this.apiUrl);
       try {
         if (!this.isCurrentLatest(data.tag_name)) {
           this.link = data.html_url;
           this.versionCode = data.tag_name;
         }
       } catch (err) {
-        console.error(err);
+        // eslint-disable-next-line no-console
+        console.error("Failed checking version", err);
       }
-    })
-    .catch(() => {
+    } catch (e) {
       // 404 will be returned if latest release is called and there is no release
       // catch it here and just ignore it
-    });
+    }
   },
   methods: {
     isCurrentLatest(latestTag) {

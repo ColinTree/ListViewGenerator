@@ -46,7 +46,6 @@ export default {
       splitters = [ splitters ];
     }
     let result = [];
-    console.log(str);
     for (let index in splitters) {
       let tmp = str.split(splitters[index]);
       if (tmp.length < 2) throw "no such splitter: " + splitters[index];
