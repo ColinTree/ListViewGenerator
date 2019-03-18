@@ -133,6 +133,25 @@
 
         <hr>
 
+        <!-- ITEM LAYOUT -->
+        <b-form-group
+            horizontal :label-cols="2"
+            :label="$t('content.field.itemLayout')">
+          <label
+              style="color: gray"
+              v-text="itemLayoutFile == null ? '' : itemLayoutFile.name" />
+          <b-btn
+              variant="link"
+              @click="$refs.manageItemLayoutModal.showModal(itemLayoutFile)"
+              v-t="'button.manage'" />
+        </b-form-group>
+
+        <ManageItemLayoutModal
+            ref="manageItemLayoutModal"
+            @ok="onManageItemLayoutDone" />
+
+        <hr>
+
         <!-- BUTTONS -->
         <div class="form-group row">
           <div id="field_buttons" class="col-sm-10">
@@ -167,6 +186,7 @@
 
 <script>
 import EditPropertyModal from "./modals/EditPropertyModal";
+import ManageItemLayoutModal from "./modals/ManageItemLayoutModal";
 import JavaPreviewModal from "./modals/JavaPreviewModal";
 
 import fileUtils from "../utils/fileUtils";
@@ -174,7 +194,7 @@ import ajaxUtils from "../utils/ajaxUtils";
 
 export default {
   name: "Content",
-  components: { EditPropertyModal, JavaPreviewModal },
+  components: { EditPropertyModal, ManageItemLayoutModal, JavaPreviewModal },
   data() {
     return {
       packageName: "",
@@ -183,6 +203,9 @@ export default {
       description: "",
       version: 1,
       properties: {},
+      itemLayoutFile: null,
+      // used in toObject
+      itemLayout: null,
 
       uploadFile: null,
       defaultTemplate: null,
@@ -202,20 +225,25 @@ export default {
           description: this.description,
           version: this.version,
           properties: this.properties
-        }
+        },
+        itemLayout: this.itemLayout
       }
     },
     toZipObject() {
-      return {
-        "project-info.json": JSON.stringify({
-          packageName: this.packageName,
-          componentName: this.componentName,
-          joinCompNameToPackage: this.joinCompNameToPackage,
-          description: this.description,
-          version: this.version,
-          properties: this.properties
-        })
+      let zipObject = fileUtils.emptyDirZipObject();
+      zipObject["project-info.json"] = JSON.stringify({
+        packageName: this.packageName,
+        componentName: this.componentName,
+        joinCompNameToPackage: this.joinCompNameToPackage,
+        description: this.description,
+        version: this.version,
+        properties: this.properties,
+        itemLayoutFileName: this.itemLayoutFile == null ? null : this.itemLayoutFile.name
+      });
+      if (this.itemLayoutFile != null) {
+        zipObject[this.itemLayoutFile.name] = this.itemLayoutFile;
       }
+      return zipObject;
     },
     propertyOptions() {
       return Object.keys(this.properties).length == 0 ? [ "None" ] : Object.keys(this.properties);
@@ -231,7 +259,7 @@ export default {
   },
   created() {
     this.resetForm();
-    ajaxUtils.getPlainText("./default.template")
+    ajaxUtils.getPlainText("./default.template.java")
     .then(val => {
       this.defaultTemplate = val;
     })
@@ -243,8 +271,8 @@ export default {
   methods: {
     onConfirmUpload() {
       fileUtils.readZip(this.uploadFile).then(zip => {
-        zip.file("project-info.json")
-        .async("text", metadata => console.log("progression: " + metadata.percent.toFixed(2) + " %"))
+        let itemLayoutFileName = null;
+        zip.file("project-info.json").async("text")
         .then(val => {
           let projectInfo = JSON.parse(val);
           this.packageName = projectInfo.packageName;
@@ -253,9 +281,27 @@ export default {
           this.description = projectInfo.description;
           this.version = projectInfo.version;
           this.properties = projectInfo.properties;
+          itemLayoutFileName = projectInfo.itemLayoutFileName;
+          if (itemLayoutFileName == null) {
+            this.itemLayoutFile = null;
+          } else {
+            let itemLayoutFileInZip = zip.file(itemLayoutFileName);
+            if (itemLayoutFileInZip == null) {
+              throw "unable to find itemLayout file in project";
+            } else {
+              // load itemLayout aia blob
+              return itemLayoutFileInZip.async("blob");
+            }
+          }
         }, err => {
           this.$alertify.error(this.$t("common.error.reading"));
           console.error("error reading project-info.json", err);
+        })
+        // itemLayout aia blob loaded
+        .then(itemLayoutFileBlob => {
+          itemLayoutFileBlob.name = itemLayoutFileName;
+          this.itemLayoutFile = itemLayoutFileBlob;
+          return this.loadItemLayout();
         });
       });
     },
@@ -291,6 +337,33 @@ export default {
       this.properties = newProp;
 
       this.selectedProperty = property.name;
+    },
+    onManageItemLayoutDone(itemLayoutFile) {
+      this.itemLayoutFile = itemLayoutFile;
+      this.loadItemLayout();
+    },
+    loadItemLayout() {
+      return new Promise(resolve => {
+        if (this.itemLayoutFile == null) {
+          throw "unable to load itemLayout from null aia";
+        }
+        fileUtils.readZip(this.itemLayoutFile)
+        .then(zip => {
+          let FILE_NAME_TO_FIND = "Screen1.scm";
+          let res = zip.folder("src")
+              .filter((relativePath, file) =>
+                relativePath.lastIndexOf(FILE_NAME_TO_FIND) == relativePath.length - FILE_NAME_TO_FIND.length);
+          if (res.length == 0) {
+            throw "No Screen1.scm in itemLayout aia";
+          }
+          return res[0].async("text");
+        })
+        .then(fileContent => {
+          fileContent = fileContent.substring(fileContent.indexOf("{"), fileContent.lastIndexOf("}") + 1);
+          this.itemLayout = JSON.parse(fileContent);
+          resolve(this.itemLayout);
+        });
+      });
     },
     generateCodeZip() {
       let _object = this.toObject;
@@ -330,6 +403,7 @@ export default {
       this.description = "This is a template of ListView.";
       this.version = 1;
       this.properties = [];
+      this.itemLayoutFile = null;
     }
   }
 }

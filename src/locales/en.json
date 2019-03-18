@@ -28,7 +28,8 @@
         "downloadProject": "Download Project",
         "resetForm": "Reset Form",
         "dismiss": "Dismiss",
-        "copy": "Copy"
+        "copy": "Copy",
+        "manage": "Manage"
     },
     "header": {
         "primary-title": "ListView Generator",
@@ -50,7 +51,7 @@
             "description": "Description",
             "version": "Version (integer)",
             "properties": "Properties",
-            "template": "Template",
+            "itemLayout": "Item Layout",
             "confirmResetText": "Reset the form would wipe all you currently get on this page!"
         }
     },
@@ -96,6 +97,11 @@
             "copyFailed": "Copy Failed",
             "generating": "Generating......",
             "failedGenerating": "Failed generating:"
+        },
+        "itemLayout": {
+            "title": "Manage Item Layout",
+            "noPreview": "Item layout file need to be previewed before save & close",
+            "previewButtonText": "Preview"
         }
     },
     "footer": {
