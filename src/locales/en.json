@@ -1,3 +1,118 @@
 {
-  "message": "hello i18n !!"
+  "onUnload": "Your work would not be saved by this webpage, please ensure you had save the .lvg file into you computer.",
+  "common": {
+    "confirm": "Please confirm",
+    "wantToContinue": "Do you really want to continue?",
+    "none": "None",
+    "author": "Author",
+    "contributors": "Contributors",
+    "repo": "Repository",
+    "ColinTree": "ColinTree",
+    "showOnGithub": "Show on Github",
+    "error": {
+      "loadTemplate": "Cannot load listview template, please try reload this page.",
+      "reading": "Fail reading project file"
+    },
+    "projectMadeWith": "This project is made with"
+  },
+  "button": {
+    "browse": "Browse",
+    "custom-file-label::after": "translate this in style block in Content.vue",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "applyAndClose": "Apply and Close",
+    "edit": "Edit",
+    "remove": "Remove",
+    "add": "Add",
+    "generate": "Generate",
+    "generateCode": "Generate Code",
+    "downloadProject": "Download Project",
+    "resetForm": "Reset Form",
+    "dismiss": "Dismiss",
+    "copy": "Copy",
+    "manage": "Manage"
+  },
+  "header": {
+    "language-switch": "En | {0}",
+    "language-switch-to": "Zh",
+    "primary-title": "ListView Generator {0}",
+    "secondary-title": "(alpha) by ColinTree {0}",
+    "update-info": "New version released: {versionCode}"
+  },
+  "content": {
+    "upload": {
+      "title": "Import an existing project (.lvg file)",
+      "chooseFileHint": "Choose a file...",
+      "dropFileHint": "Drop file here",
+      "applyButtonText": "Apply",
+      "confirmText": "Applying a project would override what you currently got on this page! {0}"
+    },
+    "field": {
+      "title": "Or start setting it up below",
+      "packageName": "Package",
+      "packageNamePlaceHolder": "Package name like com.example.listviews",
+      "packageAddCompName": "Join component name into package",
+      "componentName": "Component Name",
+      "description": "Description",
+      "version": "Version (integer)",
+      "properties": "Properties",
+      "itemLayout": "Item Layout",
+      "confirmResetText": "Reset the form would wipe all you currently get on this page!"
+    }
+  },
+  "modal": {
+    "removeProperty": {
+      "confirm": "Confirm removing property \"{0}\"?"
+    },
+    "editProperty": {
+      "titleAdd": "Adding property",
+      "titleEdit": "Editing property",
+      "name": "Name",
+      "nameEmpty": "should not be empty",
+      "nameConstitutionError": "should only includes (a-z, A-Z, 0-9, \"_\") and start with non-number char",
+      "nameConflitAdd": "Property with same name already exist",
+      "nameConflitEdit": "No such property",
+      "switchMode": "Switch Edit Mode",
+      "designerVisible": "Visible in Designer",
+      "editorType": "Editor Type",
+      "editorTypeRecommended": "Recommended",
+      "editorTypeNotRecommended": "Not Recommended",
+      "setterVisible": "Setter Visible in block Designer",
+      "getterVisible": "Getter Visible in block Designer",
+      "category": "Category",
+      "categoryUnset": "Unset",
+      "categoryAppearance": "Appearance",
+      "categoryBehavior": "Behavior",
+      "categoryDeprecated": "Deprecated",
+      "description": "Description",
+      "javaType": "Java Type",
+      "defaultValue": "Default Value",
+      "defaultValueNoHint": "",
+      "defaultValueEmpty": "should not be empty",
+      "defaultValueNotIntOrConstant": "seems not a integer or a constant",
+      "defaultValueNotDecimal": "seems not a correct decimal",
+      "defaultValueNotBoolean": "seems not a boolean (true / false)"
+    },
+    "previewJava": {
+      "title": "Preview generated Java code"
+    },
+    "javaPreview": {
+      "copied": "Copied",
+      "copyFailed": "Copy Failed",
+      "generating": "Generating......",
+      "failedGenerating": "Failed generating:"
+    },
+    "itemLayout": {
+      "title": "Manage Item Layout",
+      "noPreview": "Item layout file need to be previewed before save & close",
+      "previewButtonText": "Preview"
+    }
+  },
+  "footer": {
+    "about": "About ListView Generator",
+    "gotIssue": "Got issue?",
+    "aboutModal": {
+      "title": "About this project"
+    }
+  }
 }

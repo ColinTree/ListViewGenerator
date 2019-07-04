@@ -9,7 +9,9 @@
     ]
   },
   "rules": {
-    "space-before-function-paren": false,
+    "forin": false,
+    "no-console": false,
+    "space-before-function-paren": true,
     "arrow-parens": false,
     "trailing-comma": false,
     "semicolon": false,

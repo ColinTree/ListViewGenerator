@@ -1,0 +1,118 @@
+{
+  "onUnload": "关闭窗口后您的项目将不会被保留，请确保您已经保存项目文件（.lvg）到本地",
+  "common": {
+    "confirm": "请确认",
+    "wantToContinue": "确认要继续吗？",
+    "none": "无",
+    "author": "作者",
+    "contributors": "贡献者",
+    "repo": "储存库",
+    "ColinTree": "ColinTree (树树)",
+    "showOnGithub": "在Github上查看",
+    "error": {
+      "loadTemplate": "无法加载列表模板，请尝试刷新本页",
+      "reading": "读取项目过程中出现错误"
+    },
+    "projectMadeWith": "本项目底层使用"
+  },
+  "button": {
+    "browse": "浏览",
+    "custom-file-label::after": "在Content.vue的style模块里翻译这个",
+    "ok": "确认",
+    "cancel": "取消",
+    "applyAndClose": "保存并关闭",
+    "edit": "编辑",
+    "remove": "移除",
+    "add": "添加",
+    "generate": "生成项目",
+    "generateCode": "生成代码",
+    "downloadProject": "下载项目",
+    "resetForm": "重置项目",
+    "dismiss": "关闭",
+    "copy": "复制",
+    "manage": "管理"
+  },
+  "header": {
+    "language-switch": "{0} | Zh",
+    "language-switch-to": "En",
+    "primary-title": "ListView Generator {0}",
+    "secondary-title": "列表生成器 (alpha) by ColinTree {0}",
+    "update-info": "已发布新版本：{versionCode}"
+  },
+  "content": {
+    "upload": {
+      "title": "导入一个项目（.lvg文件）",
+      "chooseFileHint": "选择一个文件...",
+      "dropFileHint": "文件拖放到这里",
+      "applyButtonText": "导入",
+      "confirmText": "导入项目将会覆盖当前页面上的所有项目信息！{0}"
+    },
+    "field": {
+      "title": "或者直接在下方开始编辑",
+      "packageName": "包名",
+      "packageNamePlaceHolder": "包名如 com.example.listviews",
+      "packageAddCompName": "在包名后追加组件名",
+      "componentName": "组件名",
+      "description": "描述",
+      "version": "版本 (整数)",
+      "properties": "组件属性",
+      "itemLayout": "列表项布局",
+      "confirmResetText": "重置项目将会清除所有您在本页的编辑！"
+    }
+  },
+  "modal": {
+    "removeProperty": {
+      "confirm": "确认要移除属性: \"{0}\"吗"
+    },
+    "editProperty": {
+      "titleAdd": "添加属性",
+      "titleEdit": "编辑属性",
+      "name": "属性名",
+      "nameEmpty": "不应为空",
+      "nameConstitutionError": "只允许包含英文字母 (a-z, A-Z)，数字 (0-9) 或下划线 (\"_\")，且首个字符不得为数字",
+      "nameConflitAdd": "同名属性已存在",
+      "nameConflitEdit": "无此属性",
+      "switchMode": "切换编辑模式",
+      "designerVisible": "在设计视图中可见",
+      "editorType": "编辑器类型",
+      "editorTypeRecommended": "推荐使用",
+      "editorTypeNotRecommended": "不推荐使用",
+      "setterVisible": "setter在块编辑器中可见",
+      "getterVisible": "getter在块编辑器中可见",
+      "category": "分类",
+      "categoryUnset": "未分类",
+      "categoryAppearance": "外观",
+      "categoryBehavior": "行为",
+      "categoryDeprecated": "弃用",
+      "description": "描述",
+      "javaType": "Java类型",
+      "defaultValue": "默认值",
+      "defaultValueNoHint": "",
+      "defaultValueEmpty": "不应为空",
+      "defaultValueNotIntOrConstant": "似乎不是整数或者一个常量",
+      "defaultValueNotDecimal": "似乎不是正确的小数",
+      "defaultValueNotBoolean": "似乎不是布尔值(true / false)"
+    },
+    "previewJava": {
+      "title": "预览Java文件生成结果"
+    },
+    "javaPreview": {
+      "copied": "已复制",
+      "copyFailed": "复制失败",
+      "generating": "生成中……",
+      "failedGenerating": "生成失败："
+    },
+    "itemLayout": {
+      "title": "管理列表项布局",
+      "noPreview": "保存并关闭之前需要先预览列表项布局文件",
+      "previewButtonText": "预览"
+    }
+  },
+  "footer": {
+    "about": "关于ListView Generator",
+    "gotIssue": "遇到问题？",
+    "aboutModal": {
+      "title": "关于这个项目"
+    }
+  }
+}
