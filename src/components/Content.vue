@@ -169,7 +169,6 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
   public itemLayout: AiaScmFile = EmptyAiaScmFile()
 
   private uploadFile: File | null = null
-  private defaultTemplate: null | string = null
   private selectedProperty: string = 'None'
   private selectedProperty4Remove: null | string = null
   private itemLayoutFile: File = newEmptyFile()
@@ -203,12 +202,6 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
 
   private async created () {
     this.resetForm()
-    try {
-      this.defaultTemplate = await AjaxUtils.get('./default.template.java')
-    } catch (e) {
-      this.$alertify.error(this.$t('common.error.loadTemplate'))
-      console.error('error fetching default template:', e)
-    }
   }
 
 private async onConfirmUpload () {
@@ -300,10 +293,7 @@ private async onConfirmUpload () {
     this.itemLayout = JSON.parse(fileContent) as AiaScmFile
   }
   private async generateCodeZip () {
-    if (!this.defaultTemplate) {
-      return
-    }
-    const val = await (this.$refs.javaPreviewModal as JavaPreviewModal).generateCode(this.defaultTemplate, this)
+    const val = await (this.$refs.javaPreviewModal as JavaPreviewModal).generateCode(this)
     let codeZipObject = FileUtils.emptyDirZipObject()
     codeZipObject[`${this.componentName}.java`] = val
     let tmp
@@ -316,8 +306,7 @@ private async onConfirmUpload () {
     FileUtils.downloadFile(await FileUtils.toZip(codeZipObject), `${this.componentName}-sources.zip`)
   }
   private generateCode () {
-    (this.$refs.javaPreviewModal as JavaPreviewModal).showModal(
-      (this.defaultTemplate as string), this as LvgProjectObject)
+    (this.$refs.javaPreviewModal as JavaPreviewModal).showModal(this as LvgProjectObject)
   }
   private async onDownloadProject () {
     const zipObject = FileUtils.emptyDirZipObject()
