@@ -28,9 +28,9 @@ export default class StringUtils {
     return str
   }
   public static replaceAllInObj (str: string, obj: { [key: string]: string }) {
-    for (const oldText in obj) {
+    Object.keys(obj).map(oldText => {
       str = this.replaceAll(str, oldText, obj[oldText])
-    }
+    })
     return str
   }
   /**
@@ -47,8 +47,7 @@ export default class StringUtils {
       splitters = [ splitters ]
     }
     const result: string[] = []
-    for (const index in splitters) {
-      const splitter = splitters[index]
+    splitters.map(splitter => {
       const tmp = str.split(splitter)
       if (tmp.length < 2) {
         throw new Error(`no such splitter: ${splitter}`)
@@ -58,7 +57,7 @@ export default class StringUtils {
       }
       result.push(tmp[0])
       str = tmp[1]
-    }
+    })
     result.push(str)
     return result
   }

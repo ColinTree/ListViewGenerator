@@ -298,11 +298,11 @@ private async onConfirmUpload () {
     codeZipObject[`${this.componentName}.java`] = val
     let tmp
     const packageArr = this.fullPackage.split('.').reverse()
-    for (const i in packageArr) {
+    packageArr.map(pkg => {
       tmp = FileUtils.emptyDirZipObject()
-      tmp[packageArr[i]] = codeZipObject
+      tmp[pkg] = codeZipObject
       codeZipObject = tmp
-    }
+    })
     FileUtils.downloadFile(await FileUtils.toZip(codeZipObject), `${this.componentName}-sources.zip`)
   }
   private generateCode () {
