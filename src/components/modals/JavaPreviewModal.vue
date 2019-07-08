@@ -15,60 +15,60 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import { BModal } from 'bootstrap-vue'
-import JsonToJava from 'json-to-java'
-import { Json, JsonObject, JsonArray } from 'json-to-java/bin/utils/json'
+import { Vue, Component } from 'vue-property-decorator';
+import { BModal } from 'bootstrap-vue';
+import JsonToJava from 'json-to-java';
+import { Json, JsonObject, JsonArray } from 'json-to-java/bin/utils/json';
 
-import pkg from '../../../package.json'
-import template from '../../java-template.json'
+import pkg from '../../../package.json';
+import template from '../../java-template.json';
 
-import { insertConstants, MATCHER_GLOBAL } from './javaCompiler/InsertGlobalConstant'
+import { insertConstants, MATCHER_GLOBAL } from './javaCompiler/InsertGlobalConstant';
 import { getJsonObjectTemplateCompilers, getJsonArrayTemplateCompilers,
-  compileTemplates} from './javaCompiler/TemplateCompilers'
-import StringUtils from '../../utils/StringUtils'
-import FileUtils, { ZipObject } from '../../utils/FileUtils'
-import { LvgProjectObject, LvgItemLayout, EmptyAiaScmFile } from '../../typings/lvg'
-import { GITHUB_REPO_FULL_URL } from '../../const'
+  compileTemplates} from './javaCompiler/TemplateCompilers';
+import StringUtils from '../../utils/StringUtils';
+import FileUtils, { ZipObject } from '../../utils/FileUtils';
+import { LvgProjectObject, LvgItemLayout, EmptyAiaScmFile } from '../../typings/lvg';
+import { GITHUB_REPO_FULL_URL } from '../../const';
 
 @Component
 export default class JavaPreviewModal extends Vue {
-  private javaCode = ''
+  private javaCode = '';
 
   public async showModal (projectObject: LvgProjectObject) {
-    (this.$children[0] as BModal).show()
+    (this.$children[0] as BModal).show();
     if (projectObject === null) {
-      return new Promise((r, reject) => reject('null reference'))
+      return new Promise((r, reject) => reject('null reference'));
     }
-    this.javaCode = this.$t('modal.javaPreview.generating') as string
+    this.javaCode = this.$t('modal.javaPreview.generating') as string;
     try {
-      this.javaCode = await this.generateCode(projectObject)
+      this.javaCode = await this.generateCode(projectObject);
     } catch (err) {
-      this.javaCode = this.$t('modal.javaPreview.failedGenerating') + err
-      console.error(err)
+      this.javaCode = this.$t('modal.javaPreview.failedGenerating') + err;
+      console.error(err);
     }
   }
   public async generateCode (projectObject: LvgProjectObject): Promise<string> {
-    let generatedTemplate
+    let generatedTemplate;
     // insert global constants
     generatedTemplate = insertConstants(template as JsonObject, MATCHER_GLOBAL, {
       fullPackage: projectObject.fullPackage,
       componentName: projectObject.componentName,
       description: projectObject.description,
-      version: projectObject.version
-    }) as JsonObject
+      version: projectObject.version,
+    }) as JsonObject;
     // compile template
     generatedTemplate = compileTemplates(
       generatedTemplate,
       getJsonArrayTemplateCompilers(projectObject),
-      getJsonObjectTemplateCompilers(projectObject)
-    ) as JsonObject
-    console.log('generated template for java compiling', generatedTemplate)
-    let generatedJava: string
+      getJsonObjectTemplateCompilers(projectObject),
+    ) as JsonObject;
+    console.log('generated template for java compiling', generatedTemplate);
+    let generatedJava: string;
     try {
-      generatedJava = JsonToJava(generatedTemplate)
+      generatedJava = JsonToJava(generatedTemplate);
     } catch (e) {
-      throw new Error('Error occured while generating java:\n' + (e as Error).stack)
+      throw new Error('Error occured while generating java:\n' + (e as Error).stack);
     }
     return '' +
       '/**\n' +
@@ -78,15 +78,15 @@ export default class JavaPreviewModal extends Vue {
       ` * Browser: ${navigator.userAgent}\n` +
       ` * Location: ${window.location}\n` +
       ' */\n' +
-      generatedJava
+      generatedJava;
   }
 
   private async onCopy () {
     try {
-      this.$copyText(this.javaCode, this.$refs.codeContainer)
-      this.$alertify.success(this.$t('modal.javaPreview.copied'))
+      this.$copyText(this.javaCode, this.$refs.codeContainer);
+      this.$alertify.success(this.$t('modal.javaPreview.copied'));
     } catch (e) {
-      this.$alertify.error(this.$t('modal.javaPreview.copyFailed'))
+      this.$alertify.error(this.$t('modal.javaPreview.copyFailed'));
     }
   }
 }

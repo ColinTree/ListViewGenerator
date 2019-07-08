@@ -31,121 +31,121 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch, PropSync } from 'vue-property-decorator'
-import { BFormInput } from 'bootstrap-vue'
+import { Component, Vue, Prop, Watch, PropSync } from 'vue-property-decorator';
+import { BFormInput } from 'bootstrap-vue';
 
 @Component
 export default class AutoComplete extends Vue {
 
   @Prop({ type: String, default: null })
-  private readonly id!: string | null
+  private readonly id!: string | null;
 
   @Prop({ type: [ Boolean, String ], default: null })
-  private readonly state!: string | boolean | null
+  private readonly state!: string | boolean | null;
 
   @Prop({ type: String, default: '' })
-  private readonly name!: string
+  private readonly name!: string;
 
   @Prop({ type: Boolean, default: false })
-  private readonly disabled!: boolean
+  private readonly disabled!: boolean;
 
   @Prop({ type: Boolean, default: false })
-  private readonly required!: boolean
+  private readonly required!: boolean;
 
   @Prop({ type: Array, required: true })
-  private readonly options!: string[]
+  private readonly options!: string[];
 
   @PropSync('value', { type: String, required: true })
-  private syncedValue!: string
+  private syncedValue!: string;
 
-  private dropdownOpen = false
-  private hasFocus = false
-  private pointer = -1
-  private mousein = false
+  private dropdownOpen = false;
+  private hasFocus = false;
+  private pointer = -1;
+  private mousein = false;
 
   get matchingOptions () {
     if (this.syncedValue === null || !this.syncedValue.length) {
-      return this.options
+      return this.options;
     }
     return this.options.filter(option =>
-        option.toString().toLowerCase().includes(this.syncedValue.toString().toLowerCase()))
+        option.toString().toLowerCase().includes(this.syncedValue.toString().toLowerCase()));
   }
   get shouldShowDropDown () {
-    return this.hasFocus && this.dropdownOpen
+    return this.hasFocus && this.dropdownOpen;
   }
 
   public focus () {
-    (this.$refs.input as BFormInput).focus()
+    (this.$refs.input as BFormInput).focus();
   }
 
   private mounted () {
     (this.$refs.input as BFormInput).$el.addEventListener('focus', this.onFocus);
     (this.$refs.input as BFormInput).$el.addEventListener('blur', this.onBlur);
-    (this.$refs.input as BFormInput).$el.addEventListener('keyup', this.onKeyUp)
+    (this.$refs.input as BFormInput).$el.addEventListener('keyup', this.onKeyUp);
   }
 
   private onFocus () {
-    this.hasFocus = true
-    this.toggleDropdown(true)
+    this.hasFocus = true;
+    this.toggleDropdown(true);
   }
   private onBlur () {
     if (!this.mousein) {
-      this.hasFocus = false
-      this.toggleDropdown(false)
+      this.hasFocus = false;
+      this.toggleDropdown(false);
     }
   }
   private onKeyUp (event: Event) {
-    const e = event as KeyboardEvent
+    const e = event as KeyboardEvent;
     if (e.code === 'Enter' || e.key === 'Enter' || e.keyCode === 13) {
-      e.preventDefault()
-      this.onEnter()
-      return false
+      e.preventDefault();
+      this.onEnter();
+      return false;
     } else if (e.code === 'ArrowUp' || e.key === 'ArrowUp' || e.keyCode === 38) {
-      e.preventDefault()
-      this.onArrowUp()
-      return false
+      e.preventDefault();
+      this.onArrowUp();
+      return false;
     } else if (e.code === 'ArrowDown' || e.key === 'ArrowDown' || e.keyCode === 40) {
-      e.preventDefault()
-      this.onArrowDown()
-      return false
+      e.preventDefault();
+      this.onArrowDown();
+      return false;
     } else if (e.code === 'Escape' || e.key === 'Escape' || e.keyCode === 27) {
-      e.preventDefault()
+      e.preventDefault();
       if (this.dropdownOpen) {
-        this.toggleDropdown(false)
+        this.toggleDropdown(false);
       }
-      return false
+      return false;
     }
-    return true
+    return true;
   }
   private onArrowUp () {
     if (this.pointer > 0) {
-      this.pointer --
+      this.pointer --;
     } else {
-      this.pointer = this.matchingOptions.length - 1
+      this.pointer = this.matchingOptions.length - 1;
     }
   }
   private onArrowDown () {
     if (this.pointer < this.matchingOptions.length - 1) {
-      this.pointer++
+      this.pointer ++;
     } else {
-      this.pointer = 0
+      this.pointer = 0;
     }
   }
   private onEnter () {
     if (this.pointer < 0 || this.pointer >= this.matchingOptions.length) {
-      return
+      return;
     }
-    this.syncedValue = this.matchingOptions[this.pointer]
-    this.pointer = -1
-    this.$nextTick(() => this.toggleDropdown(false))
+    this.syncedValue = this.matchingOptions[this.pointer];
+    this.pointer = -1;
+    this.$nextTick(() => this.toggleDropdown(false));
   }
   private onOptionSelected (option: string) {
-    this.syncedValue = option
-    this.pointer = -1
-    this.$nextTick(() => this.toggleDropdown(false))
+    this.syncedValue = option;
+    this.pointer = -1;
+    this.$nextTick(() => this.toggleDropdown(false));
   }
   private toggleDropdown (to: boolean = false) {
-    this.dropdownOpen = to
+    this.dropdownOpen = to;
   }
 
 }

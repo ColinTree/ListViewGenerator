@@ -38,69 +38,68 @@
 </template>
 
 <script lang="ts">
+import { Component, Vue, Watch } from 'vue-property-decorator';
+import semver from 'semver';
 
-import { Component, Vue, Watch } from 'vue-property-decorator'
-import semver from 'semver'
+import pkg from '../package.json';
 
-import pkg from '../package.json'
+import Content from './components/Content.vue';
 
-import Content from './components/Content.vue'
-
-import AjaxUtils from './utils/AjaxUtils'
+import AjaxUtils from './utils/AjaxUtils';
 import { GITHUB_REPO_FULL_API_URL, GITHUB_REPO_FULL_URL,
-         GITHUB_AUTHOR_FULL_URL, GITHUB_REPO_RELEASE_LATEST_URL } from './const'
+  GITHUB_AUTHOR_FULL_URL, GITHUB_REPO_RELEASE_LATEST_URL } from './const';
 
 @Component({
   components: { Content },
 })
 export default class App extends Vue {
-  private readonly GITHUB_REPO_RELEASE_LATEST_URL = GITHUB_REPO_RELEASE_LATEST_URL
-  private readonly GITHUB_REPO_FULL_URL = GITHUB_REPO_FULL_URL
+  private readonly GITHUB_REPO_RELEASE_LATEST_URL = GITHUB_REPO_RELEASE_LATEST_URL;
+  private readonly GITHUB_REPO_FULL_URL = GITHUB_REPO_FULL_URL;
   private readonly infos = [
     {
       title: 'common.author',
       link: GITHUB_AUTHOR_FULL_URL,
-      linkText: 'common.ColinTree'
+      linkText: 'common.ColinTree',
     },
     {
       title: 'common.contributors',
       link: `${GITHUB_REPO_FULL_URL}graphs/contributors`,
-      linkText: 'common.showOnGithub'
+      linkText: 'common.showOnGithub',
     },
     {
       title: 'common.repo',
       link: GITHUB_REPO_FULL_URL,
-      linkText: 'common.showOnGithub'
+      linkText: 'common.showOnGithub',
     },
     {
       title: 'common.projectMadeWith',
       link: 'https://vuejs.org',
-      linkText: 'Vue.js'
-    }
-  ]
-  private versionCode = null
-  private locale = 'en'
+      linkText: 'Vue.js',
+    },
+  ];
+  private versionCode = null;
+  private locale = 'en';
 
   @Watch('locale')
   private onlocaleChanged (val: string, oldVal: string) {
-    this.$i18n.locale = val
+    this.$i18n.locale = val;
   }
 
   private async created () {
     // the returning text may not be shown to user
     // the behavior depends on the browser
-    window.onbeforeunload = () => this.$t('onUnload')
+    window.onbeforeunload = () => this.$t('onUnload');
 
-    console.log(`language=${navigator.language}`)
-    this.locale = navigator.language.substring(0, 2)
+    console.log(`language=${navigator.language}`);
+    this.locale = navigator.language.substring(0, 2);
 
     try {
-      const { tag_name } = (await AjaxUtils.get(`${GITHUB_REPO_FULL_API_URL}releases/latest`)).data
+      const { tag_name } = (await AjaxUtils.get(`${GITHUB_REPO_FULL_API_URL}releases/latest`)).data;
       if (!(semver.valid(tag_name) && semver.valid(pkg.version))) {
-        console.error('Failed checking version')
+        console.error('Failed checking version');
       }
       if (semver.gt(tag_name, pkg.version)) {
-        this.versionCode = tag_name
+        this.versionCode = tag_name;
       }
     } catch (e) {
       // 404 will be returned if latest release is called and there is no release

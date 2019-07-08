@@ -144,172 +144,172 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
-import EditPropertyModal from './modals/EditPropertyModal.vue'
-import ManageItemLayoutModal from './modals/ManageItemLayoutModal.vue'
-import JavaPreviewModal from './modals/JavaPreviewModal.vue'
+import EditPropertyModal from './modals/EditPropertyModal.vue';
+import ManageItemLayoutModal from './modals/ManageItemLayoutModal.vue';
+import JavaPreviewModal from './modals/JavaPreviewModal.vue';
 
 import { LvgProperty, LvgItemLayout, LvgProjectZipInfo, LvgProjectObject,
-         AiaScmFile, EmptyAiaScmFile } from '../typings/lvg'
-import FileUtils from '../utils/FileUtils'
-import AjaxUtils from '../utils/AjaxUtils'
+         AiaScmFile, EmptyAiaScmFile } from '../typings/lvg';
+import FileUtils from '../utils/FileUtils';
+import AjaxUtils from '../utils/AjaxUtils';
 
-interface Properties { [key: string]: LvgProperty }
-function newEmptyFile () { return new File([], '') }
+interface Properties { [key: string]: LvgProperty; }
+function newEmptyFile () { return new File([], ''); }
 
 @Component({ components: { EditPropertyModal, ManageItemLayoutModal, JavaPreviewModal } })
 export default class Content extends Vue implements LvgProjectZipInfo, LvgProjectObject {
-  public packageName = ''
-  public joinCompNameToPackage = false
-  public componentName = ''
-  public description = ''
-  public version = 1
-  public properties: Properties = {}
-  public itemLayout: AiaScmFile = EmptyAiaScmFile()
+  public packageName = '';
+  public joinCompNameToPackage = false;
+  public componentName = '';
+  public description = '';
+  public version = 1;
+  public properties: Properties = {};
+  public itemLayout: AiaScmFile = EmptyAiaScmFile();
 
-  private uploadFile: File | null = null
-  private selectedProperty: string = 'None'
-  private selectedProperty4Remove: null | string = null
-  private itemLayoutFile: File = newEmptyFile()
+  private uploadFile: File | null = null;
+  private selectedProperty: string = 'None';
+  private selectedProperty4Remove: null | string = null;
+  private itemLayoutFile: File = newEmptyFile();
 
   public get fullPackage () {
-    return `${this.packageName}${this.joinCompNameToPackage ? `.${this.componentName.toLowerCase()}` : ''}`
+    return `${this.packageName}${this.joinCompNameToPackage ? `.${this.componentName.toLowerCase()}` : ''}`;
   }
   public get itemLayoutFileName () {
-    return this.itemLayoutFile.name
+    return this.itemLayoutFile.name;
   }
 
   private get propertyOptions () {
-    const keys = Object.keys(this.properties)
-    return keys.length === 0 ? [ 'None' ] : keys
+    const keys = Object.keys(this.properties);
+    return keys.length === 0 ? [ 'None' ] : keys;
   }
 
   /**
    * @for EditPropertyModal
    */
   public checkPropertyExist (propertyName: string) {
-    return this.properties.hasOwnProperty(propertyName)
+    return this.properties.hasOwnProperty(propertyName);
   }
 
   @Watch('properties')
   private onPropertiesChanged (val: string) {
-    const keys = Object.keys(val)
+    const keys = Object.keys(val);
     if (!keys.includes(this.selectedProperty)) {
-      this.selectedProperty = keys[0] || 'None'
+      this.selectedProperty = keys[0] || 'None';
     }
   }
 
   private async created () {
-    this.resetForm()
+    this.resetForm();
   }
 
 private async onConfirmUpload () {
     if (this.uploadFile === null) {
-      return
+      return;
     }
-    const zip = await FileUtils.readZip(this.uploadFile)
+    const zip = await FileUtils.readZip(this.uploadFile);
     try {
-      const val = await zip.file('project-info.json').async('text')
-      const projectInfo = JSON.parse(val) as LvgProjectZipInfo
+      const val = await zip.file('project-info.json').async('text');
+      const projectInfo = JSON.parse(val) as LvgProjectZipInfo;
 
-      this.packageName = projectInfo.packageName === undefined ? '' : projectInfo.packageName
-      this.componentName = projectInfo.componentName === undefined ? '' : projectInfo.componentName
+      this.packageName = projectInfo.packageName === undefined ? '' : projectInfo.packageName;
+      this.componentName = projectInfo.componentName === undefined ? '' : projectInfo.componentName;
       this.joinCompNameToPackage =
-          projectInfo.joinCompNameToPackage === undefined ? true : projectInfo.joinCompNameToPackage
-      this.description = projectInfo.description === undefined ? '' : projectInfo.description
-      this.version = projectInfo.version === undefined ? 1 : projectInfo.version
-      this.properties = projectInfo.properties === undefined ? {} : projectInfo.properties
+          projectInfo.joinCompNameToPackage === undefined ? true : projectInfo.joinCompNameToPackage;
+      this.description = projectInfo.description === undefined ? '' : projectInfo.description;
+      this.version = projectInfo.version === undefined ? 1 : projectInfo.version;
+      this.properties = projectInfo.properties === undefined ? {} : projectInfo.properties;
 
-      const itemLayoutFileName = projectInfo.itemLayoutFileName
+      const itemLayoutFileName = projectInfo.itemLayoutFileName;
       if (!itemLayoutFileName) {
-        this.itemLayoutFile = newEmptyFile()
-        return
+        this.itemLayoutFile = newEmptyFile();
+        return;
       }
-      const itemLayoutFileInZip = zip.file(itemLayoutFileName)
+      const itemLayoutFileInZip = zip.file(itemLayoutFileName);
       if (itemLayoutFileInZip === null) {
-        throw new Error('unable to find itemLayout file in project')
+        throw new Error('unable to find itemLayout file in project');
       }
 
-      const itemLayoutBlobFromAia = await itemLayoutFileInZip.async('blob')
+      const itemLayoutBlobFromAia = await itemLayoutFileInZip.async('blob');
       this.itemLayoutFile = new File([ itemLayoutBlobFromAia ], itemLayoutFileName,
-          { type: itemLayoutBlobFromAia.type, lastModified: Date.now() })
-      this.loadItemLayout()
+          { type: itemLayoutBlobFromAia.type, lastModified: Date.now() });
+      this.loadItemLayout();
     } catch (err) {
-      this.$alertify.error(this.$t('common.error.reading'))
-      console.error('error reading project-info.json', err)
+      this.$alertify.error(this.$t('common.error.reading'));
+      console.error('error reading project-info.json', err);
     }
   }
   private onOpenRemovePropertyModal () {
-    this.selectedProperty4Remove = this.selectedProperty
-    this.$bvModal.show('removePropertyModal')
+    this.selectedProperty4Remove = this.selectedProperty;
+    this.$bvModal.show('removePropertyModal');
   }
   private onRemovePropertyConfirmed () {
     if (this.selectedProperty4Remove != null) {
       // DO NOT use the following statement since it would not trigger watch
       // delete this.properties[this.selectedProperty4Remove]
-      const newProp: Properties = {}
+      const newProp: Properties = {};
       for (const propName in this.properties) {
         if (propName !== this.selectedProperty4Remove) {
-          newProp[propName] = this.properties[propName]
+          newProp[propName] = this.properties[propName];
         }
       }
-      this.properties = newProp
-      this.selectedProperty4Remove = null
+      this.properties = newProp;
+      this.selectedProperty4Remove = null;
     }
   }
   private onEditProperty (propertyName: string) {
-    (this.$refs.editPropertyModal as EditPropertyModal).showModal(false, this.properties[propertyName])
+    (this.$refs.editPropertyModal as EditPropertyModal).showModal(false, this.properties[propertyName]);
   }
   private onCreateProperty () {
-    (this.$refs.editPropertyModal as EditPropertyModal).showModal(true)
+    (this.$refs.editPropertyModal as EditPropertyModal).showModal(true);
   }
   private onEditPropertyDone (isNewProperty: boolean, property: LvgProperty) {
-    const newProp = { ...this.properties }
-    newProp[property.name] = property
-    this.properties = newProp
-    this.selectedProperty = property.name
+    const newProp = { ...this.properties };
+    newProp[property.name] = property;
+    this.properties = newProp;
+    this.selectedProperty = property.name;
   }
   private onManageItemLayout () {
-    (this.$refs.manageItemLayoutModal as ManageItemLayoutModal).showModal(this.itemLayoutFile)
+    (this.$refs.manageItemLayoutModal as ManageItemLayoutModal).showModal(this.itemLayoutFile);
   }
   private onManageItemLayoutDone (itemLayoutFile: File) {
-    this.itemLayoutFile = itemLayoutFile
-    this.loadItemLayout()
+    this.itemLayoutFile = itemLayoutFile;
+    this.loadItemLayout();
   }
 
   private async loadItemLayout () {
     if (this.itemLayoutFile == null) {
-      throw new Error('unable to load itemLayout from null aia')
+      throw new Error('unable to load itemLayout from null aia');
     }
-    const zip = await FileUtils.readZip(this.itemLayoutFile)
-    const FILE_NAME_TO_FIND = 'Screen1.scm'
-    const res = zip.folder('src').filter(relativePath => relativePath.endsWith(FILE_NAME_TO_FIND))
+    const zip = await FileUtils.readZip(this.itemLayoutFile);
+    const FILE_NAME_TO_FIND = 'Screen1.scm';
+    const res = zip.folder('src').filter(relativePath => relativePath.endsWith(FILE_NAME_TO_FIND));
     if (res.length === 0) {
-      throw new Error('No Screen1.scm in itemLayout aia')
+      throw new Error('No Screen1.scm in itemLayout aia');
     }
-    let fileContent = await res[0].async('text')
-    fileContent = fileContent.substring(fileContent.indexOf('{'), fileContent.lastIndexOf('}') + 1)
-    this.itemLayout = JSON.parse(fileContent) as AiaScmFile
+    let fileContent = await res[0].async('text');
+    fileContent = fileContent.substring(fileContent.indexOf('{'), fileContent.lastIndexOf('}') + 1);
+    this.itemLayout = JSON.parse(fileContent) as AiaScmFile;
   }
   private async generateCodeZip () {
-    const val = await (this.$refs.javaPreviewModal as JavaPreviewModal).generateCode(this)
-    let codeZipObject = FileUtils.emptyDirZipObject()
-    codeZipObject[`${this.componentName}.java`] = val
-    let tmp
-    const packageArr = this.fullPackage.split('.').reverse()
+    const val = await (this.$refs.javaPreviewModal as JavaPreviewModal).generateCode(this);
+    let codeZipObject = FileUtils.emptyDirZipObject();
+    codeZipObject[`${this.componentName}.java`] = val;
+    let tmp;
+    const packageArr = this.fullPackage.split('.').reverse();
     packageArr.map(pkg => {
-      tmp = FileUtils.emptyDirZipObject()
-      tmp[pkg] = codeZipObject
-      codeZipObject = tmp
-    })
-    FileUtils.downloadFile(await FileUtils.toZip(codeZipObject), `${this.componentName}-sources.zip`)
+      tmp = FileUtils.emptyDirZipObject();
+      tmp[pkg] = codeZipObject;
+      codeZipObject = tmp;
+    });
+    FileUtils.downloadFile(await FileUtils.toZip(codeZipObject), `${this.componentName}-sources.zip`);
   }
   private generateCode () {
-    (this.$refs.javaPreviewModal as JavaPreviewModal).showModal(this as LvgProjectObject)
+    (this.$refs.javaPreviewModal as JavaPreviewModal).showModal(this as LvgProjectObject);
   }
   private async onDownloadProject () {
-    const zipObject = FileUtils.emptyDirZipObject()
+    const zipObject = FileUtils.emptyDirZipObject();
     const projectInfo: LvgProjectZipInfo = {
       packageName: this.packageName,
       componentName: this.componentName,
@@ -317,23 +317,23 @@ private async onConfirmUpload () {
       version: this.version,
       description: this.description,
       properties: this.properties,
-      itemLayoutFileName: this.itemLayoutFileName
-    }
-    zipObject['project-info.json'] = JSON.stringify(projectInfo)
+      itemLayoutFileName: this.itemLayoutFileName,
+    };
+    zipObject['project-info.json'] = JSON.stringify(projectInfo);
     if (this.itemLayoutFileName.length > 0) {
-      zipObject[this.itemLayoutFileName] = this.itemLayoutFile
+      zipObject[this.itemLayoutFileName] = this.itemLayoutFile;
     }
-    const DOWNLOAD_FILE_NAME = `${this.fullPackage}.${this.componentName}-v${this.version}.lvg`
-    FileUtils.downloadFile(await FileUtils.toZip(zipObject), DOWNLOAD_FILE_NAME)
+    const DOWNLOAD_FILE_NAME = `${this.fullPackage}.${this.componentName}-v${this.version}.lvg`;
+    FileUtils.downloadFile(await FileUtils.toZip(zipObject), DOWNLOAD_FILE_NAME);
   }
   private resetForm () {
-    this.packageName = 'cn.colintree.aix.template'
-    this.componentName = 'TemplateListView'
-    this.joinCompNameToPackage = true
-    this.description = 'This is a template of ListView.'
-    this.version = 1
-    this.properties = {}
-    this.itemLayoutFile = newEmptyFile()
+    this.packageName = 'cn.colintree.aix.template';
+    this.componentName = 'TemplateListView';
+    this.joinCompNameToPackage = true;
+    this.description = 'This is a template of ListView.';
+    this.version = 1;
+    this.properties = {};
+    this.itemLayoutFile = newEmptyFile();
   }
 }
 </script>

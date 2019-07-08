@@ -92,25 +92,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { BFormInput, BModal } from 'bootstrap-vue'
+import { Component, Vue } from 'vue-property-decorator';
+import { BFormInput, BModal } from 'bootstrap-vue';
 
-import Content from '../Content.vue'
-import AutoComplete from '../form/AutoComplete.vue'
+import Content from '../Content.vue';
+import AutoComplete from '../form/AutoComplete.vue';
 
-import { LvgProperty, EmptyLvgProperty } from '../../typings/lvg'
-import StringUtils from '../../utils/StringUtils'
+import { LvgProperty, EmptyLvgProperty } from '../../typings/lvg';
+import StringUtils from '../../utils/StringUtils';
 
 @Component({ components: { AutoComplete } })
 export default class EditPropertyModal extends Vue {
-  public readonly LABEL_COLS = 3
+  public readonly LABEL_COLS = 3;
   public readonly CATEGORY_OPTIONS =
-    [ 'Unset', 'Appearance', 'Behavior', 'Deprecated' ]
+    [ 'Unset', 'Appearance', 'Behavior', 'Deprecated' ];
   public readonly JAVA_TYPE_OPTIONS =
-    [ 'boolean', 'Component', 'double', 'float', 'int', 'long', 'String', 'YailList' ]
+    [ 'boolean', 'Component', 'double', 'float', 'int', 'long', 'String', 'YailList' ];
   public EDITOR_TYPE_OPTIONS_RECOMMENDED =
     [ 'asset', 'boolean', 'color', 'component', 'float', 'integer', 'non_negative_float',
-      'non_negative_integer', 'text', 'textArea', 'textalignment', 'visibility' ]
+      'non_negative_integer', 'text', 'textArea', 'textalignment', 'visibility' ];
   public EDITOR_TYPE_OPTIONS_NOT_RECOMMENDED =
     [ 'accelerometer_sensitivity', 'BluetoothClient', 'button_shape', 'choices', 'countries',
       'FirbaseURL', 'geographic_point', 'geojson_type', 'horizontal_alignment', 'languages',
@@ -119,9 +119,9 @@ export default class EditPropertyModal extends Vue {
       'lego_ev3_ultrasonic_sensor_mode', 'lego_nxt_generated_color', 'lego_nxt_sensor_port',
       'map_type', 'map_zoom', 'scaling', 'screen_animation', 'screen_orientation',
       'sensor_dist_interval', 'sensor_time_interval', 'sizing', 'text_receiving', 'theme',
-      'toast_length', 'typeface', 'vertical_alignment' ]
+      'toast_length', 'typeface', 'vertical_alignment' ];
 
-  private isNewProperty = false
+  private isNewProperty = false;
 
   private readonly currentProperty: LvgProperty = {
     name: '',
@@ -133,8 +133,8 @@ export default class EditPropertyModal extends Vue {
     description: '',
     javaType: 'String',
     defaultValue: '',
-    args: []
-  }
+    args: [],
+  };
 
   public getCurrentProperty (): LvgProperty {
     return {
@@ -147,13 +147,13 @@ export default class EditPropertyModal extends Vue {
       description: this.currentProperty.description,
       javaType: this.currentProperty.javaType,
       defaultValue: this.currentProperty.defaultValue,
-      args: []
-    }
+      args: [],
+    };
   }
   public showModal (isNewProp: boolean, property: LvgProperty = EmptyLvgProperty()) {
-    (this.$children[0] as BModal).show()
-    this.isNewProperty = isNewProp
-    Object.assign(this.currentProperty, property)
+    (this.$children[0] as BModal).show();
+    this.isNewProperty = isNewProp;
+    Object.assign(this.currentProperty, property);
     /*
     this.currentProperty.name            = property.name
     this.currentProperty.designerVisible = property.designerVisible
@@ -168,104 +168,104 @@ export default class EditPropertyModal extends Vue {
   }
 
   get nameEmpty () {
-    return this.currentProperty.name.length === 0
+    return this.currentProperty.name.length === 0;
   }
   get nameConstitutionError () {
-    return !/^[a-z_]\w*$/gi.test(this.currentProperty.name)
+    return !/^[a-z_]\w*$/gi.test(this.currentProperty.name);
   }
   get needSwitchMode () {
     return this.nameEmpty
         ? false
-        : (this.$parent as Content).checkPropertyExist(this.currentProperty.name) === this.isNewProperty
+        : (this.$parent as Content).checkPropertyExist(this.currentProperty.name) === this.isNewProperty;
   }
   get nameState () {
-    return (this.nameEmpty || this.nameConstitutionError || this.needSwitchMode) ? false : null
+    return (this.nameEmpty || this.nameConstitutionError || this.needSwitchMode) ? false : null;
   }
   get nameFeedback () {
     if (this.nameEmpty) {
-      return 'Empty'
+      return 'Empty';
     } else if (this.nameConstitutionError) {
-      return 'ConstitutionError'
+      return 'ConstitutionError';
     } else if (this.needSwitchMode) {
-      return this.isNewProperty ? 'ConflitAdd' : 'ConflitEdit'
+      return this.isNewProperty ? 'ConflitAdd' : 'ConflitEdit';
     } else {
-      return ''
+      return '';
     }
   }
   get javaTypeState () {
-    return (this.currentProperty.javaType === '' || this.currentProperty.javaType === null) ? false : null
+    return (this.currentProperty.javaType === '' || this.currentProperty.javaType === null) ? false : null;
   }
   get defaultValueEmpty () {
-    return this.currentProperty.defaultValue === ''
+    return this.currentProperty.defaultValue === '';
   }
   get defaultValueConstantLike () {
-    return /^[a-z][\w\.]*[\w]$/gi.test(this.currentProperty.defaultValue)
+    return /^[a-z][\w\.]*[\w]$/gi.test(this.currentProperty.defaultValue);
   }
   get defaultValueState () {
-    return this.defaultValueEmpty ? false : null
+    return this.defaultValueEmpty ? false : null;
   }
   get defaultValueHint () {
     /* Case empty */
     if (this.defaultValueEmpty) {
       // will be shown as invalid feedback rather than a hint
-      return 'NoHint'
+      return 'NoHint';
     } else
     /* Case integer */
     if (this.currentProperty.javaType === 'int' || this.currentProperty.javaType === 'long') {
       if (this.defaultValueConstantLike) {
-        return 'NoHint'
+        return 'NoHint';
       }
-      let numStr = this.currentProperty.defaultValue
+      let numStr = this.currentProperty.defaultValue;
       if (this.currentProperty.javaType === 'long') {
-        const result = StringUtils.removeSuffix(numStr, 'l')
-        numStr = result !== numStr ? result : StringUtils.removeSuffix(numStr, 'L')
+        const result = StringUtils.removeSuffix(numStr, 'l');
+        numStr = result !== numStr ? result : StringUtils.removeSuffix(numStr, 'L');
       }
-      const num = Number(numStr)
-      return Number.isInteger(num) ? 'NoHint' : 'NotIntOrConstant'
+      const num = Number(numStr);
+      return Number.isInteger(num) ? 'NoHint' : 'NotIntOrConstant';
     } else
     /* Case decimals */
     if (this.currentProperty.javaType === 'float' || this.currentProperty.javaType === 'double') {
-      let numStr = this.currentProperty.defaultValue
-      const suffix = this.currentProperty.javaType.charAt(0)
-      const result = StringUtils.removeSuffix(numStr, suffix)
-      numStr = result !== numStr ? result : StringUtils.removeSuffix(numStr, suffix.toUpperCase())
-      const num = Number(numStr)
-      return (this.defaultValueConstantLike || !isNaN(num)) ? 'NoHint' : 'NotDecimal'
+      let numStr = this.currentProperty.defaultValue;
+      const suffix = this.currentProperty.javaType.charAt(0);
+      const result = StringUtils.removeSuffix(numStr, suffix);
+      numStr = result !== numStr ? result : StringUtils.removeSuffix(numStr, suffix.toUpperCase());
+      const num = Number(numStr);
+      return (this.defaultValueConstantLike || !isNaN(num)) ? 'NoHint' : 'NotDecimal';
     } else
     /* Case boolean */
     if (this.currentProperty.javaType === 'boolean') {
-      const val = this.currentProperty.defaultValue
+      const val = this.currentProperty.defaultValue;
       return this.defaultValueConstantLike || val === 'true' || val === 'false'
-          ? 'NoHint' : 'NotBoolean'
+          ? 'NoHint' : 'NotBoolean';
     } else {
       // TODO: (LOW PRIORITY) check more cases
-      return 'NoHint'
+      return 'NoHint';
     }
   }
 
   private onShown () {
-    (this.$refs.name as BFormInput).focus()
+    (this.$refs.name as BFormInput).focus();
   }
   private onOk (event: Event) {
-    event.preventDefault()
+    event.preventDefault();
     if (this.nameState === false) {
-      return (this.$refs.name as BFormInput).focus()
+      return (this.$refs.name as BFormInput).focus();
     }
     if (this.javaTypeState === false) {
-      return (this.$refs.javaType as AutoComplete).focus()
+      return (this.$refs.javaType as AutoComplete).focus();
     }
     if (this.defaultValueState === false) {
-      return (this.$refs.defaultValue as BFormInput).focus()
+      return (this.$refs.defaultValue as BFormInput).focus();
     }
     // TODO: (LOW PRIORITY) notice when three checkboxs are all unchecked
-    this.$emit('ok', this.isNewProperty, this.getCurrentProperty())
-    this.$nextTick(() => (this.$children[0] as BModal).hide())
+    this.$emit('ok', this.isNewProperty, this.getCurrentProperty());
+    this.$nextTick(() => (this.$children[0] as BModal).hide());
   }
   private switchMode (e?: Event) {
     if (e !== undefined && typeof(e.preventDefault) === 'function') {
-      e.preventDefault()
+      e.preventDefault();
     }
-    this.isNewProperty = !this.isNewProperty
+    this.isNewProperty = !this.isNewProperty;
   }
 }
 </script>

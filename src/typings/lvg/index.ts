@@ -1,24 +1,24 @@
 export type LvgPropertyEditorType =
   'asset' | 'boolean' | 'color' | 'component' | 'float' | 'integer' | 'non_negative_float' |
-  'non_negative_integer' | 'text' | 'textArea' | 'textalignment' | 'visibility'
+  'non_negative_integer' | 'text' | 'textArea' | 'textalignment' | 'visibility';
 
 export type LvgPropertyCategory =
-  'unset' | 'appearance' | 'behaviour' | 'deprecated'
+  'unset' | 'appearance' | 'behaviour' | 'deprecated';
 
 export type LvgPropertyJavaType =
-  'boolean' | 'Component' | 'double' | 'float' | 'int' | 'long' | 'String' | 'YailList' | string
+  'boolean' | 'Component' | 'double' | 'float' | 'int' | 'long' | 'String' | 'YailList' | string;
 
 export interface LvgProperty {
-  name: string
-  designerVisible: boolean
-  editorType: LvgPropertyEditorType
-  setterVisible: boolean
-  getterVisible: boolean
-  category: LvgPropertyCategory
-  description: string
-  javaType: LvgPropertyJavaType
-  args: string[]
-  defaultValue: string
+  name: string;
+  designerVisible: boolean;
+  editorType: LvgPropertyEditorType;
+  setterVisible: boolean;
+  getterVisible: boolean;
+  category: LvgPropertyCategory;
+  description: string;
+  javaType: LvgPropertyJavaType;
+  args: string[];
+  defaultValue: string;
 }
 export function EmptyLvgProperty (): LvgProperty {
   return {
@@ -31,48 +31,48 @@ export function EmptyLvgProperty (): LvgProperty {
     description: '',
     javaType: 'String',
     defaultValue: '""',
-    args: []
-  }
+    args: [],
+  };
 }
 
 export interface LvgItemLayout {
-  $Name: string
-  $Type: string
-  $Version: string
-  Uuid: string
-  [key: string]: any
-  $Components?: LvgItemLayout[]
+  $Name: string;
+  $Type: string;
+  $Version: string;
+  Uuid: string;
+  [key: string]: any;
+  $Components?: LvgItemLayout[];
 }
 export interface AiaScmFile {
-  authURL: string[]
-  YaVersion: string
-  Source: string
-  Properties: LvgItemLayout
+  authURL: string[];
+  YaVersion: string;
+  Source: string;
+  Properties: LvgItemLayout;
 }
 export function EmptyAiaScmFile (): AiaScmFile {
   return {
     authURL: [],
     YaVersion: '0',
     Source: 'Form',
-    Properties: { $Name: '', $Type: '', $Version: '', Uuid: '' }
-  }
+    Properties: { $Name: '', $Type: '', $Version: '', Uuid: '' },
+  };
 }
 
 export interface LvgProjectObject {
-  fullPackage: string
-  componentName: string
-  description: string
-  version: number
-  properties: { [key: string]: LvgProperty }
-  itemLayout?: AiaScmFile
+  fullPackage: string;
+  componentName: string;
+  description: string;
+  version: number;
+  properties: { [key: string]: LvgProperty };
+  itemLayout?: AiaScmFile;
 }
 
 export interface LvgProjectZipInfo {
-  packageName: string
-  componentName: string
-  joinCompNameToPackage: boolean
-  description: string
-  version: number
-  properties: { [key: string]: LvgProperty }
-  itemLayoutFileName: string
+  packageName: string;
+  componentName: string;
+  joinCompNameToPackage: boolean;
+  description: string;
+  version: number;
+  properties: { [key: string]: LvgProperty };
+  itemLayoutFileName: string;
 }

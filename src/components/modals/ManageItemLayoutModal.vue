@@ -31,38 +31,38 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import { BModal } from 'bootstrap-vue'
+import { Vue, Component } from 'vue-property-decorator';
+import { BModal } from 'bootstrap-vue';
 
 @Component
 export default class ManageItemLayoutModal extends Vue {
-  private itemLayoutFile: File | null = null
-  private fileSelected: File | null = null
-  private renderProps: string | null = null
+  private itemLayoutFile: File | null = null;
+  private fileSelected: File | null = null;
+  private renderProps: string | null = null;
 
   public showModal (itemLayoutFile: File) {
-    (this.$children[0] as BModal).show()
-    this.itemLayoutFile = itemLayoutFile
+    (this.$children[0] as BModal).show();
+    this.itemLayoutFile = itemLayoutFile;
   }
 
   private renderProperties () {
-    this.renderProps = null
+    this.renderProps = null;
     if (this.itemLayoutFile == null) {
-      return
+      return;
     }
     // Read file
-    this.renderProps = this.itemLayoutFile.name
+    this.renderProps = this.itemLayoutFile.name;
   }
 
   private onShown () {
-    this.renderProperties()
+    this.renderProperties();
   }
   private onApply () {
-    this.itemLayoutFile = this.fileSelected
-    this.renderProperties()
+    this.itemLayoutFile = this.fileSelected;
+    this.renderProperties();
   }
   private onOk () {
-    this.$emit('ok', this.itemLayoutFile)
+    this.$emit('ok', this.itemLayoutFile);
   }
 }
 </script>
