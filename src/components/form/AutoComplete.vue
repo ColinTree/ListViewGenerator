@@ -31,8 +31,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch, PropSync } from 'vue-property-decorator';
 import { BFormInput } from 'bootstrap-vue';
+import { Component, Prop, PropSync, Vue, Watch } from 'vue-property-decorator';
 
 @Component
 export default class AutoComplete extends Vue {

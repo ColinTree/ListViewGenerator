@@ -31,8 +31,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
 import { BModal } from 'bootstrap-vue';
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class ManageItemLayoutModal extends Vue {

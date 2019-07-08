@@ -1,14 +1,14 @@
 import Vue from 'vue';
 
 import '@babel/polyfill';
-import 'mutationobserver-shim';
 import BootstrapVue from 'bootstrap-vue';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'mutationobserver-shim';
 
-import './plugins-no-type.js';
 import App from './App.vue';
 import i18n from './i18n';
+import './plugins-no-type.js';
 
 Vue.use(BootstrapVue);
 

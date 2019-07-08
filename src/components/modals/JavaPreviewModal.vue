@@ -15,21 +15,21 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
 import { BModal } from 'bootstrap-vue';
 import JsonToJava from 'json-to-java';
-import { Json, JsonObject, JsonArray } from 'json-to-java/bin/utils/json';
+import { Json, JsonArray, JsonObject } from 'json-to-java/bin/utils/json';
+import { Component, Vue } from 'vue-property-decorator';
 
 import pkg from '../../../package.json';
 import template from '../../java-template.json';
 
-import { insertConstants, MATCHER_GLOBAL } from './javaCompiler/InsertGlobalConstant';
-import { getJsonObjectTemplateCompilers, getJsonArrayTemplateCompilers,
-  compileTemplates} from './javaCompiler/TemplateCompilers';
-import StringUtils from '../../utils/StringUtils';
-import FileUtils, { ZipObject } from '../../utils/FileUtils';
-import { LvgProjectObject, LvgItemLayout, EmptyAiaScmFile } from '../../typings/lvg';
 import { GITHUB_REPO_FULL_URL } from '../../const';
+import { EmptyAiaScmFile, LvgItemLayout, LvgProjectObject } from '../../typings/lvg';
+import FileUtils, { ZipObject } from '../../utils/FileUtils';
+import StringUtils from '../../utils/StringUtils';
+import { insertConstants, MATCHER_GLOBAL } from './javaCompiler/InsertGlobalConstant';
+import { compileTemplates, getJsonArrayTemplateCompilers,
+  getJsonObjectTemplateCompilers} from './javaCompiler/TemplateCompilers';
 
 @Component
 export default class JavaPreviewModal extends Vue {

@@ -38,16 +38,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
 import semver from 'semver';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
 import pkg from '../package.json';
 
 import Content from './components/Content.vue';
 
+import { GITHUB_AUTHOR_FULL_URL, GITHUB_REPO_FULL_API_URL,
+  GITHUB_REPO_FULL_URL, GITHUB_REPO_RELEASE_LATEST_URL } from './const';
 import AjaxUtils from './utils/AjaxUtils';
-import { GITHUB_REPO_FULL_API_URL, GITHUB_REPO_FULL_URL,
-  GITHUB_AUTHOR_FULL_URL, GITHUB_REPO_RELEASE_LATEST_URL } from './const';
 
 @Component({
   components: { Content },

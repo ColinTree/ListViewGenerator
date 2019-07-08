@@ -147,13 +147,13 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
 
 import EditPropertyModal from './modals/EditPropertyModal.vue';
-import ManageItemLayoutModal from './modals/ManageItemLayoutModal.vue';
 import JavaPreviewModal from './modals/JavaPreviewModal.vue';
+import ManageItemLayoutModal from './modals/ManageItemLayoutModal.vue';
 
-import { LvgProperty, LvgItemLayout, LvgProjectZipInfo, LvgProjectObject,
-         AiaScmFile, EmptyAiaScmFile } from '../typings/lvg';
-import FileUtils from '../utils/FileUtils';
+import { AiaScmFile, EmptyAiaScmFile, LvgItemLayout, LvgProjectObject,
+         LvgProjectZipInfo, LvgProperty } from '../typings/lvg';
 import AjaxUtils from '../utils/AjaxUtils';
+import FileUtils from '../utils/FileUtils';
 
 interface Properties { [key: string]: LvgProperty; }
 function newEmptyFile () { return new File([], ''); }

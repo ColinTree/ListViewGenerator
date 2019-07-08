@@ -92,13 +92,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
 import { BFormInput, BModal } from 'bootstrap-vue';
+import { Component, Vue } from 'vue-property-decorator';
 
 import Content from '../Content.vue';
 import AutoComplete from '../form/AutoComplete.vue';
 
-import { LvgProperty, EmptyLvgProperty } from '../../typings/lvg';
+import { EmptyLvgProperty, LvgProperty } from '../../typings/lvg';
 import StringUtils from '../../utils/StringUtils';
 
 @Component({ components: { AutoComplete } })
