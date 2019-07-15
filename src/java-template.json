@@ -1,5 +1,4 @@
 {
-  "indentationSize": 4,
   "package": "${__fullPackage__}",
   "imports": [
     "android.content.Context",
@@ -104,9 +103,18 @@
     ],
     "methods": [
       {
-        "annotations": [ { "name": "SimpleFunction" } ],
+        "annotations": [
+          {
+            "name": "SimpleProperty",
+            "values": { "userVisible": "false" }
+          },
+          {
+            "name": "DesignerProperty",
+            "values": { "editorType": "PropertyTypeConstants.PROPERTY_TYPE_COMPONENT + \":com.google.appinventor.components.runtime.VerticalArrangement\"" }
+          }
+        ],
         "accessModifier": "public",
-        "name": "Initialize",
+        "name": "AA_VerticalArrangement",
         "arguments": [ { "type": "VerticalArrangement", "name": "verticalArrangement" } ],
         "statements": [
           "vaContainer = verticalArrangement;",
@@ -114,9 +122,18 @@
         ]
       },
       {
-        "annotations": [ { "name": "SimpleFunction" } ],
+        "annotations": [
+          {
+            "name": "SimpleProperty",
+            "values": { "userVisible": "false" }
+          },
+          {
+            "name": "DesignerProperty",
+            "values": { "editorType": "PropertyTypeConstants.PROPERTY_TYPE_COMPONENT + \":com.google.appinventor.components.runtime.VerticalScrollArrangement\"" }
+          }
+        ],
         "accessModifier": "public",
-        "name": "Initialize_Scroll",
+        "name": "AA_VerticalScrollArrangement",
         "arguments": [ { "type": "VerticalScrollArrangement", "name": "verticalScrollArrangement" } ],
         "statements": [
           "vaContainer = verticalScrollArrangement;",
@@ -136,39 +153,24 @@
         "arguments": [ { "type": "YailList", "name": "list" } ],
         "statements": [
           "int size = list.size();",
-          "Object sublistElement;",
-          "for (int i=0; i<size; i++) {",
+          "for (int i = 0; i < size; i ++) {",
           [
-            "sublistElement = list.getObject(i);",
-            "if (sublistElement instanceof YailList) {",
+            "if (currentListSize > i) {",
             [
-              "if (currentListSize > i) {",
-              [
-                "SetElement(i+1, (YailList)sublistElement);",
-                "//call the function that is shown in bky, so the index start from 1"
-              ],
-              "} else {",
-              [ "AddElement((YailList)sublistElement);" ],
-              "}"
+              "// mocking call to function that is shown in bky, so the index is one-based",
+              "SetElement(i + 1, (YailList) list.getObject(i));"
             ],
             "} else {",
-            [ "//TODO: if allowing a non-YailList object as an list item, add here" ],
+            [ "AddElement((YailList) list.getObject(i));" ],
             "}"
           ],
           "}",
           "// hide the elements that is created but not uesd",
-          "for (int i=list.size(); i<currentListSize; i++) {",
+          "for (int i = list.size(); i < currentListSize; i ++) {",
           [ "elementList.get(i).hide();" ],
           "}",
           "currentListSize = list.size();"
         ]
-      },
-      {
-        "accessModifier": "private",
-        "type": "YailList",
-        "name": "getYailList",
-        "arguments": [ { "type": "Object...", "name": "obj" } ],
-        "statements": [ "return YailList.makeList(obj);" ]
       },
       {
         "annotations": [ { "name": "SimpleFunction" } ],
@@ -177,25 +179,21 @@
         "arguments": [ { "type": "YailList", "name": "elementData" } ],
         "statements": [
           "int elementListSize = elementList.size();",
-          "if (currentListSize<elementListSize && elementListSize>0) {",
-          [
-            "Element ele = elementList.get(currentListSize);",
-            "ele.show();",
-            "ele.set(elementData);"
-          ],
+          "if (currentListSize < elementListSize && elementListSize > 0) {",
+          [ "elementList.get(currentListSize).show().set(elementData);" ],
           "} else {",
           [
             "final int elementIndex = currentListSize;",
             "elementList.add(new Element(vaContainer, elementData) {",
             [
               "@Override",
-              "public void onElementClick() {",
+              "public void onElementClick () {",
               [ "ElementClick(elementIndex);" ],
               "}",
               [
                 "___templateName:eventImplement",
                 "@Override",
-                "public void on${_name_}() {",
+                "public void on${_name_} () {",
                 [ "${_name_}(elementIndex);" ],
                 "}"
               ]
@@ -203,7 +201,7 @@
             "});"
           ],
           "}",
-          "currentListSize++;"
+          "currentListSize ++;"
         ]
       },
       {
@@ -221,27 +219,10 @@
           { "type": "YailList", "name": "element" }
         ],
         "statements": [
-          "if (elementIndex<1 || elementIndex>currentListSize) {",
+          "if (elementIndex < 1 || elementIndex > currentListSize) {",
           [ "return;" ],
           "}",
-          "Element ele = elementList.get(elementIndex-1);",
-          "ele.show();",
-          "ele.set(element);"
-        ]
-      },
-      {
-        "annotations": [ { "name": "SimpleFunction" } ],
-        "accessModifier": "public",
-        "name": "SetElementText",
-        "arguments": [
-          { "type": "int", "name": "elementIndex"},
-          { "type": "String", "name": "text" }
-        ],
-        "statements": [
-          "if (elementIndex<1 || elementIndex>currentListSize) {",
-          [ "return;" ],
-          "}",
-          "elementList.get(elementIndex-1).setText(text);"
+          "elementList.get(elementIndex-1).show().set(element);"
         ]
       },
       {
@@ -250,17 +231,25 @@
         "type": "YailList",
         "name": "GetElement",
         "arguments": [ { "type": "int", "name": "elementIndex"} ],
-        "statements": [ "return YailList.makeList(getElementWithObject(elementIndex));" ]
+        "statements": [ "return YailList.makeList(getElementAsObject(elementIndex));" ]
       },
       {
         "accessModifier": "public",
         "type": "Object[]",
-        "name": "getElementWithObject",
+        "name": "getElementAsObject",
         "arguments": [ { "type": "int", "name": "elementIndex"} ],
         "statements": [
-          "Element element = elementList.get(elementIndex-1);",
-          "//TODO: implement this",
-          "return new Object[0];"
+          "Element element = elementList.get(elementIndex - 1);",
+          [
+            "___templateName:getElementAsObject_DefineObject",
+            "Object[] result = new Object[${_resultLength_}];",
+            "// TODO: implement this"
+          ],
+          [
+            "___templateName:getElementAsObject_AssignValue",
+            "result[${_numberOfItem_}] = YailList.makeList(new Object[]{  });"
+          ],
+          "return result;"
         ]
       },
       {
@@ -272,26 +261,14 @@
           "if (elementIndex < 1 || elementIndex > currentListSize) {",
           [ "return;" ],
           "}",
-          "for (int i = elementIndex - 1; i<currentListSize - 1; i++) {",
-          [ "copyElement(i + 1, i);" ],
+          "for (int i = elementIndex - 1; i < currentListSize - 1; i ++) {",
+          [
+            "// index of SetElement & GetElement is one-based",
+            "SetElement(i + 1, GetElement(i + 2));"
+          ],
           "}",
           "elementList.get(currentListSize - 1).hide();",
-          "currentListSize--;"
-        ]
-      },
-      {
-        "annotations": [],
-        "accessModifier": "private",
-        "name": "copyElement",
-        "arguments": [ { "type": "int", "name": "indexFrom"}, { "type": "int", "name": "indexTo"} ],
-        "statements": [
-          "SetElement(",
-          [
-            "indexTo + 1,",
-            "getYailList(GetElement(indexFrom+1).toArray())",
-            "// trun into object[] first, avoiding reference confusing. (create a new object)"
-          ],
-          ");"
+          "currentListSize --;"
         ]
       },
       {
@@ -371,7 +348,7 @@
       {
         "accessModifier": "private",
         "name": "Element",
-        "implements": [ "OnClickListener" ],
+        "implements": "OnClickListener",
         "attributes": [
           {
             "accessModifier": "private",
@@ -433,6 +410,7 @@
           },
           {
             "accessModifier": "public",
+            "type": "Element",
             "name": "refreshProperties",
             "statements": [
               "show();",
@@ -451,10 +429,8 @@
               { "type": "String", "name": "propValue" }
             ],
             "statements": [
-              "Class<?> claz = component.getClass();",
-              "Method[] methods = claz.getMethods();",
               "Method setter = null;",
-              "for (Method method : methods) {",
+              "for (Method method : component.getClass().getMethods()) {",
               [
                 "if (method.getName().equals(propName) && method.getParameterCount() == 1) {",
                 [
@@ -464,7 +440,13 @@
                 "}"
               ],
               "}",
-              "// May be null",
+              "if (setter == null) {",
+              [
+                "String errMsg = \"Cannot find setter of property(\" + propName + \") in component type(\" + component.getClass() + \")\";",
+                "Log.e(LOG_TAG, errMsg);",
+                "throw new RuntimeException(errMsg);"
+              ],
+              "}",
               "Parameter param = setter.getParameters()[0];",
               "try {",
               [
@@ -480,13 +462,17 @@
                 [ "setter.invoke(component, Double.parseDouble(propValue));" ],
                 "} else {",
                 [
-                  "// TODO:",
-                  "// java.lang.Character#TYPE",
-                  "// java.lang.Byte#TYPE",
-                  "// java.lang.Short#TYPE",
-                  "// java.lang.Long#TYPE",
-                  "// java.lang.Void#TYPE",
-                  "throw new IllegalArgumentException(\"Cannot cast property into target type of property \\\"\" + propName + \"\\\". Require \" + param.getType().getName() + \", get \\\"\" + propValue + \"\\\"\");"
+                  "/**",
+                  " * TODO: add more",
+                  " * java.lang.Character#TYPE",
+                  " * java.lang.Byte#TYPE",
+                  " * java.lang.Short#TYPE",
+                  " * java.lang.Long#TYPE",
+                  " * java.lang.Void#TYPE",
+                  " */",
+                  "String errMsg = \"Cannot cast property into target type of property(\" + propName + \").\" +",
+                  "                \" Require \" + param.getType().getName() + \", get \\\"\" + propValue + \"\\\"\";",
+                  "throw new IllegalArgumentException(errMsg);"
                 ],
                 "}"
               ],
@@ -497,56 +483,39 @@
           },
           {
             "accessModifier": "public",
+            "type": "Element",
             "name": "show",
             "statements": [
               [
                 "___templateName:elementShow",
-                "TODO:"
+                "// TODO: elementShow",
+                "return this;"
               ]
             ]
           },
           {
             "accessModifier": "public",
+            "type": "Element",
             "name": "hide",
             "statements": [
               [
                 "___templateName:elementHide",
-                "TODO:"
+                "// TODO: elementHide",
+                "return this;"
               ]
             ]
           },
           {
             "accessModifier": "public",
-            "name": "setText",
-            "arguments": [ { "type": "String", "name": "text" } ],
-            "statements": [
-              [
-                "___templateName:elementSetText",
-                "TODO:"
-              ]
-            ]
-          },
-          {
-            "accessModifier": "public",
-            "type": "String",
-            "name": "getText",
-            "statements": [
-              [
-                "___templateName:elementGetText",
-                "TODO:"
-              ],
-              "return \"\";"
-            ]
-          },
-          {
-            "accessModifier": "public",
+            "type": "Element",
             "name": "set",
             "arguments": [ { "type": "YailList", "name": "list" } ],
             "statements": [
-              "int size=list.toArray().length;",
+              "int size = list.toArray().length;",
               [
                 "___templateName:elementSet",
-                "TODO:"
+                "// TODO: elementSet",
+                "return this;"
               ]
             ]
           }

@@ -64,7 +64,7 @@ export function getJsonObjectTemplateCompilers (
 ): { [key: string]: JsonObjectTemplateCompiler } {
   const properties = projectObject.properties;
   return {
-    propertyDefaultValue: (templateToCompile: JsonObject) => {
+    propertyDefaultValue (templateToCompile: JsonObject) {
       const result: Json[] = [];
       Object.keys(properties).map(name => {
         const property = properties[name];
@@ -76,7 +76,7 @@ export function getJsonObjectTemplateCompilers (
       });
       return result;
     },
-    propertyField: (templateToCompile: JsonObject) => {
+    propertyField (templateToCompile: JsonObject) {
       const result: Json[] = [];
       Object.keys(properties).map(name => {
         const property = properties[name];
@@ -87,7 +87,7 @@ export function getJsonObjectTemplateCompilers (
       });
       return result;
     },
-    propertyGetter: (templateToCompile: JsonObject) => {
+    propertyGetter (templateToCompile: JsonObject) {
       const result: Json[] = [];
       Object.keys(properties).map(name => {
         const property = properties[name];
@@ -101,7 +101,7 @@ export function getJsonObjectTemplateCompilers (
       });
       return result;
     },
-    propertySetter: (templateToCompile: JsonObject) => {
+    propertySetter (templateToCompile: JsonObject) {
       const result: Json[] = [];
       Object.keys(properties).map(name => {
         const property = properties[name];
@@ -118,7 +118,7 @@ export function getJsonObjectTemplateCompilers (
       // TODO: handle ___templateIf
       return result;
     },
-    event: (templateToCompile: JsonObject) => {
+    event (templateToCompile: JsonObject) {
       // TODO: implement this
       return [
         insertConstants(templateToCompile, MATCHER_SCOPED, {
@@ -127,7 +127,7 @@ export function getJsonObjectTemplateCompilers (
         }),
       ];
     },
-    elementComponent: (templateToCompile: JsonObject) => {
+    elementComponent (templateToCompile: JsonObject) {
       // TODO: implement this
       return [
         insertConstants(templateToCompile, MATCHER_SCOPED, {
@@ -153,7 +153,7 @@ export function getJsonObjectTemplateCompilers (
       content = beforeBlock + afterBlock
     })
     */
-    elementEvent: (templateToCompile: JsonObject) => {
+    elementEvent (templateToCompile: JsonObject) {
       // TODO: implement this
       return [
         insertConstants(templateToCompile, MATCHER_SCOPED, {
@@ -168,7 +168,7 @@ export function getJsonArrayTemplateCompilers (
 ): { [key: string]: JsonArrayTemplateCompiler } {
   const properties = projectObject.properties;
   return {
-    eventImplement: (templateToCompile: JsonArray) => {
+    eventImplement (templateToCompile: JsonArray) {
       // TODO: implement this
       const itemsToCompile = [{
         name: 'EVENT_NAME',
@@ -179,7 +179,31 @@ export function getJsonArrayTemplateCompilers (
       });
       return result;
     },
-    elementCreate: (templateToCompile: JsonArray) => {
+    getElementAsObject_DefineObject (templateToCompile: JsonArray) {
+      // TODO: implement this
+      const itemsToCompile = [{
+        resultLength: '/* RESULT_LENGTH */ 3',
+      }];
+      const result = [] as JsonArray;
+      itemsToCompile.forEach(data => {
+        result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
+      });
+      return result;
+    },
+    getElementAsObject_AssignValue (templateToCompile: JsonArray) {
+      // TODO: implement this
+      const result = [] as JsonArray;
+      for (let i = 0; i < 3; i++) {
+        const itemsToCompile = [{
+          numberOfItem: i,
+        }];
+        itemsToCompile.forEach(data => {
+          result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
+        });
+      }
+      return result;
+    },
+    elementCreate (templateToCompile: JsonArray) {
       // TODO: implement this
       const itemsToCompile = [{
         name: 'ELEMENT_NAME',
@@ -187,7 +211,7 @@ export function getJsonArrayTemplateCompilers (
         container: 'ELEMENT_CONTAINER',
       }];
       const result = [] as JsonArray;
-      itemsToCompile.forEach((data) => {
+      itemsToCompile.forEach(data => {
         result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
       });
       return result;
@@ -227,7 +251,7 @@ export function getJsonArrayTemplateCompilers (
       content = beforePlot + afterPlot
     })
     */
-    elementSetDefaultProperty: (templateToCompile: JsonArray) => {
+    elementSetDefaultProperty (templateToCompile: JsonArray) {
       // TODO: implement this
       const itemsToCompile = [{
         name: 'ELEMENT_NAME',
@@ -235,12 +259,12 @@ export function getJsonArrayTemplateCompilers (
         propValue: 'ELEMENT_PROP_VALUE',
       }];
       const result = [] as JsonArray;
-      itemsToCompile.forEach((data) => {
+      itemsToCompile.forEach(data => {
         result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
       });
       return result;
     },
-    elementRefreshProperties: (templateToCompile: JsonArray) => {
+    elementRefreshProperties (templateToCompile: JsonArray) {
       // TODO: implement this
       const itemsToCompile = [{
         name: 'ELEMENT_NAME',
@@ -248,30 +272,22 @@ export function getJsonArrayTemplateCompilers (
         propValue: 'ELEMENT_PROP_VALUE',
       }];
       const result = [] as JsonArray;
-      itemsToCompile.forEach((data) => {
+      itemsToCompile.forEach(data => {
         result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
       });
       return result;
     },
-    elementShow: (templateToCompile: JsonArray) => {
+    elementShow (templateToCompile: JsonArray) {
       // TODO: implement this
-      return [ '// TODO: elementShow' ];
+      return templateToCompile;
     },
-    elementHide: (templateToCompile: JsonArray) => {
+    elementHide (templateToCompile: JsonArray) {
       // TODO: implement this
-      return [ '// TODO: elementHide' ];
+      return templateToCompile;
     },
-    elementSetText: (templateToCompile: JsonArray) => {
+    elementSet (templateToCompile: JsonArray) {
       // TODO: implement this
-      return [ '// TODO: elementSetText' ];
-    },
-    elementGetText: (templateToCompile: JsonArray) => {
-      // TODO: implement this
-      return [ '// TODO: elementGetText' ];
-    },
-    elementSet: (templateToCompile: JsonArray) => {
-      // TODO: implement this
-      return [ '// TODO: elementSet' ];
+      return templateToCompile;
     },
   };
 }
