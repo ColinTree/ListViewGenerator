@@ -16,6 +16,7 @@
     "highlight.js": "^9.15.10",
     "json-to-java": "^1.4.0",
     "jszip": "^3.2.2",
+    "lodash": "^4.17.15",
     "semver": "^6.3.0",
     "vue": "^2.6.10",
     "vue-alertify": "^1.1.0",
