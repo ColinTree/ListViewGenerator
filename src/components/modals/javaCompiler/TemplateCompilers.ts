@@ -1,4 +1,5 @@
-import { LvgProjectObject } from '@/typings/lvg';
+import { LvgItemLayout, LvgProjectObject } from '@/typings/lvg';
+import StringUtils from '@/utils/StringUtils';
 import { Json, JsonArray, JsonObject, JsonUtil } from 'json-to-java/bin/utils/json';
 import { insertConstants, MATCHER_SCOPED } from './InsertGlobalConstant';
 
@@ -17,7 +18,7 @@ export function compileTemplates (
   }
   if (JsonUtil.isJsonObject(json)) {
     const rst = {} as JsonObject;
-    Object.keys(json as JsonObject).map(key => {
+    Object.keys(json as JsonObject).forEach(key => {
       rst[key] = compileTemplates((json as JsonObject)[key], jsonArrayTemplateCompilers, jsonObjectTemplateCompilers);
     });
     return rst;
@@ -66,7 +67,7 @@ export function getJsonObjectTemplateCompilers (
   return {
     propertyDefaultValue (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).map(name => {
+      Object.keys(properties).forEach(name => {
         const property = properties[name];
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           type: property.javaType,
@@ -78,7 +79,7 @@ export function getJsonObjectTemplateCompilers (
     },
     propertyField (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).map(name => {
+      Object.keys(properties).forEach(name => {
         const property = properties[name];
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           type: property.javaType,
@@ -89,7 +90,7 @@ export function getJsonObjectTemplateCompilers (
     },
     propertyGetter (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).map(name => {
+      Object.keys(properties).forEach(name => {
         const property = properties[name];
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           description: property.description,
@@ -103,7 +104,7 @@ export function getJsonObjectTemplateCompilers (
     },
     propertySetter (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).map(name => {
+      Object.keys(properties).forEach(name => {
         const property = properties[name];
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           description: property.description,
@@ -128,31 +129,23 @@ export function getJsonObjectTemplateCompilers (
       ];
     },
     elementComponent (templateToCompile: JsonObject) {
-      // TODO: implement this
-      return [
-        insertConstants(templateToCompile, MATCHER_SCOPED, {
-          type: 'ELEMENT_TYPE',
-          name: 'ELEMENT_NAME',
-        }),
-      ];
-    },
-    /*
-    handleBlock('elementComponent', (beforeBlock, blockFormat, afterBlock) => {
+      const result: JsonArray = [];
       function traverseComponentContainer (compProps: LvgItemLayout) {
         if (compProps.$Components !== undefined) {
           compProps.$Components.forEach(child => {
-            beforeBlock += StringUtils.replaceAllInObj(blockFormat, {
-              _type_: child.$Type,
-              _name_: child.$Name
-            })
-            traverseComponentContainer(child)
-          })
+            result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
+              type: child.$Type,
+              name: StringUtils.ensureComponentNameValid(child.$Name),
+            }));
+            traverseComponentContainer(child);
+          });
         }
       }
-      traverseComponentContainer(itemLayout.Properties)
-      content = beforeBlock + afterBlock
-    })
-    */
+      if (projectObject.itemLayout) {
+        traverseComponentContainer(projectObject.itemLayout.Properties);
+      }
+      return result;
+    },
     elementEvent (templateToCompile: JsonObject) {
       // TODO: implement this
       return [
@@ -204,53 +197,24 @@ export function getJsonArrayTemplateCompilers (
       return result;
     },
     elementCreate (templateToCompile: JsonArray) {
-      // TODO: implement this
-      const itemsToCompile = [{
-        name: 'ELEMENT_NAME',
-        type: 'ELEMENT_TYPE',
-        container: 'ELEMENT_CONTAINER',
-      }];
-      const result = [] as JsonArray;
-      itemsToCompile.forEach(data => {
-        result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
-      });
-      return result;
-    },
-    /*
-    handlePlot('elementCreate', (beforePlot, linePrefix, afterPlot) => {
-      function println (line = '') {
-        beforePlot += line + '\n' + linePrefix
-      }
-      // FIXME: Handle different default values in different platforms
+      const result: JsonArray = [];
       function traverseComponentContainer (compProps: LvgItemLayout) {
-        const containerName = compProps.$Type === 'Form' ? 'container' : compProps.$Name
         if (compProps.$Components !== undefined) {
           compProps.$Components.forEach(child => {
-            println(StringUtils.replaceAllInObj('_name_ = new _type_(_container_)', {
-              _type_: child.$Type,
-              _name_: child.$Name,
-              _container_: containerName
-            }))
-            for (const propName in child) {
-              if (propName.charAt(0) !== '$' && propName !== 'Uuid') {
-                println(StringUtils.replaceAllInObj('setProperty(_name_, "_propName_", "_propValue_")', {
-                  _name_: child.$Name,
-                  _propName_: propName,
-                  _propValue_: child[propName]
-                }))
-              }
-            }
-            println()
-            if (child.$Components !== null) {
-              traverseComponentContainer(child)
-            }
-          })
+            result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
+              type: child.$Type,
+              name: StringUtils.ensureComponentNameValid(child.$Name),
+              container: StringUtils.ensureComponentNameValid(compProps.$Name),
+            }) as JsonArray);
+            traverseComponentContainer(child);
+          });
         }
       }
-      // traverseComponentContainer(itemLayout.Properties)
-      content = beforePlot + afterPlot
-    })
-    */
+      if (projectObject.itemLayout) {
+        traverseComponentContainer(projectObject.itemLayout.Properties);
+      }
+      return result;
+    },
     elementSetDefaultProperty (templateToCompile: JsonArray) {
       // TODO: implement this
       const itemsToCompile = [{

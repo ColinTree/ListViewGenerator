@@ -19,7 +19,8 @@
     "java.lang.reflect.*",
     "java.util.ArrayList"
   ],
-  "mainClass": {
+  "entryType": "class",
+  "entry": {
     "annotations": [
       {
         "name": "DesignerComponent",
@@ -265,9 +266,13 @@
         "name": "RemoveElement",
         "arguments": [ { "type": "int", "name": "elementIndex"} ],
         "statements": [
-          "if (elementIndex < 1 || elementIndex > currentListSize) {",
-          [ "return;" ],
-          "}",
+          {
+            "type": "if",
+            "condition": "elementIndex < 1 || elementIndex > currentListSize",
+            "statements": [
+              "return;"
+            ]
+          },
           "for (int i = elementIndex - 1; i < currentListSize - 1; i ++) {",
           [
             "// index of SetElement & GetElement is one-based",
@@ -439,49 +444,79 @@
               "Method setter = null;",
               "for (Method method : component.getClass().getMethods()) {",
               [
-                "if (method.getName().equals(propName) && method.getParameterCount() == 1) {",
-                [
-                  "setter = method;",
-                  "break;"
-                ],
-                "}"
+                {
+                  "type": "if",
+                  "condition": "method.getName().equals(propName) && method.getParameterCount() == 1",
+                  "statements": [
+                    "setter = method;",
+                    "break;"
+                  ]
+                }
               ],
               "}",
-              "if (setter == null) {",
-              [
-                "String errMsg = \"Cannot find setter of property(\" + propName + \") in component type(\" + component.getClass() + \")\";",
-                "Log.e(LOG_TAG, errMsg);",
-                "throw new RuntimeException(errMsg);"
-              ],
-              "}",
+              {
+                "type": "if",
+                "condition": "setter == null",
+                "statements": [
+                  "String errMsg = \"Cannot find setter of property(\" + propName + \") in component type(\" + component.getClass() + \")\";",
+                  "Log.e(LOG_TAG, errMsg);",
+                  "throw new RuntimeException(errMsg);"
+                ]
+              },
               "Parameter param = setter.getParameters()[0];",
               "try {",
               [
-                "if (param.getType() == String.class) {",
-                [ "setter.invoke(component, propValue);" ],
-                "} else if (param.getType() == Boolean.TYPE) {",
-                [ "setter.invoke(component, Boolean.getBoolean(propValue));" ],
-                "} else if (param.getType() == Integer.TYPE) {",
-                [ "setter.invoke(component, Integer.parseInt(propValue));" ],
-                "} else if (param.getType() == Float.TYPE) {",
-                [ "setter.invoke(component, Float.parseFloat(propValue));" ],
-                "} else if (param.getType() == Double.TYPE) {",
-                [ "setter.invoke(component, Double.parseDouble(propValue));" ],
-                "} else {",
-                [
-                  "/**",
-                  " * TODO: add more",
-                  " * java.lang.Character#TYPE",
-                  " * java.lang.Byte#TYPE",
-                  " * java.lang.Short#TYPE",
-                  " * java.lang.Long#TYPE",
-                  " * java.lang.Void#TYPE",
-                  " */",
-                  "String errMsg = \"Cannot cast property into target type of property(\" + propName + \").\" +",
-                  "                \" Require \" + param.getType().getName() + \", get \\\"\" + propValue + \"\\\"\";",
-                  "throw new IllegalArgumentException(errMsg);"
-                ],
-                "}"
+                {
+                  "type": "if",
+                  "condition": "param.getType() == String.class",
+                  "statements": [
+                    "setter.invoke(component, propValue);",
+                    "return;"
+                  ]
+                },
+                {
+                  "type": "if",
+                  "condition": "param.getType() == Boolean.class",
+                  "statements": [
+                    "setter.invoke(component, Boolean.getBoolean(propValue));",
+                    "return;"
+                  ]
+                },
+                {
+                  "type": "if",
+                  "condition": "param.getType() == Integer.TYPE",
+                  "statements": [
+                    "setter.invoke(component, Integer.parseInt(propValue));",
+                    "return;"
+                  ]
+                },
+                {
+                  "type": "if",
+                  "condition": "param.getType() == Float.TYPE",
+                  "statements": [
+                    "setter.invoke(component, Float.parseFloat(propValue));",
+                    "return;"
+                  ]
+                },
+                {
+                  "type": "if",
+                  "condition": "param.getType() == Double.TYPE",
+                  "statements": [
+                    "setter.invoke(component, Double.parseDouble(propValue));",
+                    "return;"
+                  ]
+                },
+                "/**",
+                " * TODO: add more",
+                " * java.lang.Character#TYPE",
+                " * java.lang.Byte#TYPE",
+                " * java.lang.Short#TYPE",
+                " * java.lang.Long#TYPE",
+                " * java.lang.Void#TYPE",
+                " */",
+                "String errMsg = \"Cannot cast property into target type of property(\" + propName + \").\" +",
+                "                \" Require \" + param.getType().getName() + \", get \\\"\" + propValue + \"\\\"\";",
+                "throw new IllegalArgumentException(errMsg);"
               ],
               "} catch (IllegalAccessException | InvocationTargetException e) {",
               [ "throw new IllegalArgumentException(e);" ],
@@ -529,6 +564,5 @@
         ]
       }
     ]
-  },
-  "otherClasses": []
+  }
 }
