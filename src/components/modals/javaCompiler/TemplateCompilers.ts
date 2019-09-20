@@ -1,6 +1,7 @@
 import { LvgItemLayout, LvgProjectObject } from '@/typings/lvg';
 import StringUtils from '@/utils/StringUtils';
 import { Json, JsonArray, JsonObject, JsonUtil } from 'json-to-java/bin/utils/json';
+import _ from 'lodash';
 import { insertConstants, MATCHER_SCOPED } from './InsertGlobalConstant';
 
 export const TEMPLATE_PATTERN = '___templateName';
@@ -75,6 +76,7 @@ export function getJsonObjectTemplateCompilers (
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           type: property.javaType,
           name,
+          defaultName: (_.snakeCase(name)).toUpperCase(),
           defaultValue: property.defaultValue,
         }));
       });
@@ -87,6 +89,7 @@ export function getJsonObjectTemplateCompilers (
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           type: property.javaType,
           name,
+          defaultName: (_.snakeCase(name)).toUpperCase(),
         }));
       });
       return result;
@@ -116,6 +119,7 @@ export function getJsonObjectTemplateCompilers (
             setterVisible: String(property.setterVisible),
             editorType: property.editorType,
             name,
+            defaultName: (_.snakeCase(name)).toUpperCase(),
             args: property.args.length === 0 ? '{}' : ('{"' + property.args.join('", "') + '"}'),
             type: property.javaType,
           }),

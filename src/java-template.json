@@ -56,7 +56,7 @@
         "accessModifier": "private",
         "nonAccessModifiers": [ "static", "final" ],
         "type": "${_type_}",
-        "name": "DEFAULT_${_name_}",
+        "name": "DEFAULT_${_defaultName_}",
         "value": "${_defaultValue_}"
       },
       {
@@ -94,7 +94,7 @@
         "accessModifier": "private",
         "type": "${_type_}",
         "name": "${_name_}",
-        "value": "DEFAULT_${_name_}"
+        "value": "DEFAULT_${_defaultName_}"
       }
     ],
     "constructors": [
@@ -316,7 +316,7 @@
             "name": "DesignerProperty",
             "values": {
               "editorType": "\"${_editorType_}\"",
-              "defaultValue": "\"\" + DEFAULT_${_name_}",
+              "defaultValue": "\"\" + DEFAULT_${_defaultName_}",
               "editorArgs":"${_args_}"
             }
           }
