@@ -13,7 +13,8 @@
       "loadTemplate": "Cannot load listview template, please try reload this page.",
       "reading": "Fail reading project file"
     },
-    "projectMadeWith": "This project is made with"
+    "projectMadeWith": "This project is made with",
+    "javaGenerator": "Java Generator"
   },
   "button": {
     "browse": "Browse",

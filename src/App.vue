@@ -76,6 +76,11 @@ export default class App extends Vue {
       link: 'https://vuejs.org',
       linkText: 'Vue.js',
     },
+    {
+      title: 'common.javaGenerator',
+      link: 'https://github.com/ColinTree/json-to-java',
+      linkText: 'Json-to-Java',
+    },
   ];
   private versionCode = null;
   private locale = 'en';

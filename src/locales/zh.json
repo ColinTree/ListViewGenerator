@@ -13,7 +13,8 @@
       "loadTemplate": "无法加载列表模板，请尝试刷新本页",
       "reading": "读取项目过程中出现错误"
     },
-    "projectMadeWith": "本项目底层使用"
+    "projectMadeWith": "本项目底层使用",
+    "javaGenerator": "Java 生成器"
   },
   "button": {
     "browse": "浏览",
