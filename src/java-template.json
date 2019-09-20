@@ -529,8 +529,10 @@
             "name": "show",
             "statements": [
               [
-                "___templateName:elementShow",
-                "// TODO: elementShow",
+                [
+                  "___templateName:elementShow",
+                  "setProperty(${_name_}, \"Visible\", \"true\");"
+                ],
                 "return this;"
               ]
             ]
@@ -541,8 +543,10 @@
             "name": "hide",
             "statements": [
               [
-                "___templateName:elementHide",
-                "// TODO: elementHide",
+                [
+                  "___templateName:elementHide",
+                  "setProperty(${_name_}, \"Visible\", \"false\");"
+                ],
                 "return this;"
               ]
             ]

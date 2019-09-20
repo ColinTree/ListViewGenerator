@@ -198,25 +198,26 @@ export function getJsonArrayTemplateCompilers (
     },
     elementCreate (templateToCompile: JsonArray) {
       const result: JsonArray = [];
-      function traverseComponentContainer (compProps: LvgItemLayout) {
-        if (compProps.$Components !== undefined) {
-          compProps.$Components.forEach(child => {
-            result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
-              type: child.$Type,
-              name: StringUtils.ensureComponentNameValid(child.$Name),
-              container: StringUtils.ensureComponentNameValid(compProps.$Name),
-            }) as JsonArray);
-            traverseComponentContainer(child);
-          });
-        }
-      }
       if (projectObject.itemLayout) {
-        traverseComponentContainer(projectObject.itemLayout.Properties);
+        const formProp = projectObject.itemLayout.Properties;
+        function traverseComponentContainer (compProps: LvgItemLayout) {
+          if (compProps.$Components !== undefined) {
+            compProps.$Components.forEach(child => {
+              result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
+                type: child.$Type,
+                name: StringUtils.ensureComponentNameValid(child.$Name),
+                container: compProps.$Name === formProp.$Name
+                            ? 'container' : StringUtils.ensureComponentNameValid(compProps.$Name),
+              }) as JsonArray);
+              traverseComponentContainer(child);
+            });
+          }
+        }
+        traverseComponentContainer(formProp);
       }
       return result;
     },
     elementSetDefaultProperty (templateToCompile: JsonArray) {
-      // TODO: implement this
       const itemsToCompile = [{
         name: 'ELEMENT_NAME',
         propName: 'ELEMENT_PROP_NAME',
@@ -242,11 +243,31 @@ export function getJsonArrayTemplateCompilers (
       return result;
     },
     elementShow (templateToCompile: JsonArray) {
-      // TODO: implement this
+      const result = [];
+      if (projectObject.itemLayout) {
+        const formProp = projectObject.itemLayout.Properties;
+        if (formProp.$Components) {
+          formProp.$Components.forEach(child => {
+            result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
+              name: StringUtils.ensureComponentNameValid(child.$Name),
+            }) as JsonArray);
+          });
+        }
+      }
       return templateToCompile;
     },
     elementHide (templateToCompile: JsonArray) {
-      // TODO: implement this
+      const result = [];
+      if (projectObject.itemLayout) {
+        const formProp = projectObject.itemLayout.Properties;
+        if (formProp.$Components) {
+          formProp.$Components.forEach(child => {
+            result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
+              name: StringUtils.ensureComponentNameValid(child.$Name),
+            }) as JsonArray);
+          });
+        }
+      }
       return templateToCompile;
     },
     elementSet (templateToCompile: JsonArray) {
