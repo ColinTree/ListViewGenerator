@@ -3,13 +3,15 @@ import StringUtils from '@/utils/StringUtils';
 import { Json, JsonArray, JsonObject, JsonUtil } from 'json-to-java/bin/utils/json';
 import { insertConstants, MATCHER_SCOPED } from './InsertGlobalConstant';
 
-const TEMPLATE_PATTERN = '___templateName';
+export const TEMPLATE_PATTERN = '___templateName';
+export const TEMPLATE_IF_PATTERN = '___templateIf';
 
 type JsonObjectTemplateCompiler = (templateToCompile: JsonObject) => Json[];
 type JsonArrayTemplateCompiler = (templateToCompile: JsonArray) => Json[];
 
 export function compileTemplates (
   json: Json,
+  pattern: string,
   jsonArrayTemplateCompilers: { [key: string]: JsonArrayTemplateCompiler },
   jsonObjectTemplateCompilers: { [key: string]: JsonObjectTemplateCompiler },
 ): Json {
@@ -19,7 +21,8 @@ export function compileTemplates (
   if (JsonUtil.isJsonObject(json)) {
     const rst = {} as JsonObject;
     Object.keys(json as JsonObject).forEach(key => {
-      rst[key] = compileTemplates((json as JsonObject)[key], jsonArrayTemplateCompilers, jsonObjectTemplateCompilers);
+      rst[key] = compileTemplates((json as JsonObject)[key], pattern,
+          jsonArrayTemplateCompilers, jsonObjectTemplateCompilers);
     });
     return rst;
   }
@@ -29,8 +32,8 @@ export function compileTemplates (
     if (Array.isArray(subJson)) {
       // JsonArray
       if (subJson.length > 0 && typeof subJson[0] === 'string' &&
-          (subJson[0] as string).startsWith(`${TEMPLATE_PATTERN}:`)) {
-        const templateName = (subJson[0] as string).slice(TEMPLATE_PATTERN.length + 1);
+          (subJson[0] as string).startsWith(`${pattern}:`)) {
+        const templateName = (subJson[0] as string).slice(pattern.length + 1);
         if (!(templateName in jsonArrayTemplateCompilers)) {
           throw new Error(`There is no compiler for template '${templateName}'`);
         }
@@ -41,21 +44,21 @@ export function compileTemplates (
       }
     } else if (JsonUtil.isJsonObject(subJson)) {
       // JsonObject
-      if (TEMPLATE_PATTERN in (subJson as JsonObject)) {
-        const templateName = (subJson as JsonObject)[TEMPLATE_PATTERN];
+      if (pattern in (subJson as JsonObject)) {
+        const templateName = (subJson as JsonObject)[pattern];
         if (typeof templateName !== 'string') {
-          throw new Error(`${TEMPLATE_PATTERN} should be a string rather than ${JSON.stringify(templateName)}`);
+          throw new Error(`${pattern} should be a string rather than ${JSON.stringify(templateName)}`);
         }
         if (!(templateName in jsonObjectTemplateCompilers)) {
           throw new Error(`There is no compiler for template '${templateName}'`);
         }
         const templateToCompile = { ...(subJson as JsonObject) };
-        delete templateToCompile[TEMPLATE_PATTERN];
+        delete templateToCompile[pattern];
         result.push(...jsonObjectTemplateCompilers[templateName](templateToCompile));
         return;
       }
     }
-    result.push(compileTemplates(subJson, jsonArrayTemplateCompilers, jsonObjectTemplateCompilers));
+    result.push(compileTemplates(subJson, pattern, jsonArrayTemplateCompilers, jsonObjectTemplateCompilers));
   });
   return result;
 }
@@ -106,17 +109,21 @@ export function getJsonObjectTemplateCompilers (
       const result: Json[] = [];
       Object.keys(properties).forEach(name => {
         const property = properties[name];
-        result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
-          description: property.description,
-          category: property.category,
-          setterVisible: String(property.setterVisible),
-          editorType: property.editorType,
-          name,
-          args: property.args.length === 0 ? '{}' : ('{"' + property.args.join('", "') + '"}'),
-          type: property.javaType,
-        }));
+        result.push(compileTemplates(
+          insertConstants(templateToCompile, MATCHER_SCOPED, {
+            description: property.description,
+            category: property.category,
+            setterVisible: String(property.setterVisible),
+            editorType: property.editorType,
+            name,
+            args: property.args.length === 0 ? '{}' : ('{"' + property.args.join('", "') + '"}'),
+            type: property.javaType,
+          }),
+          TEMPLATE_IF_PATTERN,
+          {},
+          { designerVisible: (content: JsonObject) => property.designerVisible ? [ content ] : [] },
+        ));
       });
-      // TODO: handle ___templateIf
       return result;
     },
     event (templateToCompile: JsonObject) {

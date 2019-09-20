@@ -28,8 +28,8 @@ import { EmptyAiaScmFile, LvgItemLayout, LvgProjectObject } from '../../typings/
 import FileUtils, { ZipObject } from '../../utils/FileUtils';
 import StringUtils from '../../utils/StringUtils';
 import { insertConstants, MATCHER_GLOBAL } from './javaCompiler/InsertGlobalConstant';
-import { compileTemplates, getJsonArrayTemplateCompilers,
-  getJsonObjectTemplateCompilers} from './javaCompiler/TemplateCompilers';
+import { compileTemplates, getJsonArrayTemplateCompilers, getJsonObjectTemplateCompilers,
+  TEMPLATE_PATTERN} from './javaCompiler/TemplateCompilers';
 
 @Component
 export default class JavaPreviewModal extends Vue {
@@ -66,6 +66,7 @@ export default class JavaPreviewModal extends Vue {
     // compile template
     generatedTemplate = compileTemplates(
       generatedTemplate,
+      TEMPLATE_PATTERN,
       getJsonArrayTemplateCompilers(projectObject),
       getJsonObjectTemplateCompilers(projectObject),
     ) as JsonObject;
