@@ -1,7 +1,7 @@
 import { LvgItemLayout, LvgProjectObject } from '@/typings/lvg';
 import StringUtils from '@/utils/StringUtils';
 import { Json, JsonArray, JsonObject, JsonUtil } from 'json-to-java/bin/utils/json';
-import _ from 'lodash';
+import Lodash from 'lodash';
 import { insertConstants, MATCHER_SCOPED } from './InsertGlobalConstant';
 
 export const TEMPLATE_PATTERN = '___templateName';
@@ -21,17 +21,17 @@ export function compileTemplates (
   }
   if (JsonUtil.isJsonObject(json)) {
     const rst = {} as JsonObject;
-    Object.keys(json as JsonObject).forEach(key => {
-      rst[key] = compileTemplates((json as JsonObject)[key], pattern,
-          jsonArrayTemplateCompilers, jsonObjectTemplateCompilers);
+    Lodash.forOwn(json as JsonObject, (value, key) => {
+      rst[key] = compileTemplates(value, pattern, jsonArrayTemplateCompilers, jsonObjectTemplateCompilers);
     });
     return rst;
   }
   // json: JsonArray
   const result = [] as JsonArray;
   (json as JsonArray).forEach(subJson => {
-    if (Array.isArray(subJson)) {
+    if (JsonUtil.isJsonArray(subJson)) {
       // JsonArray
+      subJson = subJson as JsonArray;
       if (subJson.length > 0 && typeof subJson[0] === 'string' &&
           (subJson[0] as string).startsWith(`${pattern}:`)) {
         const templateName = (subJson[0] as string).slice(pattern.length + 1);
@@ -45,15 +45,16 @@ export function compileTemplates (
       }
     } else if (JsonUtil.isJsonObject(subJson)) {
       // JsonObject
-      if (pattern in (subJson as JsonObject)) {
-        const templateName = (subJson as JsonObject)[pattern];
+      subJson = subJson as JsonObject;
+      if (pattern in subJson) {
+        const templateName = subJson[pattern];
         if (typeof templateName !== 'string') {
           throw new Error(`${pattern} should be a string rather than ${JSON.stringify(templateName)}`);
         }
         if (!(templateName in jsonObjectTemplateCompilers)) {
           throw new Error(`There is no compiler for template '${templateName}'`);
         }
-        const templateToCompile = { ...(subJson as JsonObject) };
+        const templateToCompile = Lodash.cloneDeep(subJson);
         delete templateToCompile[pattern];
         result.push(...jsonObjectTemplateCompilers[templateName](templateToCompile));
         return;
@@ -71,12 +72,11 @@ export function getJsonObjectTemplateCompilers (
   return {
     propertyDefaultValue (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).forEach(name => {
-        const property = properties[name];
+      Lodash.forOwn(properties, (property, name) => {
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           type: property.javaType,
           name,
-          defaultName: (_.snakeCase(name)).toUpperCase(),
+          defaultName: (Lodash.snakeCase(name)).toUpperCase(),
           defaultValue: property.defaultValue,
         }));
       });
@@ -84,20 +84,18 @@ export function getJsonObjectTemplateCompilers (
     },
     propertyField (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).forEach(name => {
-        const property = properties[name];
+      Lodash.forOwn(properties, (property, name) => {
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           type: property.javaType,
           name,
-          defaultName: (_.snakeCase(name)).toUpperCase(),
+          defaultName: (Lodash.snakeCase(name)).toUpperCase(),
         }));
       });
       return result;
     },
     propertyGetter (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).forEach(name => {
-        const property = properties[name];
+      Lodash.forOwn(properties, (property, name) => {
         result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
           description: property.description,
           category: property.category,
@@ -110,8 +108,7 @@ export function getJsonObjectTemplateCompilers (
     },
     propertySetter (templateToCompile: JsonObject) {
       const result: Json[] = [];
-      Object.keys(properties).forEach(name => {
-        const property = properties[name];
+      Lodash.forOwn(properties, (property, name) => {
         result.push(compileTemplates(
           insertConstants(templateToCompile, MATCHER_SCOPED, {
             description: property.description,
@@ -119,7 +116,7 @@ export function getJsonObjectTemplateCompilers (
             setterVisible: String(property.setterVisible),
             editorType: property.editorType,
             name,
-            defaultName: (_.snakeCase(name)).toUpperCase(),
+            defaultName: (Lodash.snakeCase(name)).toUpperCase(),
             args: property.args.length === 0 ? '{}' : ('{"' + property.args.join('", "') + '"}'),
             type: property.javaType,
           }),

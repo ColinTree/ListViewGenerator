@@ -37,6 +37,10 @@ import { Component, Prop, PropSync, Vue, Watch } from 'vue-property-decorator';
 @Component
 export default class AutoComplete extends Vue {
 
+  public $refs!: {
+    input: BFormInput;
+  };
+
   @Prop({ type: String, default: null })
   private readonly id!: string | null;
 
@@ -75,13 +79,13 @@ export default class AutoComplete extends Vue {
   }
 
   public focus () {
-    (this.$refs.input as BFormInput).focus();
+    this.$refs.input.focus();
   }
 
   private mounted () {
-    (this.$refs.input as BFormInput).$el.addEventListener('focus', this.onFocus);
-    (this.$refs.input as BFormInput).$el.addEventListener('blur', this.onBlur);
-    (this.$refs.input as BFormInput).$el.addEventListener('keyup', this.onKeyUp);
+    this.$refs.input.$el.addEventListener('focus', this.onFocus);
+    this.$refs.input.$el.addEventListener('blur', this.onBlur);
+    this.$refs.input.$el.addEventListener('keyup', this.onKeyUp);
   }
 
   private onFocus () {

@@ -144,6 +144,7 @@
 </template>
 
 <script lang="ts">
+import Lodash from 'lodash';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 
 import EditPropertyModal from './modals/EditPropertyModal.vue';
@@ -160,21 +161,30 @@ function newEmptyFile () { return new File([], ''); }
 
 @Component({ components: { EditPropertyModal, ManageItemLayoutModal, JavaPreviewModal } })
 export default class Content extends Vue implements LvgProjectZipInfo, LvgProjectObject {
+  public $refs!: {
+    editPropertyModal: EditPropertyModal;
+    manageItemLayoutModal: ManageItemLayoutModal;
+    javaPreviewModal: JavaPreviewModal;
+  };
+
   public packageName = '';
   public joinCompNameToPackage = false;
   public componentName = '';
   public description = '';
   public version = 1;
-  public properties: Properties = {};
-  public itemLayout: AiaScmFile = EmptyAiaScmFile();
+  public properties = {} as Properties;
+  public itemLayout = EmptyAiaScmFile();
 
   private uploadFile: File | null = null;
-  private selectedProperty: string = 'None';
+  private selectedProperty = 'None';
   private selectedProperty4Remove: null | string = null;
-  private itemLayoutFile: File = newEmptyFile();
+  private itemLayoutFile = newEmptyFile();
 
   public get fullPackage () {
-    return `${this.packageName}${this.joinCompNameToPackage ? `.${this.componentName.toLowerCase()}` : ''}`;
+    if (this.joinCompNameToPackage) {
+      return `${this.packageName}.${this.componentName.toLowerCase()}`;
+    }
+    return this.packageName;
   }
   public get itemLayoutFileName () {
     return this.itemLayoutFile.name;
@@ -193,7 +203,7 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
   }
 
   @Watch('properties')
-  private onPropertiesChanged (val: string) {
+  private onPropertiesChanged (val: Properties) {
     const keys = Object.keys(val);
     if (!keys.includes(this.selectedProperty)) {
       this.selectedProperty = keys[0] || 'None';
@@ -204,7 +214,7 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
     this.resetForm();
   }
 
-private async onConfirmUpload () {
+  private async onConfirmUpload () {
     if (this.uploadFile === null) {
       return;
     }
@@ -213,13 +223,12 @@ private async onConfirmUpload () {
       const val = await zip.file('project-info.json').async('text');
       const projectInfo = JSON.parse(val) as LvgProjectZipInfo;
 
-      this.packageName = projectInfo.packageName === undefined ? '' : projectInfo.packageName;
-      this.componentName = projectInfo.componentName === undefined ? '' : projectInfo.componentName;
-      this.joinCompNameToPackage =
-          projectInfo.joinCompNameToPackage === undefined ? true : projectInfo.joinCompNameToPackage;
-      this.description = projectInfo.description === undefined ? '' : projectInfo.description;
-      this.version = projectInfo.version === undefined ? 1 : projectInfo.version;
-      this.properties = projectInfo.properties === undefined ? {} : projectInfo.properties;
+      this.packageName = Lodash.defaultTo(projectInfo.packageName, '');
+      this.componentName = Lodash.defaultTo(projectInfo.componentName, '');
+      this.joinCompNameToPackage = Lodash.defaultTo(projectInfo.joinCompNameToPackage, true);
+      this.description = Lodash.defaultTo(projectInfo.description, '');
+      this.version = Lodash.defaultTo(projectInfo.version, 1);
+      this.properties = Lodash.defaultTo(projectInfo.properties, {});
 
       const itemLayoutFileName = projectInfo.itemLayoutFileName;
       if (!itemLayoutFileName) {
@@ -246,32 +255,26 @@ private async onConfirmUpload () {
   }
   private onRemovePropertyConfirmed () {
     if (this.selectedProperty4Remove != null) {
-      // DO NOT use the following statement since it would not trigger watch
-      // delete this.properties[this.selectedProperty4Remove]
-      const newProp: Properties = {};
-      for (const propName in this.properties) {
-        if (propName !== this.selectedProperty4Remove) {
-          newProp[propName] = this.properties[propName];
-        }
-      }
+      const newProp: Properties = Lodash.cloneDeep(this.properties);
+      delete newProp[this.selectedProperty4Remove];
       this.properties = newProp;
       this.selectedProperty4Remove = null;
     }
   }
   private onEditProperty (propertyName: string) {
-    (this.$refs.editPropertyModal as EditPropertyModal).showModal(false, this.properties[propertyName]);
+    this.$refs.editPropertyModal.showModal(false, this.properties[propertyName]);
   }
   private onCreateProperty () {
-    (this.$refs.editPropertyModal as EditPropertyModal).showModal(true);
+    this.$refs.editPropertyModal.showModal(true);
   }
   private onEditPropertyDone (isNewProperty: boolean, property: LvgProperty) {
-    const newProp = { ...this.properties };
+    const newProp = Lodash.cloneDeep(this.properties);
     newProp[property.name] = property;
     this.properties = newProp;
     this.selectedProperty = property.name;
   }
   private onManageItemLayout () {
-    (this.$refs.manageItemLayoutModal as ManageItemLayoutModal).showModal(this.itemLayoutFile);
+    this.$refs.manageItemLayoutModal.showModal(this.itemLayoutFile);
   }
   private onManageItemLayoutDone (itemLayoutFile: File) {
     this.itemLayoutFile = itemLayoutFile;
@@ -283,8 +286,7 @@ private async onConfirmUpload () {
       throw new Error('unable to load itemLayout from null aia');
     }
     const zip = await FileUtils.readZip(this.itemLayoutFile);
-    const FILE_NAME_TO_FIND = 'Screen1.scm';
-    const res = zip.folder('src').filter(relativePath => relativePath.endsWith(FILE_NAME_TO_FIND));
+    const res = zip.folder('src').filter(relativePath => relativePath.endsWith('Screen1.scm'));
     if (res.length === 0) {
       throw new Error('No Screen1.scm in itemLayout aia');
     }
@@ -293,12 +295,12 @@ private async onConfirmUpload () {
     this.itemLayout = JSON.parse(fileContent) as AiaScmFile;
   }
   private async generateCodeZip () {
-    const val = await (this.$refs.javaPreviewModal as JavaPreviewModal).generateCode(this);
+    const val = await this.$refs.javaPreviewModal.generateCode(this);
     let codeZipObject = FileUtils.emptyDirZipObject();
     codeZipObject[`${this.componentName}.java`] = val;
     let tmp;
     const packageArr = this.fullPackage.split('.').reverse();
-    packageArr.map(pkg => {
+    packageArr.forEach(pkg => {
       tmp = FileUtils.emptyDirZipObject();
       tmp[pkg] = codeZipObject;
       codeZipObject = tmp;
@@ -306,7 +308,7 @@ private async onConfirmUpload () {
     FileUtils.downloadFile(await FileUtils.toZip(codeZipObject), `${this.componentName}-sources.zip`);
   }
   private generateCode () {
-    (this.$refs.javaPreviewModal as JavaPreviewModal).showModal(this as LvgProjectObject);
+    this.$refs.javaPreviewModal.showModal(this as LvgProjectObject);
   }
   private async onDownloadProject () {
     const zipObject = FileUtils.emptyDirZipObject();

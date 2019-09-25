@@ -34,12 +34,12 @@
       <span slot="label" v-t="'modal.editProperty.editorType'" />
       <b-select v-model="currentProperty.editorType">
         <optgroup :label="$t('modal.editProperty.editorTypeRecommended')">
-          <option v-for="option in EDITOR_TYPE_OPTIONS_RECOMMENDED" :key="option" :value="option">
+          <option v-for="option in editorRecommendedOptions" :key="option" :value="option">
             <span v-text="option" />
           </option>
         </optgroup>
         <optgroup :label="$t('modal.editProperty.editorTypeNotRecommended')">
-          <option v-for="option in EDITOR_TYPE_OPTIONS_NOT_RECOMMENDED" :key="option" :value="option">
+          <option v-for="option in editorNotRecommendedOptions" :key="option" :value="option">
             <span v-text="option" />
           </option>
         </optgroup>
@@ -59,13 +59,7 @@
     <!-- CATEGORY -->
     <b-form-group :label-cols="LABEL_COLS">
       <span slot="label" v-t="'modal.editProperty.category'" />
-      <b-select v-model="currentProperty.category">
-        <option
-            v-for="name in CATEGORY_OPTIONS"
-            :key="name"
-            :value="name.toLowerCase()"
-            v-t="`modal.editProperty.category${name}`" />
-      </b-select>
+      <b-select v-model="currentProperty.category" :options="categoryOptions" />
     </b-form-group>
 
     <!-- DESCRIPTION -->
@@ -93,33 +87,29 @@
 
 <script lang="ts">
 import { BFormInput, BModal } from 'bootstrap-vue';
+import Lodash from 'lodash';
 import { Component, Vue } from 'vue-property-decorator';
 
 import Content from '../Content.vue';
 import AutoComplete from '../form/AutoComplete.vue';
 
+import { PROPERTY_CATEGORY } from '../../lib/appinventor-sources/PropertyCategory';
+import { PROPERTY_TYPE_CONSTANTS } from '../../lib/appinventor-sources/PropertyTypeConstants';
+import { SIMPLE_COMPONENTS } from '../../lib/appinventor-sources/SimpleComponents';
 import { EmptyLvgProperty, LvgProperty } from '../../typings/lvg';
 import StringUtils from '../../utils/StringUtils';
 
 @Component({ components: { AutoComplete } })
 export default class EditPropertyModal extends Vue {
+  public $refs!: {
+    name: BFormInput;
+    javaType: AutoComplete;
+    defaultValue: BFormInput;
+  };
+
   public readonly LABEL_COLS = 3;
-  public readonly CATEGORY_OPTIONS =
-    [ 'Unset', 'Appearance', 'Behavior', 'Deprecated' ];
   public readonly JAVA_TYPE_OPTIONS =
     [ 'boolean', 'Component', 'double', 'float', 'int', 'long', 'String', 'YailList' ];
-  public EDITOR_TYPE_OPTIONS_RECOMMENDED =
-    [ 'asset', 'boolean', 'color', 'component', 'float', 'integer', 'non_negative_float',
-      'non_negative_integer', 'text', 'textArea', 'textalignment', 'visibility' ];
-  public EDITOR_TYPE_OPTIONS_NOT_RECOMMENDED =
-    [ 'accelerometer_sensitivity', 'BluetoothClient', 'button_shape', 'choices', 'countries',
-      'FirbaseURL', 'geographic_point', 'geojson_type', 'horizontal_alignment', 'languages',
-      'latitude', 'longitude', 'lego_ev3_color_sensor_mode', 'lego_ev3_generated_color',
-      'lego_ev3_gyro_sensor_mode', 'lego_ev3_sensor_port', 'lego_ev3_sound_sensor_mode',
-      'lego_ev3_ultrasonic_sensor_mode', 'lego_nxt_generated_color', 'lego_nxt_sensor_port',
-      'map_type', 'map_zoom', 'scaling', 'screen_animation', 'screen_orientation',
-      'sensor_dist_interval', 'sensor_time_interval', 'sizing', 'text_receiving', 'theme',
-      'toast_length', 'typeface', 'vertical_alignment' ];
 
   private isNewProperty = false;
 
@@ -153,18 +143,15 @@ export default class EditPropertyModal extends Vue {
   public showModal (isNewProp: boolean, property: LvgProperty = EmptyLvgProperty()) {
     (this.$children[0] as BModal).show();
     this.isNewProperty = isNewProp;
-    Object.assign(this.currentProperty, property);
-    /*
-    this.currentProperty.name            = property.name
-    this.currentProperty.designerVisible = property.designerVisible
-    this.currentProperty.editorType      = property.editorType
-    this.currentProperty.setterVisible   = property.setterVisible
-    this.currentProperty.getterVisible   = property.getterVisible
-    this.currentProperty.category        = property.category
-    this.currentProperty.description     = property.description
-    this.currentProperty.javaType        = property.javaType
-    this.currentProperty.defaultValue    = property.defaultValue
-    */
+    this.currentProperty.name            = property.name;
+    this.currentProperty.designerVisible = property.designerVisible;
+    this.currentProperty.editorType      = property.editorType;
+    this.currentProperty.setterVisible   = property.setterVisible;
+    this.currentProperty.getterVisible   = property.getterVisible;
+    this.currentProperty.category        = property.category;
+    this.currentProperty.description     = property.description;
+    this.currentProperty.javaType        = property.javaType;
+    this.currentProperty.defaultValue    = property.defaultValue;
   }
 
   get nameEmpty () {
@@ -192,11 +179,26 @@ export default class EditPropertyModal extends Vue {
       return '';
     }
   }
+  get editorRecommendedOptions () {
+    return [
+      'asset', 'boolean', 'color', 'component', 'float', 'integer', 'non_negative_float',
+      'non_negative_integer', 'text', 'textArea', 'textalignment', 'visibility',
+    ];
+  }
+  get editorNotRecommendedOptions () {
+    return Lodash.difference(PROPERTY_TYPE_CONSTANTS, this.editorRecommendedOptions);
+  }
+  get categoryOptions () {
+    return PROPERTY_CATEGORY.map(name => ({
+      text: this.$t('modal.editProperty.category' + Lodash.capitalize(name)),
+      value: Lodash.lowerCase(name),
+    }));
+  }
   get javaTypeState () {
-    return (this.currentProperty.javaType === '' || this.currentProperty.javaType === null) ? false : null;
+    return Lodash.isEmpty(this.currentProperty.javaType) ? false : null;
   }
   get defaultValueEmpty () {
-    return this.currentProperty.defaultValue === '';
+    return Lodash.isEmpty(this.currentProperty.defaultValue);
   }
   get defaultValueConstantLike () {
     return /^[a-z][\w\.]*[\w]$/gi.test(this.currentProperty.defaultValue);
@@ -244,25 +246,25 @@ export default class EditPropertyModal extends Vue {
   }
 
   private onShown () {
-    (this.$refs.name as BFormInput).focus();
+    this.$refs.name.focus();
   }
   private onOk (event: Event) {
     event.preventDefault();
     if (this.nameState === false) {
-      return (this.$refs.name as BFormInput).focus();
+      return this.$refs.name.focus();
     }
     if (this.javaTypeState === false) {
-      return (this.$refs.javaType as AutoComplete).focus();
+      return this.$refs.javaType.focus();
     }
     if (this.defaultValueState === false) {
-      return (this.$refs.defaultValue as BFormInput).focus();
+      return this.$refs.defaultValue.focus();
     }
     // TODO: (LOW PRIORITY) notice when three checkboxs are all unchecked
     this.$emit('ok', this.isNewProperty, this.getCurrentProperty());
     this.$nextTick(() => (this.$children[0] as BModal).hide());
   }
-  private switchMode (e?: Event) {
-    if (e !== undefined && typeof(e.preventDefault) === 'function') {
+  private switchMode (e: Event) {
+    if (Lodash.isFunction(e.preventDefault)) {
       e.preventDefault();
     }
     this.isNewProperty = !this.isNewProperty;

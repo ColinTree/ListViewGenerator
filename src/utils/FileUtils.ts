@@ -1,9 +1,10 @@
 import FileSaver from 'file-saver';
 import JSZip from 'jszip';
+import Lodash from 'lodash';
 
 export interface ZipObject {
   __isDir__: boolean;
-  [key: string]: ZipObject | string | number | boolean | Blob;
+  [fileOrDirName: string]: ZipObject | string | number | boolean | Blob;
 }
 
 export default class FileUtils {
@@ -31,15 +32,17 @@ export default class FileUtils {
   }
   public static toZip (zipObject: ZipObject) {
     function zipADir (zip: JSZip, zipObj: ZipObject) {
-      for (const fileName in zipObj) {
-        if (fileName === '__isDir__') { continue; }
-        const content = zipObj[fileName] as ZipObject;
-        if (content.constructor === Object && content.__isDir__ === true) {
-          zipADir(zip.folder(fileName), content);
-          continue;
+      Lodash.forOwn(zipObj, (content, fileName) => {
+        if (fileName === '__isDir__') {
+          return;
         }
-        zip.file(fileName, content.toString());
-      }
+        if (typeof content === 'object' && !(content instanceof Blob) && content.__isDir__ === true) {
+          zipADir(zip.folder(fileName), content);
+          return;
+        } else {
+          zip.file(fileName, content.toString());
+        }
+      });
       return zip;
     }
     return zipADir(new JSZip(), zipObject).generateAsync({type: 'blob'});
