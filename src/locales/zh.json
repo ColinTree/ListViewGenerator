@@ -14,7 +14,8 @@
       "reading": "读取项目过程中出现错误"
     },
     "projectMadeWith": "本项目底层使用",
-    "javaGenerator": "Java 生成器"
+    "javaGenerator": "Java 生成器",
+    "nullSelected": "- 请选择 -"
   },
   "button": {
     "browse": "浏览",
@@ -92,7 +93,11 @@
       "defaultValueEmpty": "不应为空",
       "defaultValueNotIntOrConstant": "似乎不是整数或者一个常量",
       "defaultValueNotDecimal": "似乎不是正确的小数",
-      "defaultValueNotBoolean": "似乎不是布尔值(true / false)"
+      "defaultValueNotBoolean": "似乎不是布尔值(true / false)",
+      "defaultValueNotString": "似乎不是字符串",
+      "bindedProperty": "绑定属性",
+      "bindedPropertyComponentEmpty": "未选择绑定的组件",
+      "bindedPropertyPropertyEmpty": "未选择绑定的属性"
     },
     "previewJava": {
       "title": "预览Java文件生成结果"

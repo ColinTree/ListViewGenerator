@@ -56,7 +56,7 @@
         "accessModifier": "private",
         "nonAccessModifiers": [ "static", "final" ],
         "type": "${_type_}",
-        "name": "DEFAULT_${_defaultName_}",
+        "name": "${_defaultName_}",
         "value": "${_defaultValue_}"
       },
       {
@@ -93,8 +93,8 @@
         "___templateName": "propertyField",
         "accessModifier": "private",
         "type": "${_type_}",
-        "name": "${_name_}",
-        "value": "DEFAULT_${_defaultName_}"
+        "name": "${_privateName_}",
+        "value": "${_defaultName_}"
       }
     ],
     "constructors": [
@@ -316,7 +316,7 @@
             "name": "DesignerProperty",
             "values": {
               "editorType": "\"${_editorType_}\"",
-              "defaultValue": "\"\" + DEFAULT_${_defaultName_}",
+              "defaultValue": "\"\" + ${_defaultName_}",
               "editorArgs":"${_args_}"
             }
           }
@@ -325,7 +325,7 @@
         "name": "${_name_}",
         "arguments": [ { "type": "${_type_}", "name": "${_name_}" } ],
         "statements": [
-          "this.${_name_} = ${_name_};",
+          "this.${_privateName_} = ${_name_};",
           "refreshElementProperties();"
         ]
       },
@@ -344,7 +344,7 @@
         "accessModifier": "public",
         "type": "${_type_}",
         "name": "${_name_}",
-        "statements": [ "return ${_name_};" ]
+        "statements": [ "return ${_privateName_};" ]
       },
       {
         "accessModifier": "private",
@@ -428,7 +428,7 @@
               "show();",
               [
                 "___templateName:elementRefreshProperties",
-                "setProperty(${_name_}, \"${_propName_}\", \"${_propValue_}\"); // TODO:"
+                "${_compName_}.${_propName_}(${_privateName_});"
               ]
             ]
           },

@@ -14,7 +14,8 @@
       "reading": "Fail reading project file"
     },
     "projectMadeWith": "This project is made with",
-    "javaGenerator": "Java Generator"
+    "javaGenerator": "Java Generator",
+    "nullSelected": "- Please select -"
   },
   "button": {
     "browse": "Browse",
@@ -92,7 +93,11 @@
       "defaultValueEmpty": "should not be empty",
       "defaultValueNotIntOrConstant": "seems not a integer or a constant",
       "defaultValueNotDecimal": "seems not a correct decimal",
-      "defaultValueNotBoolean": "seems not a boolean (true / false)"
+      "defaultValueNotBoolean": "seems not a boolean (true / false)",
+      "defaultValueNotString": "seems not a string",
+      "bindedProperty": "Binded Property",
+      "bindedPropertyComponentEmpty": "Component to bind not selected",
+      "bindedPropertyPropertyEmpty": "Property to bind not selected"
     },
     "previewJava": {
       "title": "Preview generated Java code"

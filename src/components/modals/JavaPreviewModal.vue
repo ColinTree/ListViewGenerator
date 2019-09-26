@@ -28,8 +28,7 @@ import { EmptyAiaScmFile, LvgItemLayout, LvgProjectObject } from '../../typings/
 import FileUtils, { ZipObject } from '../../utils/FileUtils';
 import StringUtils from '../../utils/StringUtils';
 import { insertConstants, MATCHER_GLOBAL } from './javaCompiler/InsertGlobalConstant';
-import { compileTemplates, getJsonArrayTemplateCompilers, getJsonObjectTemplateCompilers,
-  TEMPLATE_PATTERN} from './javaCompiler/TemplateCompilers';
+import { compileTemplates, getCompileDataProvider, TEMPLATE_PATTERN} from './javaCompiler/TemplateCompilers';
 
 @Component
 export default class JavaPreviewModal extends Vue {
@@ -48,8 +47,8 @@ export default class JavaPreviewModal extends Vue {
       console.error(err);
     }
   }
-  public async generateCode (projectObject: LvgProjectObject): Promise<string> {
-    let generatedTemplate;
+  public async generateCode (projectObject: LvgProjectObject) {
+    let generatedTemplate: JsonObject;
     // insert global constants
     generatedTemplate = insertConstants(template as JsonObject, MATCHER_GLOBAL, {
       lvgVersion: pkg.version,
@@ -62,14 +61,10 @@ export default class JavaPreviewModal extends Vue {
       componentName: projectObject.componentName,
       description: projectObject.description,
       version: projectObject.version,
-    }) as JsonObject;
+    });
     // compile template
-    generatedTemplate = compileTemplates(
-      generatedTemplate,
-      TEMPLATE_PATTERN,
-      getJsonArrayTemplateCompilers(projectObject),
-      getJsonObjectTemplateCompilers(projectObject),
-    ) as JsonObject;
+    generatedTemplate =
+        compileTemplates(generatedTemplate, TEMPLATE_PATTERN, getCompileDataProvider(projectObject)) as JsonObject;
     console.log('generated template for java compiling', generatedTemplate);
     try {
       return JsonToJava(generatedTemplate);

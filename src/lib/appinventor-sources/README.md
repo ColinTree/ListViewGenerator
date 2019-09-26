@@ -4,11 +4,11 @@ All data Should be retrieved from build result of standard `mit-cml/appinventor-
 
 **NOTE: When the file is updated, commit id need to be updated as well**
 
-## Step to build newest PropertyCategory.ts
+## Source for PropertyCategory.ts
 
 See `%appinventor-sources%/appinventor/components/src/com/google/appinventor/components/annotations/PropertyCategory.java`
 
-## Step to build newest property_type_constants.json
+## Source for property_type_constants.json
 
 See `%appinventor-sources%/appinventor/components/src/com/google/appinventor/components/common/PropertyTypeConstants.java`
 
@@ -19,3 +19,9 @@ See `%appinventor-sources%/appinventor/components/src/com/google/appinventor/com
 3. You will see `simple_components.json` in `%appinventor-sources%/appinventor/build/components` if `ant` was succeed
 
 **NOTE**: Please try avoid any external component to be included
+
+## Source for YailType.ts
+
+See `%appinvnetor-sources/appinventor/components/src/com/google/appinventor/components/scripts/ComponentProcessor.java`
+
+Method `javaTypeToYailType`

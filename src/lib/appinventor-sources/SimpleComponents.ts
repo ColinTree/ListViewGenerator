@@ -1,3 +1,4 @@
+import Lodash, { Dictionary } from 'lodash';
 import simpleComponents from './simple_components.json';
 
 export interface Property {
@@ -13,7 +14,7 @@ export interface BlockProperty {
   rw: 'read-write' | 'read-only' | 'write-only' | 'invisible';
   deprecated: 'true' | 'false';
 }
-export interface SimpleComponent {
+interface SimpleComponentJsonForm {
   /**
    * full name with package name
    */
@@ -48,24 +49,39 @@ export interface SimpleComponent {
   blockProperties: BlockProperty[];
 }
 
-export const SIMPLE_COMPONENTS = (() => {
-  const SIMPLE_COMP = {} as {
-    [key: string]: {
-      properties: { [key: string]: Property },
-      blockProperties: { [key: string]: BlockProperty },
-    },
-  };
-  (simpleComponents as SimpleComponent[]).forEach(simpleComponent => {
-    const properties = {} as { [key: string]: Property };
-    simpleComponent.properties.forEach(property => properties[property.name] = property);
+export class SimpleComponent {
+  public readonly type: string;
+  public readonly name: string;
+  public readonly external: boolean;
+  public readonly version: string;
+  public readonly categoryString: string;
+  public readonly helpString: string;
+  public readonly helpUrl: string;
+  public readonly showOnPalette: boolean;
+  public readonly nonVisible: boolean;
+  public readonly properties: Dictionary<Property>;
+  public readonly blockProperties: Dictionary<BlockProperty>;
+  public constructor (simpleComponent: SimpleComponentJsonForm) {
+    this.type = simpleComponent.type;
+    this.name = simpleComponent.name;
+    this.external = simpleComponent.external === 'true';
+    this.version = simpleComponent.version;
+    this.categoryString = simpleComponent.categoryString;
+    this.helpString = simpleComponent.helpString;
+    this.helpUrl = simpleComponent.helpUrl;
+    this.showOnPalette = simpleComponent.showOnPalette === 'true';
+    this.nonVisible = simpleComponent.nonVisible === 'true';
+    this.properties =
+        Lodash.zipObject(simpleComponent.properties.map(prop => prop.name), simpleComponent.properties);
+    this.blockProperties =
+        Lodash.zipObject(simpleComponent.blockProperties.map(prop => prop.name), simpleComponent.blockProperties);
+  }
+}
 
-    const blockProperties = {} as { [key: string]: BlockProperty };
-    simpleComponent.blockProperties.forEach(property => blockProperties[property.name] = property);
+export const SIMPLE_COMPONENTS = Lodash.zipObject(
+    (simpleComponents as SimpleComponentJsonForm[]).map(simpleComponent => simpleComponent.name),
+    (simpleComponents as SimpleComponentJsonForm[]).map(simpleComponent => new SimpleComponent(simpleComponent)));
 
-    SIMPLE_COMP[simpleComponent.name] = {
-      properties,
-      blockProperties,
-    };
-  });
-  return SIMPLE_COMP;
-})();
+export function isVisibleComponent (componentType: string) {
+  return Lodash.get(SIMPLE_COMPONENTS, [ componentType, 'nonVisible' ]);
+}

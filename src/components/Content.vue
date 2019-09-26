@@ -151,8 +151,8 @@ import EditPropertyModal from './modals/EditPropertyModal.vue';
 import JavaPreviewModal from './modals/JavaPreviewModal.vue';
 import ManageItemLayoutModal from './modals/ManageItemLayoutModal.vue';
 
-import { AiaScmFile, EmptyAiaScmFile, LvgItemLayout, LvgProjectObject,
-         LvgProjectZipInfo, LvgProperty } from '../typings/lvg';
+import { AiaScmFile, EmptyAiaScmFile, LvgItemLayout, LvgPlainItemLayout,
+         LvgProjectObject, LvgProjectZipInfo, LvgProperty } from '../typings/lvg';
 import AjaxUtils from '../utils/AjaxUtils';
 import FileUtils from '../utils/FileUtils';
 
@@ -188,6 +188,29 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
   }
   public get itemLayoutFileName () {
     return this.itemLayoutFile.name;
+  }
+  public get plainItemLayoutComponents () {
+    if (Lodash.isEqual(this.itemLayout, EmptyAiaScmFile())) {
+      return {};
+    }
+    const result = {} as { [name: string]: LvgPlainItemLayout };
+    function traverseComponentContainer (compProps: LvgItemLayout, isForm = false) {
+      if (!isForm) {
+        if (compProps.$Components === undefined) {
+          result[compProps.$Name] = Lodash.clone(compProps) as LvgPlainItemLayout;
+        } else {
+          result[compProps.$Name] = Lodash.mapValues(compProps, (val, key) =>
+              key === '$Components' && val !== undefined
+              ? (val as LvgItemLayout[]).map(value => value.$Name)
+              : val);
+        }
+      }
+      if (compProps.$Components !== undefined) {
+        compProps.$Components.forEach(child => traverseComponentContainer(child));
+      }
+    }
+    traverseComponentContainer(this.itemLayout.Properties, true);
+    return result;
   }
 
   private get propertyOptions () {

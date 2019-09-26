@@ -19,6 +19,10 @@ export interface LvgProperty {
   javaType: LvgPropertyJavaType;
   args: string[];
   defaultValue: string;
+  bindedProperty: {
+    compName: string,
+    propName: string,
+  };
 }
 export function EmptyLvgProperty (): LvgProperty {
   return {
@@ -29,8 +33,12 @@ export function EmptyLvgProperty (): LvgProperty {
     getterVisible: true,
     category: 'unset',
     description: '',
-    javaType: 'String',
-    defaultValue: '""',
+    javaType: '',
+    defaultValue: '',
+    bindedProperty: {
+      compName: '',
+      propName: '',
+    },
     args: [],
   };
 }
@@ -42,6 +50,14 @@ export interface LvgItemLayout {
   Uuid: string;
   [key: string]: any;
   $Components?: LvgItemLayout[];
+}
+export interface LvgPlainItemLayout {
+  $Name: string;
+  $Type: string;
+  $Version: string;
+  Uuid: string;
+  [key: string]: any;
+  $Components?: string[];
 }
 export interface AiaScmFile {
   authURL: string[];

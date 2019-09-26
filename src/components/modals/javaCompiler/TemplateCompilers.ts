@@ -1,3 +1,4 @@
+import { isVisibleComponent, SIMPLE_COMPONENTS } from '@/lib/appinventor-sources/SimpleComponents';
 import { LvgItemLayout, LvgProjectObject } from '@/typings/lvg';
 import StringUtils from '@/utils/StringUtils';
 import { Json, JsonArray, JsonObject, JsonUtil } from 'json-to-java/bin/utils/json';
@@ -7,24 +8,19 @@ import { insertConstants, MATCHER_SCOPED } from './InsertGlobalConstant';
 export const TEMPLATE_PATTERN = '___templateName';
 export const TEMPLATE_IF_PATTERN = '___templateIf';
 
-type JsonObjectTemplateCompiler = (templateToCompile: JsonObject) => Json[];
-type JsonArrayTemplateCompiler = (templateToCompile: JsonArray) => Json[];
+const PROPERTY_DEFAULT_NAME_PREFIX = 'PROPERTY_DEFAULT_';
+const PROPERTY_PRIVATE_NAME_PREFIX = 'PROPERTY_';
 
-export function compileTemplates (
-  json: Json,
-  pattern: string,
-  jsonArrayTemplateCompilers: { [key: string]: JsonArrayTemplateCompiler },
-  jsonObjectTemplateCompilers: { [key: string]: JsonObjectTemplateCompiler },
-): Json {
+interface CompileDataProviders {
+  [providerName: string]: () => JsonObject[];
+}
+
+export function compileTemplates (json: Json, pattern: string, compileDataProvider: CompileDataProviders): Json {
   if (!JsonUtil.isJsonArray(json) && !JsonUtil.isJsonObject(json)) {
     return json;
   }
   if (JsonUtil.isJsonObject(json)) {
-    const rst = {} as JsonObject;
-    Lodash.forOwn(json as JsonObject, (value, key) => {
-      rst[key] = compileTemplates(value, pattern, jsonArrayTemplateCompilers, jsonObjectTemplateCompilers);
-    });
-    return rst;
+    return Lodash.mapValues(json as JsonObject, value => compileTemplates(value, pattern, compileDataProvider));
   }
   // json: JsonArray
   const result = [] as JsonArray;
@@ -32,15 +28,17 @@ export function compileTemplates (
     if (JsonUtil.isJsonArray(subJson)) {
       // JsonArray
       subJson = subJson as JsonArray;
-      if (subJson.length > 0 && typeof subJson[0] === 'string' &&
-          (subJson[0] as string).startsWith(`${pattern}:`)) {
-        const templateName = (subJson[0] as string).slice(pattern.length + 1);
-        if (!(templateName in jsonArrayTemplateCompilers)) {
+      if (subJson.length > 0 && typeof subJson[0] === 'string' && subJson[0].startsWith(`${pattern}:`)) {
+        const templateName = subJson[0].slice(pattern.length + 1);
+        if (!(templateName in compileDataProvider)) {
           throw new Error(`There is no compiler for template '${templateName}'`);
         }
-        const templateToCompile = subJson.concat() as JsonArray;
+        const templateToCompile = subJson.concat();
         templateToCompile.shift();
-        result.push(...jsonArrayTemplateCompilers[templateName](templateToCompile));
+        result.push(
+            ...Lodash.flatten(
+              compileDataProvider[templateName]()
+              .map(data => insertConstants(templateToCompile, MATCHER_SCOPED, data))));
         return;
       }
     } else if (JsonUtil.isJsonObject(subJson)) {
@@ -51,236 +49,186 @@ export function compileTemplates (
         if (typeof templateName !== 'string') {
           throw new Error(`${pattern} should be a string rather than ${JSON.stringify(templateName)}`);
         }
-        if (!(templateName in jsonObjectTemplateCompilers)) {
+        if (!(templateName in compileDataProvider)) {
           throw new Error(`There is no compiler for template '${templateName}'`);
         }
         const templateToCompile = Lodash.cloneDeep(subJson);
         delete templateToCompile[pattern];
-        result.push(...jsonObjectTemplateCompilers[templateName](templateToCompile));
+        result.push(
+            ...compileDataProvider[templateName]()
+            .map(data => insertConstants(templateToCompile, MATCHER_SCOPED, data)));
         return;
       }
     }
-    result.push(compileTemplates(subJson, pattern, jsonArrayTemplateCompilers, jsonObjectTemplateCompilers));
+    result.push(compileTemplates(subJson, pattern, compileDataProvider));
   });
   return result;
 }
 
-export function getJsonObjectTemplateCompilers (
-  projectObject: LvgProjectObject,
-): { [key: string]: JsonObjectTemplateCompiler } {
+export function getCompileDataProvider (projectObject: LvgProjectObject): CompileDataProviders {
   const properties = projectObject.properties;
   return {
-    propertyDefaultValue (templateToCompile: JsonObject) {
-      const result: Json[] = [];
-      Lodash.forOwn(properties, (property, name) => {
-        result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
-          type: property.javaType,
-          name,
-          defaultName: (Lodash.snakeCase(name)).toUpperCase(),
-          defaultValue: property.defaultValue,
-        }));
-      });
-      return result;
+    propertyDefaultValue () {
+      return Lodash.values(properties).map(property => ({
+        type: property.javaType,
+        name: property.name,
+        defaultName: Lodash.snakeCase(PROPERTY_DEFAULT_NAME_PREFIX + property.name).toUpperCase(),
+        defaultValue: property.defaultValue,
+      }));
     },
-    propertyField (templateToCompile: JsonObject) {
-      const result: Json[] = [];
-      Lodash.forOwn(properties, (property, name) => {
-        result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
-          type: property.javaType,
-          name,
-          defaultName: (Lodash.snakeCase(name)).toUpperCase(),
-        }));
-      });
-      return result;
+    propertyField () {
+      return Lodash.values(properties).map(property => ({
+        type: property.javaType,
+        privateName: Lodash.camelCase(PROPERTY_PRIVATE_NAME_PREFIX + property.name),
+        defaultName: Lodash.snakeCase(PROPERTY_DEFAULT_NAME_PREFIX + property.name).toUpperCase(),
+      }));
     },
-    propertyGetter (templateToCompile: JsonObject) {
-      const result: Json[] = [];
-      Lodash.forOwn(properties, (property, name) => {
-        result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
-          description: property.description,
-          category: property.category,
-          getterVisible: String(property.getterVisible),
-          type: property.javaType,
-          name,
-        }));
-      });
-      return result;
+    eventImplement () {
+      return [{
+        name: 'TODO_EVENT_NAME',
+      }];
     },
-    propertySetter (templateToCompile: JsonObject) {
-      const result: Json[] = [];
-      Lodash.forOwn(properties, (property, name) => {
-        result.push(compileTemplates(
-          insertConstants(templateToCompile, MATCHER_SCOPED, {
-            description: property.description,
-            category: property.category,
-            setterVisible: String(property.setterVisible),
-            editorType: property.editorType,
-            name,
-            defaultName: (Lodash.snakeCase(name)).toUpperCase(),
-            args: property.args.length === 0 ? '{}' : ('{"' + property.args.join('", "') + '"}'),
-            type: property.javaType,
-          }),
-          TEMPLATE_IF_PATTERN,
-          {},
-          { designerVisible: (content: JsonObject) => property.designerVisible ? [ content ] : [] },
-        ));
-      });
-      return result;
+    getElementAsObject_DefineObject () {
+      return [{
+        resultLength: '/* TODO_RESULT_LENGTH */ 3',
+      }];
     },
-    event (templateToCompile: JsonObject) {
+    getElementAsObject_AssignValue () {
       // TODO: implement this
       return [
-        insertConstants(templateToCompile, MATCHER_SCOPED, {
-          description: 'EVENT_DESCRIPTION',
-          name: 'EVENT_NAME',
-        }),
+        { numberOfItem: 0 },
+        { numberOfItem: 1 },
+        { numberOfItem: 2 },
       ];
     },
-    elementComponent (templateToCompile: JsonObject) {
-      const result: JsonArray = [];
-      function traverseComponentContainer (compProps: LvgItemLayout) {
-        if (compProps.$Components !== undefined) {
-          compProps.$Components.forEach(child => {
-            result.push(insertConstants(templateToCompile, MATCHER_SCOPED, {
+    event () {
+      return [{
+        description: 'TODO_EVENT_DESCRIPTION',
+        name: 'TODO_EVENT_NAME',
+      }];
+    },
+    propertySetter () {
+      return Lodash.values(properties).map(property => ({
+        description: property.description,
+        category: property.category.toUpperCase(),
+        setterVisible: String(property.setterVisible),
+        editorType: property.editorType,
+        name: property.name,
+        privateName: Lodash.camelCase(PROPERTY_PRIVATE_NAME_PREFIX + property.name),
+        defaultName: Lodash.snakeCase(PROPERTY_DEFAULT_NAME_PREFIX + property.name).toUpperCase(),
+        args: `{"${property.args.map(arg => `"${arg}"`).join(', ')}"}`,
+        type: property.javaType,
+        designerVisible: property.designerVisible,
+      }));
+    },
+    propertyGetter () {
+      return Lodash.values(properties).map(property => ({
+        description: property.description,
+        category: property.category.toUpperCase(),
+        getterVisible: String(property.getterVisible),
+        type: property.javaType,
+        name: property.name,
+        privateName: Lodash.camelCase(PROPERTY_PRIVATE_NAME_PREFIX + property.name),
+      }));
+    },
+    elementComponent () {
+      const itemsToCompile = [] as Array<{
+        type: string,
+        name: string,
+      }>;
+      if (projectObject.itemLayout) {
+        function traverseComponentContainer (compProps: LvgItemLayout) {
+          Lodash.defaultTo(compProps.$Components, []).forEach(child => {
+            itemsToCompile.push({
               type: child.$Type,
               name: StringUtils.ensureComponentNameValid(child.$Name),
-            }));
+            });
             traverseComponentContainer(child);
           });
         }
-      }
-      if (projectObject.itemLayout) {
         traverseComponentContainer(projectObject.itemLayout.Properties);
       }
-      return result;
+      return itemsToCompile;
     },
-    elementEvent (templateToCompile: JsonObject) {
-      // TODO: implement this
-      return [
-        insertConstants(templateToCompile, MATCHER_SCOPED, {
-          name: 'EVENT_NAME',
-        }),
-      ];
-    },
-  };
-}
-export function getJsonArrayTemplateCompilers (
-  projectObject: LvgProjectObject,
-): { [key: string]: JsonArrayTemplateCompiler } {
-  const properties = projectObject.properties;
-  return {
-    eventImplement (templateToCompile: JsonArray) {
-      // TODO: implement this
-      const itemsToCompile = [{
-        name: 'EVENT_NAME',
+    elementEvent () {
+      return [{
+        name: 'TODO_EVENT_NAME',
       }];
-      const result = [] as JsonArray;
-      itemsToCompile.forEach(data => {
-        result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
-      });
-      return result;
     },
-    getElementAsObject_DefineObject (templateToCompile: JsonArray) {
-      // TODO: implement this
-      const itemsToCompile = [{
-        resultLength: '/* RESULT_LENGTH */ 3',
-      }];
-      const result = [] as JsonArray;
-      itemsToCompile.forEach(data => {
-        result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
-      });
-      return result;
-    },
-    getElementAsObject_AssignValue (templateToCompile: JsonArray) {
-      // TODO: implement this
-      const result = [] as JsonArray;
-      for (let i = 0; i < 3; i++) {
-        const itemsToCompile = [{
-          numberOfItem: i,
-        }];
-        itemsToCompile.forEach(data => {
-          result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
-        });
-      }
-      return result;
-    },
-    elementCreate (templateToCompile: JsonArray) {
-      const result: JsonArray = [];
+    elementCreate () {
+      const itemsToCompile = [] as Array<{
+        type: string,
+        name: string,
+        container: string,
+      }>;
       if (projectObject.itemLayout) {
         const formProp = projectObject.itemLayout.Properties;
         function traverseComponentContainer (compProps: LvgItemLayout) {
-          if (compProps.$Components !== undefined) {
-            compProps.$Components.forEach(child => {
-              result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
-                type: child.$Type,
-                name: StringUtils.ensureComponentNameValid(child.$Name),
-                container: compProps.$Name === formProp.$Name
-                            ? 'container' : StringUtils.ensureComponentNameValid(compProps.$Name),
-              }) as JsonArray);
-              traverseComponentContainer(child);
+          Lodash.defaultTo(compProps.$Components, []).forEach(child => {
+            itemsToCompile.push({
+              type: child.$Type,
+              name: StringUtils.ensureComponentNameValid(child.$Name),
+              container: compProps.$Name === formProp.$Name
+                  ? 'container' : StringUtils.ensureComponentNameValid(compProps.$Name),
             });
-          }
+            traverseComponentContainer(child);
+          });
         }
         traverseComponentContainer(formProp);
       }
-      return result;
+      return itemsToCompile;
     },
-    elementSetDefaultProperty (templateToCompile: JsonArray) {
-      const itemsToCompile = [{
-        name: 'ELEMENT_NAME',
-        propName: 'ELEMENT_PROP_NAME',
-        propValue: 'ELEMENT_PROP_VALUE',
-      }];
-      const result = [] as JsonArray;
-      itemsToCompile.forEach(data => {
-        result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
-      });
-      return result;
-    },
-    elementRefreshProperties (templateToCompile: JsonArray) {
-      // TODO: implement this
-      const itemsToCompile = [{
-        name: 'ELEMENT_NAME',
-        propName: 'ELEMENT_PROP_NAME',
-        propValue: 'ELEMENT_PROP_VALUE',
-      }];
-      const result = [] as JsonArray;
-      itemsToCompile.forEach(data => {
-        result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, data) as JsonArray);
-      });
-      return result;
-    },
-    elementShow (templateToCompile: JsonArray) {
-      const result = [];
+    elementSetDefaultProperty () {
+      const itemsToCompile = [] as Array<{
+        name: string,
+        propName: string,
+        propValue: string,
+      }>;
       if (projectObject.itemLayout) {
         const formProp = projectObject.itemLayout.Properties;
-        if (formProp.$Components) {
-          formProp.$Components.forEach(child => {
-            result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
-              name: StringUtils.ensureComponentNameValid(child.$Name),
-            }) as JsonArray);
+        function traverseComponentContainer (compProps: LvgItemLayout) {
+          Lodash.defaultTo(compProps.$Components, []).forEach(child => {
+            if (child.$Type in SIMPLE_COMPONENTS) {
+              Lodash.forOwn(SIMPLE_COMPONENTS[child.$Type].properties, property => {
+                itemsToCompile.push({
+                  name: StringUtils.ensureComponentNameValid(child.$Name),
+                  propName: property.name,
+                  propValue: Lodash.defaultTo(child[property.name], property.defaultValue),
+                });
+              });
+            } else {
+              throw Error('Can not recognize component type ' + child.$Type);
+            }
+            traverseComponentContainer(child);
           });
         }
+        traverseComponentContainer(formProp);
       }
-      return templateToCompile;
+      return itemsToCompile;
     },
-    elementHide (templateToCompile: JsonArray) {
-      const result = [];
-      if (projectObject.itemLayout) {
-        const formProp = projectObject.itemLayout.Properties;
-        if (formProp.$Components) {
-          formProp.$Components.forEach(child => {
-            result.push(...insertConstants(templateToCompile, MATCHER_SCOPED, {
-              name: StringUtils.ensureComponentNameValid(child.$Name),
-            }) as JsonArray);
+    elementRefreshProperties () {
+      return Lodash.values(properties).map(property => ({
+        compName: StringUtils.ensureComponentNameValid(property.bindedProperty.compName),
+        propName: property.bindedProperty.propName,
+        privateName: Lodash.camelCase(PROPERTY_PRIVATE_NAME_PREFIX + property.name),
+      }));
+    },
+    elementShow () {
+      return Lodash.defaultTo(Lodash.get(projectObject, 'itemLayout.Properties.$Components') as LvgItemLayout[], [])
+          .map(child => {
+            if (isVisibleComponent(child.$Type)) {
+              throw new Error('component type does not exist or is a non-visible component: ' + child.$Type);
+            }
+            return { name: StringUtils.ensureComponentNameValid(child.$Name) };
           });
-        }
-      }
-      return templateToCompile;
     },
-    elementSet (templateToCompile: JsonArray) {
+    elementHide () {
+      return Lodash.defaultTo(Lodash.get(projectObject, 'itemLayout.Properties.$Components') as LvgItemLayout[], [])
+          .map(child => ({ name: StringUtils.ensureComponentNameValid(child.$Name) }));
+    },
+    elementSet () {
       // TODO: implement this
-      return templateToCompile;
+      return [];
     },
   };
 }
