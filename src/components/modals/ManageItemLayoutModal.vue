@@ -13,7 +13,7 @@
     <span slot="modal-cancel" v-t="'button.cancel'" />
     <div ref="renderRoot" class="preview-item-layout">
       <label
-          v-if="renderProps == null"
+          v-if="renderProps === null"
           v-t="'modal.itemLayout.noPreview'" />
       <label v-else v-html="renderProps" /><!-- Dont know why v-text does not work -->
     </div>
@@ -47,7 +47,7 @@ export default class ManageItemLayoutModal extends Vue {
 
   private renderProperties () {
     this.renderProps = null;
-    if (this.itemLayoutFile == null) {
+    if (this.itemLayoutFile === null) {
       return;
     }
     // Read file

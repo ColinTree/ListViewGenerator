@@ -277,7 +277,7 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
     this.$bvModal.show('removePropertyModal');
   }
   private onRemovePropertyConfirmed () {
-    if (this.selectedProperty4Remove != null) {
+    if (this.selectedProperty4Remove !== null) {
       const newProp: Properties = Lodash.cloneDeep(this.properties);
       delete newProp[this.selectedProperty4Remove];
       this.properties = newProp;
@@ -305,7 +305,7 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
   }
 
   private async loadItemLayout () {
-    if (this.itemLayoutFile == null) {
+    if (this.itemLayoutFile === null) {
       throw new Error('unable to load itemLayout from null aia');
     }
     const zip = await FileUtils.readZip(this.itemLayoutFile);

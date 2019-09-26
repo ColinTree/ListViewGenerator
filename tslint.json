@@ -8,6 +8,7 @@
     ]
   },
   "rules": {
+    "triple-equals": true,
     "no-console": false,
     "space-before-function-paren": true,
     "arrow-parens": false,
