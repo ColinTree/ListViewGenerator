@@ -1,5 +1,6 @@
 <template>
   <b-modal
+      ref="modal"
       centered
       size="lg"
       ok-variant="primary"
@@ -9,7 +10,7 @@
     <span slot="modal-ok" v-t="'button.dismiss'" />
     <span slot="modal-cancel" v-t="'button.copy'" />
     <div ref="codeContainer" class="code-container">
-      <highlight-code :code="javaCode" auto />
+      <highlight-code :code="javaCode" lang="java" />
     </div>
   </b-modal>
 </template>
@@ -32,13 +33,14 @@ import { compileTemplates, getCompileDataProvider, TEMPLATE_PATTERN} from './jav
 
 @Component
 export default class JavaPreviewModal extends Vue {
+  public $refs!: {
+    modal: BModal;
+    codeContainer: HTMLElement;
+  };
   private javaCode = '';
 
   public async showModal (projectObject: LvgProjectObject) {
-    (this.$children[0] as BModal).show();
-    if (projectObject === null) {
-      return new Promise((r, reject) => reject('null reference'));
-    }
+    this.$refs.modal.show();
     this.javaCode = this.$t('modal.javaPreview.generating') as string;
     try {
       this.javaCode = await this.generateCode(projectObject);

@@ -331,7 +331,7 @@ export default class Content extends Vue implements LvgProjectZipInfo, LvgProjec
     FileUtils.downloadFile(await FileUtils.toZip(codeZipObject), `${this.componentName}-sources.zip`);
   }
   private generateCode () {
-    this.$refs.javaPreviewModal.showModal(this as LvgProjectObject);
+    this.$refs.javaPreviewModal.showModal(this);
   }
   private async onDownloadProject () {
     const zipObject = FileUtils.emptyDirZipObject();
