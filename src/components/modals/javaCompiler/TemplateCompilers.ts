@@ -216,7 +216,7 @@ export function getCompileDataProvider (projectObject: LvgProjectObject): Compil
     elementShow () {
       return Lodash.defaultTo(Lodash.get(projectObject, 'itemLayout.Properties.$Components') as LvgItemLayout[], [])
           .map(child => {
-            if (isVisibleComponent(child.$Type)) {
+            if (!isVisibleComponent(child.$Type)) {
               throw new Error('component type does not exist or is a non-visible component: ' + child.$Type);
             }
             return { name: StringUtils.ensureComponentNameValid(child.$Name) };
