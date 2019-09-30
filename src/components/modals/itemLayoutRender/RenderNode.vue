@@ -51,6 +51,7 @@ export default class RenderNode extends Vue {
     };
   }
   get childrenContainerStyle () {
+    // Thanks to https://css-tricks.com/snippets/css/a-guide-to-flexbox/
     return {
       'width': `${this.renderProp.Width}px`,
       'height': `${this.renderProp.Height}px`,
