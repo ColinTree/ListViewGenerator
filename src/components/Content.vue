@@ -157,7 +157,7 @@ import AjaxUtils from '../utils/AjaxUtils';
 import FileUtils from '../utils/FileUtils';
 
 interface Properties { [key: string]: LvgProperty; }
-function newEmptyFile () { return new File([], ''); }
+export function newEmptyFile () { return new File([], ''); }
 
 @Component({ components: { EditPropertyModal, ManageItemLayoutModal, JavaPreviewModal } })
 export default class Content extends Vue implements LvgProjectZipInfo, LvgProjectObject {

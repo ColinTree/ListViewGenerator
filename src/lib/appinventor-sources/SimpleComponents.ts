@@ -83,5 +83,8 @@ export const SIMPLE_COMPONENTS = Lodash.zipObject(
     (simpleComponents as SimpleComponentJsonForm[]).map(simpleComponent => new SimpleComponent(simpleComponent)));
 
 export function isVisibleComponent (componentType: string) {
-  return Lodash.get(SIMPLE_COMPONENTS, [ componentType, 'nonVisible' ]);
+  return !Lodash.get(SIMPLE_COMPONENTS, [ componentType, 'nonVisible' ]);
+}
+export function getPropDefaultValue (componentType: string, propName: string) {
+  return Lodash.get(SIMPLE_COMPONENTS, [ componentType, 'properties', propName, 'defaultValue' ]);
 }

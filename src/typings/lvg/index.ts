@@ -43,22 +43,16 @@ export function EmptyLvgProperty (): LvgProperty {
   };
 }
 
-export interface LvgItemLayout {
+export interface LvgItemLayoutT<T> {
   $Name: string;
   $Type: string;
   $Version: string;
   Uuid: string;
   [key: string]: any;
-  $Components?: LvgItemLayout[];
+  $Components?: T[];
 }
-export interface LvgPlainItemLayout {
-  $Name: string;
-  $Type: string;
-  $Version: string;
-  Uuid: string;
-  [key: string]: any;
-  $Components?: string[];
-}
+export interface LvgItemLayout extends LvgItemLayoutT<LvgItemLayout> {}
+export interface LvgPlainItemLayout extends LvgItemLayoutT<string> {}
 export interface AiaScmFile {
   authURL: string[];
   YaVersion: string;
