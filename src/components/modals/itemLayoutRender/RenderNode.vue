@@ -2,7 +2,7 @@
   <div ref="thisNodeContainer" :style="thisNodeStyle" class="render-node">
     <span v-if="renderProp.children.length === 0" v-text="renderProp.name" style="" />
     <div v-else :style="childrenContainerStyle" class="children-container">
-      <RenderNode v-for="child in (renderProp.children || [])" :key="child.name" :render-prop="child" />
+      <RenderNode v-for="child in children" :key="child.name" :render-prop="child" />
     </div>
   </div>
 </template>
@@ -24,11 +24,15 @@ interface MeasureResult {
   height: number | 'fill-parent';
 }
 
-@Component({ components: { RenderNode } })
+@Component({ name: 'RenderNode' })
 export default class RenderNode extends Vue {
 
   @Prop({ type: Object, required: true })
   public readonly renderProp!: RenderProp;
+
+  get children () {
+    return (this.renderProp.children || []);
+  }
 
   public get thisNodeStyle () {
     function textColor (c: string) {
@@ -50,7 +54,7 @@ export default class RenderNode extends Vue {
       'color': textColor(bgColor),
     };
   }
-  get childrenContainerStyle () {
+  public get childrenContainerStyle () {
     // Thanks to https://css-tricks.com/snippets/css/a-guide-to-flexbox/
     return {
       'width': `${this.renderProp.Width}px`,
