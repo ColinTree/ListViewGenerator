@@ -20,7 +20,7 @@ Vue.use(HighlightJS);
 
 Vue.config.productionTip = false;
 
-new Vue({
+(window as any).app = new Vue({
   i18n,
   render: h => h(App),
 }).$mount('#app');
