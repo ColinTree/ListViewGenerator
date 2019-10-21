@@ -112,6 +112,11 @@
       "title": "管理列表项布局",
       "noPreview": "保存并关闭之前需要先预览列表项布局文件",
       "previewButtonText": "预览"
+    },
+    "submitIssue": {
+      "modalTitle": "报告问题 或 提出改进",
+      "title": "标题",
+      "content": "描述"
     }
   },
   "footer": {

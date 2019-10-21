@@ -24,7 +24,7 @@
 
     <div id="footer">
       <b-link v-b-modal="'aboutModal'" v-t="'footer.about'" />
-      <b-link :href="`${GITHUB_REPO_FULL_URL}issues`" target="_blank" v-t="'footer.gotIssue'" />
+      <b-link v-b-modal="'issueModal'" v-t="'footer.gotIssue'" />
 
       <b-modal id="aboutModal" centered ok-only>
         <span slot="model-title" v-t="'footer.aboutModal.title'" />
@@ -33,11 +33,31 @@
           <label v-t="info.title" />: <b-link :href="info.link" target="_blank" v-t="info.linkText" />
         </div>
       </b-modal>
+
+      <b-modal
+          id="issueModal"
+          centered
+          size="lg"
+          :title="$t('modal.submitIssue.modalTitle')"
+          :ok-title="$t('button.ok')"
+          @ok.prevent="onSubmitIssue">
+        <b-form-group label-cols="2">
+          <span slot="label" v-t="'modal.submitIssue.title'" />
+          <b-input v-model="title" />
+        </b-form-group>
+        <b-form-group label-cols="2">
+          <span slot="label" v-t="'modal.submitIssue.content'" />
+          <b-textarea
+              v-model="content"
+              rows="10" />
+        </b-form-group>
+      </b-modal>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import qs from 'qs';
 import semver from 'semver';
 import { Component, Vue, Watch } from 'vue-property-decorator';
 
@@ -84,6 +104,8 @@ export default class App extends Vue {
   ];
   private versionCode = null;
   private locale = 'en';
+  private title = '';
+  private content = '';
 
   @Watch('locale')
   private onlocaleChanged (val: string, oldVal: string) {
@@ -110,6 +132,13 @@ export default class App extends Vue {
       // 404 will be returned if latest release is called and there is no release
       // catch it here and just ignore it
     }
+  }
+
+  private onSubmitIssue () {
+    window.open(`${GITHUB_REPO_FULL_URL}issues/new?${qs.stringify({
+      title: this.title,
+      body: this.content,
+    })}`, '_blank');
   }
 }
 </script>

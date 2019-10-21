@@ -112,6 +112,11 @@
       "title": "Manage Item Layout",
       "noPreview": "Item layout file need to be previewed before save & close",
       "previewButtonText": "Preview"
+    },
+    "submitIssue": {
+      "modalTitle": "Submit issue or feature request",
+      "title": "Title",
+      "content": "Description"
     }
   },
   "footer": {
