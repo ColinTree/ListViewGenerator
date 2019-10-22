@@ -16,6 +16,13 @@
     <span slot="modal-ok" v-else v-t="'button.applyAndClose'" />
     <span slot="modal-cancel" v-t="'button.cancel'" />
 
+    <b-alert
+        dismissible
+        variant="warning"
+        :show="propertyTotallyInvisible">
+      <span v-t="'modal.editProperty.totallyInvisible'" />
+    </b-alert>
+
     <!-- NAME -->
     <b-form-group :label-cols="LABEL_COLS" :state="nameState">
       <span slot="label" v-t="'modal.editProperty.name'" />
@@ -338,6 +345,11 @@ export default class EditPropertyModal extends Vue {
         return 'NoHint';
     }
   }
+  get propertyTotallyInvisible () {
+    return !this.currentProperty.designerVisible &&
+           !this.currentProperty.setterVisible &&
+           !this.currentProperty.getterVisible;
+  }
 
   @Watch('currentProperty.bindedProperty.compName')
   private onBindedComponentChanged () {
@@ -363,7 +375,6 @@ export default class EditPropertyModal extends Vue {
     if (this.defaultValueState === false) {
       return this.$refs.defaultValue.focus();
     }
-    // TODO: (LOW PRIORITY) notice when three checkboxs are all unchecked
     this.$emit('ok', this.isNewProperty, this.getCurrentProperty());
     this.$nextTick(() => this.$refs.modal.hide());
   }
