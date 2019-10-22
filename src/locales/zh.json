@@ -35,8 +35,6 @@
     "manage": "管理"
   },
   "header": {
-    "language-switch": "{0} | Zh",
-    "language-switch-to": "En",
     "primary-title": "ListView Generator {0}",
     "secondary-title": "列表生成器 (alpha) by ColinTree {0}",
     "update-info": "已发布新版本：{versionCode}"

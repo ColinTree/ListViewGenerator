@@ -1,11 +1,15 @@
 <template>
   <div id="app">
     <div id="header">
-      <i18n tag="label" path="header.language-switch">
-        <b-link
-            v-t="'header.language-switch-to'"
-            @click="$i18n.locale = $t('header.language-switch-to').toLowerCase()" />
-      </i18n>
+      <label class="lang-switch">
+        <span
+            v-for="(lang, index) in LANGUAGE_LIST"
+            :key="lang.code">
+          <span v-if="index !== 0"> | </span>
+          <span v-if="lang.code === $i18n.locale" v-text="lang.text" />
+          <b-link v-else v-text="lang.text" @click="$i18n.locale = lang.code" />
+        </span>
+      </label>
       <i18n tag="h2" path="header.primary-title">
         <i18n tag="label" path="header.secondary-title">
           <a target="_blank"
@@ -73,6 +77,10 @@ import AjaxUtils from './utils/AjaxUtils';
   components: { Content },
 })
 export default class App extends Vue {
+  private readonly LANGUAGE_LIST = [
+    { code: 'en', text: 'En' },
+    { code: 'zh', text: '中' },
+  ];
   private readonly GITHUB_REPO_RELEASE_LATEST_URL = GITHUB_REPO_RELEASE_LATEST_URL;
   private readonly GITHUB_REPO_FULL_URL = GITHUB_REPO_FULL_URL;
   private readonly infos = [
@@ -179,7 +187,7 @@ html, body {
     padding-right: 20px;
   }
 }
-#header>label {
+.lang-switch {
   float: right;
 }
 

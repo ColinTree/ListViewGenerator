@@ -35,8 +35,6 @@
     "manage": "Manage"
   },
   "header": {
-    "language-switch": "En | {0}",
-    "language-switch-to": "Zh",
     "primary-title": "ListView Generator {0}",
     "secondary-title": "(alpha) by ColinTree {0}",
     "update-info": "New version released: {versionCode}"
