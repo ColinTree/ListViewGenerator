@@ -76,7 +76,7 @@
       "nameConflitEdit": "无此属性",
       "switchMode": "切换编辑模式",
       "designerVisible": "在设计视图中可见",
-      "totallyNotVisible": "此属性将对使用者完全不可见！",
+      "totallyInvisible": "此属性将对使用者完全不可见！",
       "editorType": "编辑器类型",
       "editorTypeRecommended": "推荐使用",
       "editorTypeNotRecommended": "不推荐使用",

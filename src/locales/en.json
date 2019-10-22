@@ -76,7 +76,7 @@
       "nameConflitEdit": "No such property",
       "switchMode": "Switch Edit Mode",
       "designerVisible": "Visible in Designer",
-      "totallyNotVisible": "This property will be totally invisible to user!",
+      "totallyInvisible": "This property will be totally invisible to user!",
       "editorType": "Editor Type",
       "editorTypeRecommended": "Recommended",
       "editorTypeNotRecommended": "Not Recommended",
