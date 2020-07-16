@@ -16,7 +16,7 @@
     "highlight.js": "^9.15.10",
     "json-to-java": "^1.4.6",
     "jszip": "^3.2.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "qs": "^6.9.0",
     "randomcolor": "^0.5.4",
     "semver": "^6.3.0",
